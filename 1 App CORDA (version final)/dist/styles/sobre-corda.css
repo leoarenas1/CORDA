@@ -1,0 +1,227 @@
+/* sobre-corda.css — Sección "Sobre CORDA" (Misión · Visión · Valores)
+   Usa SOLO tokens de styles/tokens.css. */
+
+.sc-page { min-height: 100vh; background: var(--surface); }
+.sc-screen {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+.sc-icon { fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* ---------- Header ---------- */
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-4) var(--space-2);
+}
+.sc-header__spacer { width: 48px; }
+.sc-icon-btn {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+.sc-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--h3-size);
+  line-height: var(--h3-line);
+  letter-spacing: var(--logo-tracking);
+  min-width: 72px;
+}
+.sc-wordmark__dot { color: var(--logo-dot); }
+
+/* ---------- Tabs ---------- */
+.sc-tabs {
+  display: flex;
+  gap: var(--space-6);
+  padding: var(--space-2) var(--space-6) 0;
+  border-bottom: 1px solid var(--line);
+}
+.sc-tab {
+  min-height: 48px;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+  font-weight: var(--label-weight);
+  color: var(--ink-muted);
+}
+.sc-tab.is-active { color: var(--ink); border-bottom-color: var(--ink); }
+
+/* ---------- Contenido ---------- */
+.sc-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8) var(--space-6) var(--space-6);
+}
+.sc-eyebrow-row { display: flex; align-items: center; gap: var(--space-2); }
+.sc-eyebrow {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--eyebrow-size);
+  line-height: var(--eyebrow-line);
+  font-weight: var(--eyebrow-weight);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.sc-eyebrow--dark { color: var(--on-lima); }
+.sc-pill {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line);
+  font-weight: var(--caption-weight);
+  color: var(--ink);
+}
+.sc-pill--muted { color: var(--ink-muted); }
+.sc-h1 {
+  margin: 0;
+  outline: none;
+  font-family: var(--font-display);
+  font-size: var(--h1-size);
+  line-height: var(--h1-line);
+  font-weight: var(--h1-weight);
+  letter-spacing: var(--h1-tracking);
+}
+.sc-h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--h3-size);
+  line-height: var(--h3-line);
+  font-weight: var(--h3-weight);
+}
+.sc-lead {
+  margin: 0;
+  font-size: var(--body-lg-size);
+  line-height: var(--body-lg-line);
+  color: var(--ink-muted);
+}
+.sc-small {
+  margin: var(--space-1) 0 0;
+  font-size: var(--small-size);
+  line-height: var(--small-line);
+  color: var(--ink-muted);
+}
+.sc-small--dark { margin: 0; color: var(--on-lima); }
+.sc-accent { color: var(--accent-text); }
+
+/* Misión: pilares con líneas de cancha */
+.sc-pilares {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+}
+.sc-pilar {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-top: 1px solid var(--line);
+}
+.sc-pilar__icon { flex: none; color: var(--ink); }
+
+/* Visión: tarjeta arena con el camino */
+.sc-camino {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--arena);
+  color: var(--on-lima);
+}
+.sc-camino__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sc-camino__item { display: flex; gap: var(--space-4); align-items: flex-start; }
+.sc-camino__punto {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-top: var(--space-2);
+  border-radius: var(--radius-pill);
+}
+.sc-camino__punto--lleno { background: var(--verde-corda); }
+.sc-camino__punto--medio { background: var(--verde-medio); }
+.sc-camino__punto--vacio { border: 1px solid var(--verde-corda); }
+
+/* Valores */
+.sc-valores {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.sc-valor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+}
+.sc-valor__top { display: flex; align-items: center; justify-content: space-between; }
+.sc-valor__n {
+  font-family: var(--font-display);
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+  font-weight: var(--label-weight);
+  color: var(--accent-text);
+}
+.sc-valor__frase { margin: 0; font-size: var(--body-size); line-height: var(--body-line); font-weight: 600; }
+.sc-valor .sc-small { margin: 0; }
+
+/* ---------- Botones ---------- */
+.sc-btn {
+  margin-top: auto;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  border-radius: var(--radius-md);
+  font-size: var(--label-size);
+  line-height: var(--label-line);
+  font-weight: var(--label-weight);
+}
+.sc-btn--primary { border: 1px solid var(--lima); background: var(--lima); color: var(--on-lima); }
+.sc-btn--secondary { border: 1px solid var(--line); background: transparent; color: var(--ink); }
+
+.sc-firma {
+  margin: var(--space-2) 0 0;
+  font-size: var(--caption-size);
+  line-height: var(--caption-line);
+  font-weight: var(--caption-weight);
+  color: var(--ink-muted);
+}
+
+/* Misión y visión ocupan todo el alto en móvil */
+.sc-main--mision,
+.sc-main--vision { min-height: calc(100vh - 140px); }

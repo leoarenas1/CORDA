@@ -1,0 +1,50 @@
+/* Ace · asistente de CORDA. Solo tokens de styles/tokens.css. */
+.ace{--ace-bottom:var(--space-6);--ace-right:var(--space-6);position:fixed;z-index:50;right:var(--ace-right);bottom:var(--ace-bottom);font-family:var(--font-sans);color:var(--ink)}
+/* Portada y pantallas de acceso: por encima del pie */
+body:has(#access-frame) .ace{--ace-bottom:var(--space-20)}
+/* App en celular: por encima de la barra de navegación */
+@media(max-width:680px){
+  .ace{--ace-right:var(--space-4);--ace-bottom:var(--space-4)}
+  body:has(.shell) .ace{--ace-bottom:calc(72px + env(safe-area-inset-bottom) + var(--space-4))}
+}
+@media(max-width:520px){
+  body:has(#access-frame) .ace{--ace-bottom:calc(var(--space-20) + var(--space-12))}
+}
+
+.ace svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+
+/* Botón flotante: avatar de Ace (pelota de tenis en línea) */
+.ace-launcher{width:48px;height:48px;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--verde-noche);color:var(--lima);box-shadow:var(--shadow-card);cursor:pointer}
+.ace-launcher:hover{border-color:var(--lima)}
+.ace.is-open .ace-launcher{border-color:var(--lima)}
+
+/* Ventana del chat */
+.ace-panel{position:absolute;right:0;bottom:calc(48px + var(--space-3));width:min(360px,calc(100vw - var(--space-8)));max-height:min(560px,calc(100vh - var(--ace-bottom) - 48px - var(--space-8)));display:flex;flex-direction:column;background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);overflow:hidden}
+.ace-panel[hidden]{display:none}
+.ace-head{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-4);border-bottom:1px solid var(--line)}
+.ace-head>span:nth-child(2){flex:1}
+.ace-head b{display:block;font-family:var(--font-display);font-size:var(--h3-size);line-height:var(--h3-line);font-weight:var(--h3-weight)}
+.ace-head small{display:block;font-size:var(--caption-size);line-height:var(--caption-line);color:var(--ink-muted)}
+.ace-avatar{width:40px;height:40px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--verde-noche);color:var(--lima)}
+.ace-close{width:48px;height:48px;display:grid;place-items:center;border-radius:var(--radius-md);color:var(--ink)}
+.ace-close svg{width:20px;height:20px}
+
+.ace-log{flex:1;min-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:var(--space-3);padding:var(--space-4)}
+.ace-msg{max-width:88%}
+.ace-msg p{margin:0;padding:var(--space-3);border-radius:var(--radius-md);font-size:var(--small-size);line-height:var(--small-line)}
+.ace-msg a{color:var(--ink)}
+.ace-msg--ace p{background:var(--surface-deep);border:1px solid var(--line)}
+.ace-msg--user{align-self:flex-end}
+.ace-msg--user p{background:var(--verde-medio)}
+.ace-actions{display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-2)}
+
+.ace-actions button,.ace-chips button{min-height:48px;padding:0 var(--space-4);border:1px solid var(--line);border-radius:var(--radius-md);background:transparent;color:var(--ink);font-size:var(--label-size);line-height:var(--label-line);font-weight:var(--label-weight);white-space:nowrap}
+.ace-actions button:hover,.ace-chips button:hover{border-color:var(--ink)}
+.ace-chips{display:flex;gap:var(--space-2);overflow-x:auto;padding:0 var(--space-4) var(--space-3)}
+.ace-chips:empty{display:none}
+
+.ace-form{display:flex;gap:var(--space-2);padding:var(--space-3) var(--space-4) var(--space-4);border-top:1px solid var(--line)}
+.ace-form input{flex:1;margin:0}
+.ace-send{width:48px;height:48px;flex:none;display:grid;place-items:center;border:1px solid var(--line);border-radius:var(--radius-md);color:var(--ink)}
+.ace-send svg{width:20px;height:20px}
+.ace-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}

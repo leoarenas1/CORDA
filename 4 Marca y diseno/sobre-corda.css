@@ -1,0 +1,257 @@
+/* sobre-corda.css — Estilos de la sección "Sobre CORDA"
+   Usa SOLO tokens del Brand Book (styles/tokens.css).
+   Los valores después de la coma son respaldo por si tokens.css no está cargado. */
+
+.sc-screen {
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface, #0F3B2C);
+  color: var(--ink, #F4EFE3);
+  font-family: var(--font-sans, "DM Sans", "Helvetica Neue", Arial, sans-serif);
+}
+
+/* ---------- Header ---------- */
+.sc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4, 16px) var(--space-4, 16px) var(--space-2, 8px);
+}
+.sc-header__spacer { width: 44px; }
+
+.sc-icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md, 12px);
+  border: 1px solid var(--line, #2A5E4A);
+  background: transparent;
+  color: var(--ink, #F4EFE3);
+  cursor: pointer;
+}
+
+.sc-wordmark {
+  font-family: var(--font-display, "Space Grotesk", Arial, sans-serif);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.02em;
+}
+.sc-wordmark__dot { color: var(--lima, #C8F03C); }
+
+/* ---------- Tabs ---------- */
+.sc-tabs {
+  display: flex;
+  gap: var(--space-6, 24px);
+  padding: var(--space-2, 8px) var(--space-6, 24px) 0;
+  border-bottom: 1px solid var(--line, #2A5E4A);
+}
+.sc-tab {
+  padding: var(--space-3, 12px) 0;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--ink-muted, #B4C4B8);
+  cursor: pointer;
+}
+.sc-tab.is-active {
+  color: var(--ink, #F4EFE3);
+  border-bottom-color: var(--lima, #C8F03C);
+}
+
+/* ---------- Contenido ---------- */
+.sc-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+  padding: var(--space-8, 32px) var(--space-6, 24px) var(--space-6, 24px);
+}
+
+.sc-eyebrow-row { display: flex; align-items: center; gap: var(--space-2, 8px); }
+.sc-eyebrow {
+  margin: 0;
+  font-family: var(--font-display, "Space Grotesk", Arial, sans-serif);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--ink-muted, #B4C4B8);
+}
+.sc-eyebrow--dark { color: var(--on-lima, #0E2A20); }
+
+.sc-pill {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  padding: var(--space-1, 4px) var(--space-3, 12px);
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid var(--line, #2A5E4A);
+  color: var(--ink, #F4EFE3);
+}
+.sc-pill--muted { color: var(--ink-muted, #B4C4B8); }
+
+.sc-h1 {
+  margin: 0;
+  font-family: var(--font-display, "Space Grotesk", Arial, sans-serif);
+  font-size: 40px;
+  line-height: 44px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.sc-h3 {
+  margin: 0;
+  font-family: var(--font-display, "Space Grotesk", Arial, sans-serif);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 600;
+}
+.sc-lead {
+  margin: 0;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--ink-muted, #B4C4B8);
+}
+.sc-small {
+  margin: var(--space-1, 4px) 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-muted, #B4C4B8);
+}
+.sc-small--dark { color: var(--on-lima, #0E2A20); margin: 0; }
+.sc-accent { color: var(--accent-text, #C8F03C); }
+
+/* Misión: pilares con líneas de cancha */
+.sc-pilares {
+  list-style: none;
+  margin: var(--space-4, 16px) 0 0;
+  padding: 0;
+  border-bottom: 1px solid var(--line, #2A5E4A);
+}
+.sc-pilar {
+  display: flex;
+  gap: var(--space-4, 16px);
+  padding: var(--space-4, 16px) 0;
+  border-top: 1px solid var(--line, #2A5E4A);
+}
+.sc-pilar__icon { flex: none; color: var(--lima, #C8F03C); }
+
+/* Visión: tarjeta arena con el camino */
+.sc-camino {
+  margin-top: var(--space-2, 8px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+  padding: var(--space-6, 24px);
+  border-radius: var(--radius-md, 12px);
+  background: var(--arena, #D9C49A);
+  color: var(--on-lima, #0E2A20);
+}
+.sc-camino__lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+.sc-camino__item { display: flex; gap: var(--space-4, 16px); align-items: flex-start; }
+.sc-camino__punto {
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  box-sizing: border-box;
+  border-radius: var(--radius-pill, 999px);
+}
+.sc-camino__punto--lleno { background: var(--verde-corda, #0F3B2C); }
+.sc-camino__punto--medio { background: var(--verde-medio, #1E6B4F); }
+.sc-camino__punto--vacio { border: 2px solid var(--verde-corda, #0F3B2C); }
+
+/* Valores */
+.sc-valores {
+  list-style: none;
+  margin: var(--space-4, 16px) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4, 16px);
+}
+.sc-valor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 8px);
+  padding: var(--space-6, 24px);
+  border-radius: var(--radius-md, 12px);
+  background: var(--surface-raised, #164A38);
+  border: 1px solid var(--line, #2A5E4A);
+}
+.sc-valor__top { display: flex; align-items: center; justify-content: space-between; }
+.sc-valor__n {
+  font-family: var(--font-display, "Space Grotesk", Arial, sans-serif);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--accent-text, #C8F03C);
+}
+.sc-valor__frase { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.sc-valor .sc-small { margin: 0; }
+
+/* ---------- Botones ---------- */
+.sc-btn {
+  margin-top: auto;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2, 8px);
+  padding: 0 var(--space-6, 24px);
+  border-radius: var(--radius-md, 12px);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.sc-btn--primary {
+  border: 0;
+  background: var(--lima, #C8F03C);
+  color: var(--on-lima, #0E2A20);
+}
+.sc-btn--secondary {
+  border: 1px solid var(--line, #2A5E4A);
+  background: transparent;
+  color: var(--ink, #F4EFE3);
+}
+
+.sc-firma {
+  margin: var(--space-2, 8px) 0 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--ink-muted, #B4C4B8);
+}
+
+/* ---------- Foco y accesibilidad ---------- */
+.sc-screen :is(button, a):focus-visible {
+  outline: 2px solid var(--focus-ring, #C8F03C);
+  outline-offset: 2px;
+}
+
+/* La pantalla de misión/visión ocupa todo el alto en móvil */
+.sc-main--mision,
+.sc-main--vision { min-height: calc(100vh - 140px); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

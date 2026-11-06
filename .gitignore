@@ -1,0 +1,11 @@
+# Archivos del sistema
+.DS_Store
+
+# Configuración local de Claude
+.claude/
+
+# Copias que no hacen falta en GitHub
+# (la versión publicada en claude.ai es la misma app sin marcas de caché,
+#  y la versión original es la app antes de las correcciones)
+3 Version publicada en claude.ai/
+5 Version original/

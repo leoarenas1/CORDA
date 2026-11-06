@@ -1,0 +1,21 @@
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261105i"><style>
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
+*{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
+.preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
+.intro{max-width:288px;padding-top:var(--space-12)}
+.wordmark{font-family:var(--font-display);font-size:var(--h2-size);line-height:var(--h2-line);font-weight:700;letter-spacing:var(--logo-tracking)}.wordmark span{color:var(--logo-dot)}
+h1{font-family:var(--font-display);font-size:var(--h1-size);line-height:var(--h1-line);font-weight:var(--h1-weight);letter-spacing:var(--h1-tracking);margin:var(--space-6) 0 var(--space-3)}
+p{margin:0 0 var(--space-4)}
+.sizes{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+button,a{font:inherit}
+button{min-height:48px;padding:0 var(--space-4);background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:var(--radius-md);font-size:var(--label-size);font-weight:var(--label-weight);cursor:pointer}
+button[aria-pressed=true]{background:var(--verde-medio);border-color:var(--verde-medio)}
+:where(a,button):focus-visible{outline:2px solid var(--focus-ring);outline-offset:2px}
+.device{background:var(--verde-noche);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--space-2);width:406px;max-width:100%;flex:none}
+.device iframe{display:block;border:0;border-radius:var(--radius-md);width:100%;height:min(844px,calc(100dvh - 72px));min-height:420px;background:var(--surface)}
+.full{display:inline-block;margin-top:var(--space-4);color:var(--ink);font-size:var(--label-size);font-weight:var(--label-weight)}
+.note{font-size:var(--caption-size);line-height:var(--caption-line);color:var(--ink-muted)}
+@media(max-width:700px){.preview{display:block;padding:0}.intro{padding:var(--space-3) var(--space-4);max-width:none;display:flex;justify-content:space-between;align-items:center}.intro h1,.intro p,.sizes{display:none}.full{margin:0}.device{width:100%!important;padding:0;border:0;border-radius:0}.device iframe{border-radius:0;height:calc(100dvh - 48px);min-height:0}}
+</style></head><body><main class="preview"><section class="intro"><div class="wordmark">CORDA<span>.</span></div><h1>Portal del jugador en móvil</h1><p>Prueba la agenda con el pulgar. Abre tu próxima sesión y revisa qué necesitas llevar.</p><div class="sizes" aria-label="Ancho de pantalla"><button data-width="360" aria-pressed="false">360 px</button><button data-width="390" aria-pressed="true">390 px</button><button data-width="430" aria-pressed="false">430 px</button></div><a class="full" href="./?vista=jugador-movil">Abrir a pantalla completa ↗</a><p class="note">Perfil de ejemplo. Los cambios de esta vista se reinician al recargar.</p></section><div class="device"><iframe title="Portal móvil interactivo de CORDA" src="./?vista=jugador-movil"></iframe></div></main><script>
+document.querySelectorAll('[data-width]').forEach(button=>button.onclick=()=>{document.querySelector('.device').style.width=(Number(button.dataset.width)+16)+'px';document.querySelectorAll('[data-width]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)))});
+</script></body></html>
