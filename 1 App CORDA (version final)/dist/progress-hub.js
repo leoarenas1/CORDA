@@ -4,11 +4,12 @@
 // La "notificación" es un aviso dentro de la app al abrirla después del entrenamiento.
 // Para avisos con la app cerrada (push) hace falta un servidor; este prototipo no tiene.
 const HUB_PERIODS={
-  day:{label:'Diario',unit:'por día'},
-  week:{label:'Semanal',unit:'por semana'},
-  month:{label:'Mensual',unit:'por mes'},
-  quarter:{label:'Trimestral',unit:'por trimestre'},
-  year:{label:'Anual',unit:'por año'}
+  // need = días de datos reales que hacen falta para abrir ese periodo
+  day:{label:'Diario',unit:'por día',need:1},
+  week:{label:'Semanal',unit:'por semana',need:7},
+  month:{label:'Mensual',unit:'por mes',need:30},
+  quarter:{label:'Trimestral',unit:'por trimestre',need:90},
+  year:{label:'Anual',unit:'por año',need:365}
 };
 const MOODS=[[1,'Sin energía'],[2,'Con cansancio'],[3,'Normal'],[4,'Bien'],[5,'Excelente']];
 let hubPeriod='week',hubPick=null,hubArgs=null,hubKeys=[];
@@ -84,6 +85,12 @@ function hubTournaments(example){
   }
   return list.sort((a,b)=>a.date.localeCompare(b.date));
 }
+// Días desde la primera encuesta o evaluación real (con los datos de ejemplo, todo abierto).
+function hubSpan(data,today){
+  if(data.example)return Infinity;
+  const first=[...Object.keys(data.player),...Object.keys(data.coach)].sort()[0];
+  return first?Math.round((Date.parse(today)-Date.parse(first))/864e5)+1:0;
+}
 function hubData(id){
   const store=peekCheckins(id);
   if(Object.keys(store.player||{}).length||Object.keys(store.coach||{}).length)return {example:false,player:store.player||{},coach:store.coach||{},tournaments:hubTournaments(false)};
@@ -120,8 +127,11 @@ function hubChart(keys,pick,lines,tKeys,label){
 }
 function progressHub(id,goal,name){
   hubArgs=[id,goal,name];
-  const self=!name,today=localDay(),period=HUB_PERIODS[hubPeriod],start=windowStart(hubPeriod,today);
-  const data=hubData(id);
+  const self=!name,today=localDay(),data=hubData(id),span=hubSpan(data,today);
+  const open=k=>HUB_PERIODS[k].need<=span;
+  if(!open(hubPeriod))hubPeriod=Object.keys(HUB_PERIODS).filter(open).at(-1)||'day';
+  const period=HUB_PERIODS[hubPeriod],start=windowStart(hubPeriod,today);
+  const nextOpen=Object.entries(HUB_PERIODS).find(([k])=>!open(k));
   const player=hubSeries(data.player,hubPeriod,start,today),coach=hubSeries(data.coach,hubPeriod,start,today);
   const tKeys={};data.tournaments.filter(t=>t.date>=start&&t.date<=today).forEach(t=>(tKeys[bucketKey(t.date,hubPeriod)]??=[]).push(t));
   const keys=[...new Set([...Object.keys(player),...Object.keys(coach),...Object.keys(tKeys)])].sort();
@@ -132,14 +142,14 @@ function progressHub(id,goal,name){
   const scored=keys.filter(k=>combined(k)!==null),current=scored.length?combined(scored.at(-1)):null,previous=scored.length>1?combined(scored.at(-2)):null;
   const shared=keys.filter(k=>player[k]&&coach[k]);
   const gap=shared.length?Math.round(shared.reduce((s,k)=>s+player[k].value-coach[k].value,0)/shared.length):null;
-  const next=data.tournaments.find(t=>t.date>today);
   const you=self?'Tú':esc(name.split(' ')[0]);
   const delta=current!==null&&previous!==null?current-previous:null;
   const trend=delta===null?'':delta>0?`<li><span class="hub-up" aria-hidden="true">▲</span> Subió ${pts(delta)} respecto al periodo anterior.</li>`:delta<0?`<li><span class="hub-down" aria-hidden="true">▼</span> Bajó ${pts(-delta)} respecto al periodo anterior.</li>`:'<li>Igual que el periodo anterior.</li>';
   const agreement=gap===null?'Cuando haya respuestas de ambos en el mismo periodo, aquí verás si coinciden.':Math.abs(gap)<=7?`Van en sintonía: ${self?'tu sensación y la de tu coach':'jugador y coach'} difieren ${pts(Math.abs(gap))} en promedio.`:gap>0?`${self?'Te ves '+pts(gap)+' más arriba que tu coach':'La sensación del jugador está '+pts(gap)+' arriba del coach'}. Vale la pena platicarlo.`:self?`Tu coach te ve ${pts(-gap)} más arriba de lo que tú te sientes. Vas mejor de lo que crees.`:`La evaluación del coach está ${pts(-gap)} arriba de la sensación del jugador.`;
   const today_=peekCheckins(id);
   const cta=self&&role==='Jugador'?(today_.player?.[today]?'<button class="link" data-open-checkin>Editar mi respuesta de hoy</button>':'<button class="btn lime" data-open-checkin>Cómo me fue hoy</button>'):role==='Coach'?`<button class="btn" data-coach-checkin="${esc(id)}">${today_.coach?.[today]?'Editar evaluación de hoy':'Evaluar hoy'}</button>`:'';
-  const options=Object.entries(HUB_PERIODS).map(([k,p])=>`<option value="${k}" ${k===hubPeriod?'selected':''}>${p.label}</option>`).join('');
+  const options=Object.entries(HUB_PERIODS).map(([k,p])=>`<option value="${k}" ${k===hubPeriod?'selected':''} ${open(k)?'':'disabled'}>${p.label}${open(k)?'':' · en '+(p.need-span)+(p.need-span===1?' día':' días')}</option>`).join('');
+  const unlockNote=nextOpen?`<p class="hint hub-unlock">${span===1?'Llevas 1 día':'Llevas '+span+' días'} de datos. La vista ${nextOpen[1].label.toLowerCase()} se abre en ${nextOpen[1].need-span===1?'1 día':(nextOpen[1].need-span)+' días'}. Mientras, responde tu encuesta cada día.</p>`:'';
   const lineP={cls:'is-player',map:player},lineC={cls:'is-coach',map:coach};
   const empty=msg=>`<p class="hint hub-empty">${msg}</p>`;
   const detail=pick?`<div class="month-observation hub-detail" aria-live="polite"><div class="hub-step"><button type="button" class="link" data-hub-step="-1" ${keys.indexOf(pick)<1?'disabled':''} aria-label="Periodo anterior">‹</button><b>${esc(bucketLong(pick,hubPeriod))}</b><button type="button" class="link" data-hub-step="1" ${keys.indexOf(pick)>=keys.length-1?'disabled':''} aria-label="Periodo siguiente">›</button></div>
@@ -150,11 +160,11 @@ function progressHub(id,goal,name){
   return `<div id="progress-hub" class="progress-hub">
   <section class="card hub-summary">
     <div class="hub-top"><div><small class="eyebrow">${data.example?'Datos de ejemplo':'Camino a tu meta'}</small><h2>${self?'¿Cómo voy?':'¿Cómo va '+esc(name.split(' ')[0])+'?'}</h2></div>
-    <label class="chart-range"><span>Periodo</span><select id="hub-period" aria-label="Periodo de las gráficas">${options}</select></label></div>
+    <label class="chart-range"><span>Periodo</span><select id="hub-period" aria-label="Periodo de las gráficas">${options}</select></label></div>${unlockNote}
     <div class="hub-goal"><small>${self?'Tu meta':'Su meta'} = 100 %</small><p>${esc(goal||'Aún sin meta. Escríbela en tu perfil.')}</p></div>
     ${data.example?'<p class="hint">Así se verá tu progreso. En cuanto respondas tu primera encuesta, las gráficas usarán tus datos reales.</p>':''}
     <div class="hub-now"><span class="annual-score">${current===null?'—':current+' %'}<small>${current===null?'sin datos en este periodo':'de '+(self?'tu':'su')+' meta · '+esc(bucketLong(scored.at(-1),hubPeriod))}</small></span>
-    <ul class="hub-facts">${trend}${current!==null?`<li>${current>=100?'Meta alcanzada en este periodo.':`${100-current===1?'Falta':'Faltan'} ${pts(100-current)} para llegar a la meta.`}</li>`:''}${next?`<li><span class="hub-tourney-dot" aria-hidden="true">◉</span> Próximo torneo: ${esc(next.name)} · en ${Math.round((Date.parse(next.date)-Date.parse(today))/86400000)} días</li>`:''}</ul></div>
+    <ul class="hub-facts">${trend}</ul></div>
     <p class="hub-agree">${agreement}</p>
     ${cta}
   </section>

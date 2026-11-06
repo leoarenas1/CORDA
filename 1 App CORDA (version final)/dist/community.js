@@ -18,7 +18,7 @@ function welcomeSocial(){
   return `<nav class="welcome-social" aria-label="${t('Contacto directo','Direct contact','Contact direct')}">${links.map(([href,label,icon,external])=>`<a href="${href}" aria-label="${label}" title="${label}"${external?' target="_blank" rel="noopener noreferrer"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg></a>`).join('')}</nav>`;
 }
 function playerBanner(){
-  return `<section class="player-banner"><video muted loop playsinline preload="metadata" poster="assets/tennis-close-poster.jpg" aria-hidden="true"><source src="assets/tennis-close.mp4" type="video/mp4"></video><div class="banner-copy"><small>MI ACADEMIA</small><h2>${esc(state.profile.academy)}</h2><button data-page="team">Ver mi academia ↗</button></div><button type="button" class="banner-play">Reproducir video</button></section>`;
+  return `<section class="player-banner"><video muted loop playsinline preload="metadata" poster="assets/tennis-close-poster.jpg" aria-hidden="true"><source src="assets/tennis-close.mp4" type="video/mp4"></video><div class="banner-copy"><small>MI ACADEMIA</small><h2>${esc(state.profile.academy)}</h2><button data-page="team">Ver mi academia ↗</button></div></section>`;
 }
 function prepareCommunity(){
   state.directory ??= [];
@@ -96,12 +96,9 @@ function bindCommunity(){
   bindAcademy();
   document.querySelectorAll('[data-member]').forEach(b=>b.onclick=()=>editMember(b.dataset.member));
   if($('#add-member'))$('#add-member').onclick=()=>editMember(null);
-  const video=$('.player-banner video'),button=$('.banner-play');
-  if(!video)return;
-  const sync=()=>{button.textContent=video.paused?'Reproducir video':'Pausar video'};
-  video.onpause=video.onplay=sync;
-  button.onclick=()=>video.paused?video.play().catch(sync):video.pause();
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(sync);
+  // Videos en bucle de fondo: se reproducen solos, sin botón (con "reducir movimiento" se queda la foto).
+  const video=$('.player-banner video');
+  if(video&&!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{});
 }
 function groupData(){
   const academy=state.profile.academy;
@@ -134,12 +131,10 @@ function bindAcademy(){
   if(page!=='team')return;
   const group=groupData();
   if($('#club-edit'))$('#club-edit').onclick=()=>editClub(group);
-  const film=$('.club-cover video'),toggle=$('#club-play');
-  if(film&&toggle){
-    const sync=()=>toggle.textContent=film.paused?'Reproducir portada':'Pausar portada';
-    film.onpause=film.onplay=sync;film.onerror=()=>{film.hidden=true;toggle.hidden=true};
-    toggle.onclick=()=>film.paused?film.play().catch(sync):film.pause();
-    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)film.play().catch(sync);
+  const film=$('.academy-backdrop video');
+  if(film){
+    film.onerror=()=>{film.hidden=true};
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)film.play().catch(()=>{});
   }
   if($('#post-notice'))$('#post-notice').onclick=()=>modal('Anuncio para la academia',field('Título','title')+'<label class="full">Cancelar sesión por lluvia (opcional)<select name="cancelId"><option value="">Solo publicar aviso</option>'+state.sessions.filter(s=>!s.cancelled&&!s.done&&s.date>=localDay()).map(s=>'<option value="'+s.id+'">'+esc(s.date+' · '+s.time+' · '+s.title)+'</option>').join('')+'</select></label><label class="full">Aviso<textarea name="text" required maxlength="1000"></textarea></label>',data=>{
     if(!data.text.trim()||!data.title.trim()){toast('Escribe un título y un aviso.');return false}
@@ -162,11 +157,12 @@ function clubCover(group){
   const brand=group.brand||{};
   const poster=brand.cover||'assets/tennis-close-poster.jpg';
   const film=brand.video||(brand.cover?'':'assets/tennis-close.mp4');
-  return `<section class="club-cover"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">
-  ${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video><button id="club-play" class="club-play">Reproducir portada</button>`:''}
+  // El video (o la foto) de la academia queda de fondo en toda la página de Mi academia.
+  return `<div class="academy-backdrop" aria-hidden="true"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video>`:''}</div>
+  <section class="club-cover">
   <div class="club-identity">${brand.logo?`<img class="club-mark" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
   <div class="club-actions">${brand.invite?`<a class="btn lime" href="${esc(brand.invite)}" target="_blank" rel="noopener noreferrer">Grupo de WhatsApp ↗</a>`:''}
-  ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board">Ver anuncios <span aria-hidden="true">↓</span></a></section>`;
+  ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board" aria-label="Ver anuncios" title="Ver anuncios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></a></section>`;
 }
 function editClub(group){
   const old=group.brand||{};

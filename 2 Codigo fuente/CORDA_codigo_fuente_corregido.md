@@ -18,6 +18,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Ajustes del 5 de noviembre de 2026.** Meta guiada en el registro (paso 7), fotos de fondo según el tipo de entrenamiento físico (`dist/assets/sesiones/`), «Mi progreso» simplificado (solo resumen y tres gráficas), «Competencias» arriba en «Mi plan», «Mi perfil» en el menú principal y versión de caché `?v=20261105i`.
 
+> **Ajustes del 6 de noviembre de 2026.** Colores 60-30-10 (fondo verde, tarjetas arena, lima solo en la acción principal), «Mi perfil» y «Cerrar sesión» centrados al final, torneos próximos destacados en «Competencias», periodos de «Mi progreso» que se abren según los días con datos, resumen de progreso sin puntos faltantes ni próximo torneo, «Mi academia» con video de fondo en toda la página, equipo sin tarjetas y sin botones de pausa en videos en bucle. Versión de caché `?v=20261106p`.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -216,7 +218,7 @@ function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';se
 function avatar(p=state.profile){return p?.photo?`<img class="avatar" alt="Foto de perfil" src="${p.photo}">`:`<span class="avatar">${esc((p?.name||'Tú').slice(0,2).toUpperCase())}</span>`}
 const field=(label,name,value='',type='text',required=true)=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${required?'required':''} maxlength="180"></label>`;
 const select=(label,name,options,value)=>`<label>${label}<select name="${name}">${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
-function render(){document.documentElement.lang='es';if(entry==='welcome'){welcome();return}if(entry==='access'){signInScreen();return}if(entry==='about'){sobreCorda();return}if(entry==='register'||!state.profile){onboarding();return}prepareCommunity();const nav=roleNav();const parent=['training','gym'].includes(page)?'calendar':page;$('#app').innerHTML=`<div class="shell"><aside class="sidebar"><div class="brand">CORDA<span>.</span></div><div class="workspace"><small class="eyebrow">Tu academia</small><strong>${esc(state.profile.academy)}</strong><span class="badge">High Performance · Demo</span></div><nav class="nav">${nav.map(([id,i,t])=>`<button data-page="${id}" class="${parent===id?'active':''}">${icon(i)}${t}</button>`).join('')}</nav><div class="sidebarfooter"><div class="demo">PROTOTIPO LOCAL<br>Los cambios se guardan en este navegador. Sin cuentas compartidas.</div><p class="hint">Tu juego, con dirección.</p></div></aside><div><header class="topbar"><span class="muted">Academia / <strong>${nav.find(n=>n[0]===parent)?.[2]||'Mi perfil'}</strong></span><span class="brand mobilebrand">CORDA<span>.</span></span><div class="row portal-tools">${coverSelector()}</div></header><main class="main">${content()}<button class="link account-link" data-page="profile">${coverText('Mi perfil','My profile','Mon profil')}</button><button class="link account-link" id="signout">${coverText('Cerrar sesión','Sign out','Se déconnecter')}</button>${contactFooter(coverLanguage)}</main></div></div>`;translateDashboard();bindCoverLanguage(render);bind();}
+function render(){document.documentElement.lang='es';if(entry==='welcome'){welcome();return}if(entry==='access'){signInScreen();return}if(entry==='about'){sobreCorda();return}if(entry==='register'||!state.profile){onboarding();return}prepareCommunity();const nav=roleNav();const parent=['training','gym'].includes(page)?'calendar':page;$('#app').innerHTML=`<div class="shell"><aside class="sidebar" data-theme="cancha"><div class="brand">CORDA<span>.</span></div><div class="workspace"><small class="eyebrow">Tu academia</small><strong>${esc(state.profile.academy)}</strong><span class="badge">High Performance · Demo</span></div><nav class="nav">${nav.map(([id,i,t])=>`<button data-page="${id}" class="${parent===id?'active':''}">${icon(i)}${t}</button>`).join('')}</nav><div class="sidebarfooter"><div class="demo">PROTOTIPO LOCAL<br>Los cambios se guardan en este navegador. Sin cuentas compartidas.</div><p class="hint">Tu juego, con dirección.</p></div></aside><div><header class="topbar"><span class="muted">Academia / <strong>${nav.find(n=>n[0]===parent)?.[2]||'Mi perfil'}</strong></span><span class="brand mobilebrand">CORDA<span>.</span></span><div class="row portal-tools">${coverSelector()}</div></header><main class="main">${content()}${contactFooter(coverLanguage)}<div class="account-links"><button class="link account-link" data-page="profile">${coverText('Mi perfil','My profile','Mon profil')}</button><button class="link account-link" id="signout">${coverText('Cerrar sesión','Sign out','Se déconnecter')}</button></div></main></div></div>`;translateDashboard();bindCoverLanguage(render);bind();}
 function heading(title,sub,action=''){return `<div class="heading"><div><h1>${title}</h1><p class="muted">${sub}</p></div>${action}</div>`}
 function session(s){return `<div class="session"><div class="time">${esc(s.time)}<small>${esc(s.duration)} min</small></div><div class="sessioninfo"><span class="badge ${s.type==='Físico'?'clay':''}">${esc(s.type)}</span><h3>${sessionTitle(s)}</h3><p>${esc(s.place)} · ${esc(sessionStatus(s))}</p></div><button class="btn light small" data-session="${s.id}">${s.done?'Ver resumen':'Ver sesión'} ${icon('arrow')}</button></div>`}
 function goal(g){return `<div class="goal"><div class="row"><span class="badge gray">Objetivo técnico</span><small>${g.progress}%</small></div><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><div class="progress"><i style="width:${g.progress}%"></i></div>${role==='Coach'?`<button class="link" data-progress="${g.id}">Actualizar avance</button>`:''}</div>`}
@@ -524,7 +526,7 @@ function welcomeSocial(){
   return `<nav class="welcome-social" aria-label="${t('Contacto directo','Direct contact','Contact direct')}">${links.map(([href,label,icon,external])=>`<a href="${href}" aria-label="${label}" title="${label}"${external?' target="_blank" rel="noopener noreferrer"':''}><svg viewBox="0 0 24 24" aria-hidden="true">${icon}</svg></a>`).join('')}</nav>`;
 }
 function playerBanner(){
-  return `<section class="player-banner"><video muted loop playsinline preload="metadata" poster="assets/tennis-close-poster.jpg" aria-hidden="true"><source src="assets/tennis-close.mp4" type="video/mp4"></video><div class="banner-copy"><small>MI ACADEMIA</small><h2>${esc(state.profile.academy)}</h2><button data-page="team">Ver mi academia ↗</button></div><button type="button" class="banner-play">Reproducir video</button></section>`;
+  return `<section class="player-banner"><video muted loop playsinline preload="metadata" poster="assets/tennis-close-poster.jpg" aria-hidden="true"><source src="assets/tennis-close.mp4" type="video/mp4"></video><div class="banner-copy"><small>MI ACADEMIA</small><h2>${esc(state.profile.academy)}</h2><button data-page="team">Ver mi academia ↗</button></div></section>`;
 }
 function prepareCommunity(){
   state.directory ??= [];
@@ -602,12 +604,9 @@ function bindCommunity(){
   bindAcademy();
   document.querySelectorAll('[data-member]').forEach(b=>b.onclick=()=>editMember(b.dataset.member));
   if($('#add-member'))$('#add-member').onclick=()=>editMember(null);
-  const video=$('.player-banner video'),button=$('.banner-play');
-  if(!video)return;
-  const sync=()=>{button.textContent=video.paused?'Reproducir video':'Pausar video'};
-  video.onpause=video.onplay=sync;
-  button.onclick=()=>video.paused?video.play().catch(sync):video.pause();
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(sync);
+  // Videos en bucle de fondo: se reproducen solos, sin botón (con "reducir movimiento" se queda la foto).
+  const video=$('.player-banner video');
+  if(video&&!matchMedia('(prefers-reduced-motion: reduce)').matches)video.play().catch(()=>{});
 }
 function groupData(){
   const academy=state.profile.academy;
@@ -640,12 +639,10 @@ function bindAcademy(){
   if(page!=='team')return;
   const group=groupData();
   if($('#club-edit'))$('#club-edit').onclick=()=>editClub(group);
-  const film=$('.club-cover video'),toggle=$('#club-play');
-  if(film&&toggle){
-    const sync=()=>toggle.textContent=film.paused?'Reproducir portada':'Pausar portada';
-    film.onpause=film.onplay=sync;film.onerror=()=>{film.hidden=true;toggle.hidden=true};
-    toggle.onclick=()=>film.paused?film.play().catch(sync):film.pause();
-    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)film.play().catch(sync);
+  const film=$('.academy-backdrop video');
+  if(film){
+    film.onerror=()=>{film.hidden=true};
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches)film.play().catch(()=>{});
   }
   if($('#post-notice'))$('#post-notice').onclick=()=>modal('Anuncio para la academia',field('Título','title')+'<label class="full">Cancelar sesión por lluvia (opcional)<select name="cancelId"><option value="">Solo publicar aviso</option>'+state.sessions.filter(s=>!s.cancelled&&!s.done&&s.date>=localDay()).map(s=>'<option value="'+s.id+'">'+esc(s.date+' · '+s.time+' · '+s.title)+'</option>').join('')+'</select></label><label class="full">Aviso<textarea name="text" required maxlength="1000"></textarea></label>',data=>{
     if(!data.text.trim()||!data.title.trim()){toast('Escribe un título y un aviso.');return false}
@@ -668,11 +665,12 @@ function clubCover(group){
   const brand=group.brand||{};
   const poster=brand.cover||'assets/tennis-close-poster.jpg';
   const film=brand.video||(brand.cover?'':'assets/tennis-close.mp4');
-  return `<section class="club-cover"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">
-  ${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video><button id="club-play" class="club-play">Reproducir portada</button>`:''}
+  // El video (o la foto) de la academia queda de fondo en toda la página de Mi academia.
+  return `<div class="academy-backdrop" aria-hidden="true"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video>`:''}</div>
+  <section class="club-cover">
   <div class="club-identity">${brand.logo?`<img class="club-mark" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
   <div class="club-actions">${brand.invite?`<a class="btn lime" href="${esc(brand.invite)}" target="_blank" rel="noopener noreferrer">Grupo de WhatsApp ↗</a>`:''}
-  ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board">Ver anuncios <span aria-hidden="true">↓</span></a></section>`;
+  ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board" aria-label="Ver anuncios" title="Ver anuncios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></a></section>`;
 }
 function editClub(group){
   const old=group.brand||{};
@@ -875,7 +873,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261105i"><link rel="stylesheet" href="style.css?v=20261105i"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261105i"><link rel="stylesheet" href="styles/ace.css?v=20261105i"></head><body><div id="app"></div><dialog id="modal"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261105i"></script><script src="resenas.js?v=20261105i"></script><script src="portada.js?v=20261105i"></script><script src="community.js?v=20261105i"></script><script src="session-guide.js?v=20261105i"></script><script src="annual-progress.js?v=20261105i"></script><script src="progress-hub.js?v=20261105i"></script><script src="meetings.js?v=20261105i"></script><script src="monthly-fees.js?v=20261105i"></script><script src="portal.js?v=20261105i"></script><script src="private-payments.js?v=20261105i"></script><script src="roles.js?v=20261105i"></script><script src="auth.js?v=20261105i"></script><script src="sobre-corda.js?v=20261105i"></script><script src="app.js?v=20261105i"></script><script src="ace.js?v=20261105i"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261106p"><link rel="stylesheet" href="style.css?v=20261106p"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261106p"><link rel="stylesheet" href="styles/ace.css?v=20261106p"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261106p"></script><script src="resenas.js?v=20261106p"></script><script src="portada.js?v=20261106p"></script><script src="community.js?v=20261106p"></script><script src="session-guide.js?v=20261106p"></script><script src="annual-progress.js?v=20261106p"></script><script src="progress-hub.js?v=20261106p"></script><script src="meetings.js?v=20261106p"></script><script src="monthly-fees.js?v=20261106p"></script><script src="portal.js?v=20261106p"></script><script src="private-payments.js?v=20261106p"></script><script src="roles.js?v=20261106p"></script><script src="auth.js?v=20261106p"></script><script src="sobre-corda.js?v=20261106p"></script><script src="app.js?v=20261106p"></script><script src="ace.js?v=20261106p"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1104,7 +1102,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261105i"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261106p"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -1355,9 +1353,9 @@ function bindPortal() {
 }
 function calendarPage() {
   const events=sessionsFor(agendaDate);
-  const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date))),upcoming=tournaments.filter(c=>String(c.date)>=localDay());
   return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+
-    '<section class="card plan-competitions"><div class="sectiontitle"><h2>Competencias</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(tournaments.map(c=>'<div class="session"><div><h3>'+esc(c.name)+'</h3><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+'</p></div></div>').join('')||'<p class="hint">Añade un torneo para seguir tu preparación.</p>')+'</section>'+
+    '<section class="card plan-competitions"><div class="sectiontitle"><h2>Competencias</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<h3>'+esc(c.name)+'</h3><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
 }
 ````
@@ -1474,11 +1472,12 @@ function bindPrivatePayments(){
 // La "notificación" es un aviso dentro de la app al abrirla después del entrenamiento.
 // Para avisos con la app cerrada (push) hace falta un servidor; este prototipo no tiene.
 const HUB_PERIODS={
-  day:{label:'Diario',unit:'por día'},
-  week:{label:'Semanal',unit:'por semana'},
-  month:{label:'Mensual',unit:'por mes'},
-  quarter:{label:'Trimestral',unit:'por trimestre'},
-  year:{label:'Anual',unit:'por año'}
+  // need = días de datos reales que hacen falta para abrir ese periodo
+  day:{label:'Diario',unit:'por día',need:1},
+  week:{label:'Semanal',unit:'por semana',need:7},
+  month:{label:'Mensual',unit:'por mes',need:30},
+  quarter:{label:'Trimestral',unit:'por trimestre',need:90},
+  year:{label:'Anual',unit:'por año',need:365}
 };
 const MOODS=[[1,'Sin energía'],[2,'Con cansancio'],[3,'Normal'],[4,'Bien'],[5,'Excelente']];
 let hubPeriod='week',hubPick=null,hubArgs=null,hubKeys=[];
@@ -1554,6 +1553,12 @@ function hubTournaments(example){
   }
   return list.sort((a,b)=>a.date.localeCompare(b.date));
 }
+// Días desde la primera encuesta o evaluación real (con los datos de ejemplo, todo abierto).
+function hubSpan(data,today){
+  if(data.example)return Infinity;
+  const first=[...Object.keys(data.player),...Object.keys(data.coach)].sort()[0];
+  return first?Math.round((Date.parse(today)-Date.parse(first))/864e5)+1:0;
+}
 function hubData(id){
   const store=peekCheckins(id);
   if(Object.keys(store.player||{}).length||Object.keys(store.coach||{}).length)return {example:false,player:store.player||{},coach:store.coach||{},tournaments:hubTournaments(false)};
@@ -1590,8 +1595,11 @@ function hubChart(keys,pick,lines,tKeys,label){
 }
 function progressHub(id,goal,name){
   hubArgs=[id,goal,name];
-  const self=!name,today=localDay(),period=HUB_PERIODS[hubPeriod],start=windowStart(hubPeriod,today);
-  const data=hubData(id);
+  const self=!name,today=localDay(),data=hubData(id),span=hubSpan(data,today);
+  const open=k=>HUB_PERIODS[k].need<=span;
+  if(!open(hubPeriod))hubPeriod=Object.keys(HUB_PERIODS).filter(open).at(-1)||'day';
+  const period=HUB_PERIODS[hubPeriod],start=windowStart(hubPeriod,today);
+  const nextOpen=Object.entries(HUB_PERIODS).find(([k])=>!open(k));
   const player=hubSeries(data.player,hubPeriod,start,today),coach=hubSeries(data.coach,hubPeriod,start,today);
   const tKeys={};data.tournaments.filter(t=>t.date>=start&&t.date<=today).forEach(t=>(tKeys[bucketKey(t.date,hubPeriod)]??=[]).push(t));
   const keys=[...new Set([...Object.keys(player),...Object.keys(coach),...Object.keys(tKeys)])].sort();
@@ -1602,14 +1610,14 @@ function progressHub(id,goal,name){
   const scored=keys.filter(k=>combined(k)!==null),current=scored.length?combined(scored.at(-1)):null,previous=scored.length>1?combined(scored.at(-2)):null;
   const shared=keys.filter(k=>player[k]&&coach[k]);
   const gap=shared.length?Math.round(shared.reduce((s,k)=>s+player[k].value-coach[k].value,0)/shared.length):null;
-  const next=data.tournaments.find(t=>t.date>today);
   const you=self?'Tú':esc(name.split(' ')[0]);
   const delta=current!==null&&previous!==null?current-previous:null;
   const trend=delta===null?'':delta>0?`<li><span class="hub-up" aria-hidden="true">▲</span> Subió ${pts(delta)} respecto al periodo anterior.</li>`:delta<0?`<li><span class="hub-down" aria-hidden="true">▼</span> Bajó ${pts(-delta)} respecto al periodo anterior.</li>`:'<li>Igual que el periodo anterior.</li>';
   const agreement=gap===null?'Cuando haya respuestas de ambos en el mismo periodo, aquí verás si coinciden.':Math.abs(gap)<=7?`Van en sintonía: ${self?'tu sensación y la de tu coach':'jugador y coach'} difieren ${pts(Math.abs(gap))} en promedio.`:gap>0?`${self?'Te ves '+pts(gap)+' más arriba que tu coach':'La sensación del jugador está '+pts(gap)+' arriba del coach'}. Vale la pena platicarlo.`:self?`Tu coach te ve ${pts(-gap)} más arriba de lo que tú te sientes. Vas mejor de lo que crees.`:`La evaluación del coach está ${pts(-gap)} arriba de la sensación del jugador.`;
   const today_=peekCheckins(id);
   const cta=self&&role==='Jugador'?(today_.player?.[today]?'<button class="link" data-open-checkin>Editar mi respuesta de hoy</button>':'<button class="btn lime" data-open-checkin>Cómo me fue hoy</button>'):role==='Coach'?`<button class="btn" data-coach-checkin="${esc(id)}">${today_.coach?.[today]?'Editar evaluación de hoy':'Evaluar hoy'}</button>`:'';
-  const options=Object.entries(HUB_PERIODS).map(([k,p])=>`<option value="${k}" ${k===hubPeriod?'selected':''}>${p.label}</option>`).join('');
+  const options=Object.entries(HUB_PERIODS).map(([k,p])=>`<option value="${k}" ${k===hubPeriod?'selected':''} ${open(k)?'':'disabled'}>${p.label}${open(k)?'':' · en '+(p.need-span)+(p.need-span===1?' día':' días')}</option>`).join('');
+  const unlockNote=nextOpen?`<p class="hint hub-unlock">${span===1?'Llevas 1 día':'Llevas '+span+' días'} de datos. La vista ${nextOpen[1].label.toLowerCase()} se abre en ${nextOpen[1].need-span===1?'1 día':(nextOpen[1].need-span)+' días'}. Mientras, responde tu encuesta cada día.</p>`:'';
   const lineP={cls:'is-player',map:player},lineC={cls:'is-coach',map:coach};
   const empty=msg=>`<p class="hint hub-empty">${msg}</p>`;
   const detail=pick?`<div class="month-observation hub-detail" aria-live="polite"><div class="hub-step"><button type="button" class="link" data-hub-step="-1" ${keys.indexOf(pick)<1?'disabled':''} aria-label="Periodo anterior">‹</button><b>${esc(bucketLong(pick,hubPeriod))}</b><button type="button" class="link" data-hub-step="1" ${keys.indexOf(pick)>=keys.length-1?'disabled':''} aria-label="Periodo siguiente">›</button></div>
@@ -1620,11 +1628,11 @@ function progressHub(id,goal,name){
   return `<div id="progress-hub" class="progress-hub">
   <section class="card hub-summary">
     <div class="hub-top"><div><small class="eyebrow">${data.example?'Datos de ejemplo':'Camino a tu meta'}</small><h2>${self?'¿Cómo voy?':'¿Cómo va '+esc(name.split(' ')[0])+'?'}</h2></div>
-    <label class="chart-range"><span>Periodo</span><select id="hub-period" aria-label="Periodo de las gráficas">${options}</select></label></div>
+    <label class="chart-range"><span>Periodo</span><select id="hub-period" aria-label="Periodo de las gráficas">${options}</select></label></div>${unlockNote}
     <div class="hub-goal"><small>${self?'Tu meta':'Su meta'} = 100 %</small><p>${esc(goal||'Aún sin meta. Escríbela en tu perfil.')}</p></div>
     ${data.example?'<p class="hint">Así se verá tu progreso. En cuanto respondas tu primera encuesta, las gráficas usarán tus datos reales.</p>':''}
     <div class="hub-now"><span class="annual-score">${current===null?'—':current+' %'}<small>${current===null?'sin datos en este periodo':'de '+(self?'tu':'su')+' meta · '+esc(bucketLong(scored.at(-1),hubPeriod))}</small></span>
-    <ul class="hub-facts">${trend}${current!==null?`<li>${current>=100?'Meta alcanzada en este periodo.':`${100-current===1?'Falta':'Faltan'} ${pts(100-current)} para llegar a la meta.`}</li>`:''}${next?`<li><span class="hub-tourney-dot" aria-hidden="true">◉</span> Próximo torneo: ${esc(next.name)} · en ${Math.round((Date.parse(next.date)-Date.parse(today))/86400000)} días</li>`:''}</ul></div>
+    <ul class="hub-facts">${trend}</ul></div>
     <p class="hub-agree">${agreement}</p>
     ${cta}
   </section>
@@ -2803,6 +2811,82 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 @media(max-width:680px){
   .nav button{flex:1 1 0;min-width:0;padding:0 2px;font-size:11px;line-height:13px;white-space:normal;text-align:center}
 }
+
+/* ---------- Opción B · 60 % verde, 30 % arena, 10 % lima ----------
+   Fondo y barra lateral en verde CORDA; las tarjetas en arena con texto verde oscuro.
+   Lima sigue siendo solo para la acción principal. */
+.shell main :is(.card,.agenda-main){--surface:#E8DCC2;--surface-raised:#E8DCC2;--surface-deep:#F1E8D4;--ink:#0E2A20;--ink-muted:#4A5C52;--accent-text:#2E6B1F;--line:#C9B88F;--danger:#B42318;--focus-ring:#1E6B4F;--logo-dot:#1E6B4F;--shadow-card:0 8px 24px rgba(4,20,14,.25);background:var(--surface-raised);border-color:var(--surface-raised);color:var(--ink);color-scheme:light}
+#modal[data-theme="arena"]{--surface-raised:#E8DCC2;--surface-deep:#F1E8D4;--line:#C9B88F}
+/* Opciones elegidas sobre verde medio: texto marfil */
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.plan-tabs button[aria-pressed=true],.days-strip button.chosen,.chart-months button[aria-pressed=true],.meet-people [aria-pressed=true],.meet-week [aria-pressed=true],.meet-slots [aria-pressed=true],.fee-months button[aria-pressed=true],.choice input:checked+span,.mood-option input:checked+span){--ink:#F4EFE3;--ink-muted:#CFE0D6;color:var(--ink)}
+/* Bloques con foto o video: oscuros, con texto claro */
+.shell main :is(.next-photo,.player-banner,.club-cover,.guide-video),.shell :is(.contact-footer,.club-play,.banner-play){--surface:#0F3B2C;--surface-raised:#164A38;--ink:#F4EFE3;--ink-muted:#B4C4B8;--line:#2A5E4A;--accent-text:#C8F03C;--surface-deep:#0A2920;--logo-dot:#C8F03C;color:var(--ink);color-scheme:dark}
+.shell main .card.next-photo{border-color:var(--line)}
+/* Arena sobre arena no se lee: tono arena oscuro */
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.hub-down,.hub-tourney-dot,.hub-tourney span){color:#7A5C22}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .chart-tourney line{stroke:#7A5C22}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.chart-tourney circle,.hub-key.is-tourney){fill:#7A5C22;background:#7A5C22}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .fee-dot.review{border-color:#7A5C22;color:#7A5C22}
+/* Lima como línea o texto no se ve sobre arena: verde medio */
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.chart-line,.chart-line.is-player){stroke:var(--verde-medio)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.hub-key.is-player,.progress i){background:var(--verde-medio)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .chart-dot.is-player{stroke:var(--verde-noche);stroke-width:1.5}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.tournament-key span,.chart-months small span){color:var(--accent-text)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .chart-months button[aria-pressed=true] small span{color:var(--lima)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.check.done,.fee-dot.paid){border-color:var(--verde-medio)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(input[type=checkbox],input[type=radio],.hub-range input[type=range]){accent-color:var(--verde-medio)}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .btn.lime{border-color:#A9CF26}
+
+/* Mi perfil y Cerrar sesión: centrados al final de la página */
+.account-links{display:flex;justify-content:center;align-items:center;gap:var(--space-8);margin-top:var(--space-8);padding-bottom:var(--space-4)}
+.account-links .account-link{margin:0}
+
+/* Competencias en Mi plan: el torneo más cercano destacado, los siguientes se desvanecen */
+.comp-list{list-style:none;margin:var(--space-4) 0 0;padding:0}
+.comp-item{padding:var(--space-4) 0;border-top:1px solid var(--line);opacity:var(--fade,1)}
+.comp-item:first-child{border-top:0;padding-top:0}
+.comp-item h3{margin:0 0 var(--space-1);font-size:var(--body-size);line-height:var(--body-line);font-weight:500}
+.comp-item p{margin:0;font-size:var(--small-size);line-height:var(--small-line);color:var(--ink-muted)}
+.comp-item.is-next h3{font-size:var(--h3-size);line-height:var(--h3-line);font-weight:700}
+.comp-item.is-next p{font-size:var(--body-size);line-height:var(--body-line);color:var(--ink)}
+.comp-item.is-next .eyebrow{margin-bottom:var(--space-1);color:var(--accent-text)}
+
+.hub-unlock{margin:var(--space-2) 0 0}
+.hub-facts:empty{display:none}
+
+/* Mi academia: flecha que rebota, centrada abajo de la portada (como en la bienvenida) */
+.club-scroll{left:0;right:0;bottom:var(--space-3);width:48px;height:48px;margin:0 auto;padding:0;display:grid;place-items:center;gap:0;animation:welcome-bounce 1.8s ease-in-out infinite}
+.club-scroll svg{width:24px;height:24px}
+.club-identity{padding-bottom:calc(var(--space-12) + var(--space-4))}
+@media(prefers-reduced-motion:reduce){.club-scroll{animation:none}}
+
+/* ---------- Mi academia: video de fondo en toda la página y equipo sin tarjetas ---------- */
+.main{position:relative;z-index:1}
+.topbar{position:relative;z-index:2}
+@media(min-width:681px){.shell>.sidebar{z-index:3}}
+.academy-backdrop{position:fixed;inset:0;z-index:-1;overflow:hidden;background:var(--verde-noche);pointer-events:none}
+.academy-backdrop .club-background{position:absolute;inset:0;z-index:0;width:100%;height:100%;object-fit:cover}
+.academy-backdrop::after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--verde-noche) 72%,transparent)}
+.shell main .club-cover{background:transparent}
+.shell main .club-cover::after{display:none}
+/* Integrantes: solo foto redonda, nombre y descripción sobre el video */
+.shell main .card.club-person{--ink:#F4EFE3;--ink-muted:#CFE0D6;--line:#2A5E4A;--surface-deep:#164A38;--accent-text:#C8F03C;background:transparent;border-color:transparent;box-shadow:none;padding:0;align-items:center;text-align:center;color:var(--ink)}
+.club-person .badge{display:none}
+.club-person .person-photo .avatar{width:128px;height:128px;border:2px solid var(--arena);font-size:var(--h2-size);object-fit:cover}
+.club-person .bio{margin-bottom:var(--space-3)}
+.club-person .person-contact{justify-items:center;border-top:0;padding-top:0}
+.club-person .person-contact small{display:none}
+.club-person .person-contact:not(:has(a)){display:none}
+@media(max-width:680px){.club-person .person-photo .avatar{width:96px;height:96px}#academic-roster .directory-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-6)}}
+
+/* Mi academia: nombre de la academia centrado en la portada */
+.shell main .club-cover{align-items:center;justify-content:center;text-align:center}
+.club-cover .club-identity{display:flex;flex-direction:column;align-items:center;margin:0 auto}
+.club-cover .club-mark{object-position:center}
+.club-cover .club-actions{justify-content:center}
+/* Botones secundarios sobre el video: arena; lima solo para la acción principal */
+.club-cover .club-actions .btn:not(.lime),.club-person .member-edit{min-height:40px;padding:0 var(--space-4);border:1px solid var(--arena);border-radius:var(--radius-md);background:var(--arena);color:var(--on-lima);text-decoration:none;font-weight:var(--label-weight)}
+.club-cover .club-actions .btn:not(.lime):hover,.club-person .member-edit:hover{background:#E8D7B2;border-color:#E8D7B2}
 ````
 
 ## Archivo: `dist/styles/ace.css`
