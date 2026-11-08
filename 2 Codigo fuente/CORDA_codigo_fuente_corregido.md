@@ -26,6 +26,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Recuperar contraseña y lista de academias (8 nov 2026):** «¿Olvidaste tu contraseña?» manda un enlace por correo; la academia se elige de la lista de Supabase (`supabase/04_academias_publicas.sql`).
 
+> **Privacidad de perfiles (8 nov 2026):** en «Mi academia» solo se ven nombre, rol y lo que cada quien escriba en su ficha; las metas ya no se muestran (`supabase/05_privacidad_perfiles.sql`).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -782,7 +784,9 @@ function directoryEntry(profile){
   const id=profile.memberId??=newMemberId();
   let member=state.directory.find(item=>item.id===id);
   if(!member){member={id,role:profile.staff||'Jugador'};state.directory.push(member)}
-  Object.assign(member,{name:profile.name,academy:profile.academy,photo:profile.photo||'',bio:member.bio??profile.goal??''});
+  // La meta del jugador es privada: la descripción de la ficha solo la escribe cada quien en «Editar ficha».
+  if(member.bio===profile.goal)member.bio='';
+  Object.assign(member,{name:profile.name,academy:profile.academy,photo:profile.photo||'',bio:member.bio??''});
 }
 function phoneDigits(phone){
   const digits=String(phone||'').replace(/\D/g,'');
@@ -1114,7 +1118,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108c"><link rel="stylesheet" href="style.css?v=20261108c"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108c"><link rel="stylesheet" href="styles/ace.css?v=20261108c"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108c"></script><script src="resenas.js?v=20261108c"></script><script src="portada.js?v=20261108c"></script><script src="community.js?v=20261108c"></script><script src="session-guide.js?v=20261108c"></script><script src="annual-progress.js?v=20261108c"></script><script src="progress-hub.js?v=20261108c"></script><script src="meetings.js?v=20261108c"></script><script src="monthly-fees.js?v=20261108c"></script><script src="portal.js?v=20261108c"></script><script src="private-payments.js?v=20261108c"></script><script src="roles.js?v=20261108c"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108c"></script><script src="auth.js?v=20261108c"></script><script src="sync.js?v=20261108c"></script><script src="sobre-corda.js?v=20261108c"></script><script src="app.js?v=20261108c"></script><script src="ace.js?v=20261108c"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108d"><link rel="stylesheet" href="style.css?v=20261108d"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108d"><link rel="stylesheet" href="styles/ace.css?v=20261108d"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108d"></script><script src="resenas.js?v=20261108d"></script><script src="portada.js?v=20261108d"></script><script src="community.js?v=20261108d"></script><script src="session-guide.js?v=20261108d"></script><script src="annual-progress.js?v=20261108d"></script><script src="progress-hub.js?v=20261108d"></script><script src="meetings.js?v=20261108d"></script><script src="monthly-fees.js?v=20261108d"></script><script src="portal.js?v=20261108d"></script><script src="private-payments.js?v=20261108d"></script><script src="roles.js?v=20261108d"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108d"></script><script src="auth.js?v=20261108d"></script><script src="sync.js?v=20261108d"></script><script src="sobre-corda.js?v=20261108d"></script><script src="app.js?v=20261108d"></script><script src="ace.js?v=20261108d"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1343,7 +1347,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108c"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108d"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -3660,18 +3664,22 @@ function fillList(list,items){if(list)list.splice(0,list.length,...items)}
 function fillMap(map,entries){if(!map)return;for(const key of Object.keys(map))delete map[key];Object.assign(map,entries)}
 const byOrder=(a,b)=>(Number(a.at||a.id)||0)-(Number(b.at||b.id)||0);
 
-function applyMembers(people){
+// people: integrantes de la academia (solo nombre y rol, de academy_members()).
+// profiles: perfiles completos que esta cuenta puede ver (el propio; todos si es coach; el hijo si es tutor).
+// Correo, teléfono y descripción salen solo de la ficha que cada quien decide llenar (member_card).
+function applyMembers(people,profiles){
   const academy=syncCtx.academyName,local=new Map((state.directory||[]).map(m=>[m.id,m]));
+  const details=new Map(profiles.map(p=>[p.details?.memberId,p.details?.profile]).filter(([id])=>id));
   const members=[];
   for(const person of people){
-    const id=person.details?.memberId;
-    if(!id||(person.role!=='Jugador'&&!person.approved))continue;
-    const old=local.get(id)||{},profile=person.details.profile||{};
-    members.push({...old,id,role:person.role,name:person.name||profile.name||old.name||'',academy,photo:old.photo||'',bio:old.bio??profile.goal??''});
-    if(person.role==='Jugador'){
-      const record=syncAthlete(id),mine=syncCtx.role==='Jugador'&&id===syncCtx.memberId;
+    const id=person.member_id;if(!id)continue;
+    const old=local.get(id)||{};
+    members.push({...old,id,role:person.role,name:person.name||old.name||'',academy,photo:old.photo||'',bio:'',email:'',phone:''});
+    const mine=syncCtx.role==='Jugador'&&id===syncCtx.memberId;
+    if(person.role==='Jugador'&&!mine&&details.has(id)){
       // El perfil de otro jugador lo manda la nube; el propio lo manda este navegador.
-      if(!mine){const {monthlyReviews,photo,...fields}=profile;Object.assign(record.profile,fields,{memberId:id,academy})}
+      const {monthlyReviews,photo,...fields}=details.get(id)||{};
+      Object.assign(syncAthlete(id).profile,fields,{name:person.name||fields.name||'',memberId:id,academy});
     }
   }
   state.directory=(state.directory||[]).filter(m=>m.academy!==academy).concat(members);
@@ -3720,13 +3728,14 @@ async function pullItems({first=false}={}){
   if(!syncReady()||syncBusy||syncTimer)return;
   syncBusy=true;
   try{
-    const [{data:people,error},rows]=await Promise.all([
-      cloud.from('profiles').select('role,name,approved,details').eq('academy_id',syncCtx.academyId),
+    const [{data:people,error},{data:profiles,error:problem},rows]=await Promise.all([
+      cloud.rpc('academy_members'),
+      cloud.from('profiles').select('details').eq('academy_id',syncCtx.academyId),
       fetchRows()
     ]);
-    if(error)throw error;
+    if(error||problem)throw error||problem;
     if(!syncReady())return;
-    applyMembers(people||[]);
+    applyMembers(people||[],profiles||[]);
     let all=rows;
     // Primera vez en este navegador: lo que solo existe aquí se sube (no se pierde nada).
     if(first){

@@ -33,7 +33,9 @@ function directoryEntry(profile){
   const id=profile.memberId??=newMemberId();
   let member=state.directory.find(item=>item.id===id);
   if(!member){member={id,role:profile.staff||'Jugador'};state.directory.push(member)}
-  Object.assign(member,{name:profile.name,academy:profile.academy,photo:profile.photo||'',bio:member.bio??profile.goal??''});
+  // La meta del jugador es privada: la descripción de la ficha solo la escribe cada quien en «Editar ficha».
+  if(member.bio===profile.goal)member.bio='';
+  Object.assign(member,{name:profile.name,academy:profile.academy,photo:profile.photo||'',bio:member.bio??''});
 }
 function phoneDigits(phone){
   const digits=String(phone||'').replace(/\D/g,'');

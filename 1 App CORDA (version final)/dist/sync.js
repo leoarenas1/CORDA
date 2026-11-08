@@ -132,18 +132,22 @@ function fillList(list,items){if(list)list.splice(0,list.length,...items)}
 function fillMap(map,entries){if(!map)return;for(const key of Object.keys(map))delete map[key];Object.assign(map,entries)}
 const byOrder=(a,b)=>(Number(a.at||a.id)||0)-(Number(b.at||b.id)||0);
 
-function applyMembers(people){
+// people: integrantes de la academia (solo nombre y rol, de academy_members()).
+// profiles: perfiles completos que esta cuenta puede ver (el propio; todos si es coach; el hijo si es tutor).
+// Correo, teléfono y descripción salen solo de la ficha que cada quien decide llenar (member_card).
+function applyMembers(people,profiles){
   const academy=syncCtx.academyName,local=new Map((state.directory||[]).map(m=>[m.id,m]));
+  const details=new Map(profiles.map(p=>[p.details?.memberId,p.details?.profile]).filter(([id])=>id));
   const members=[];
   for(const person of people){
-    const id=person.details?.memberId;
-    if(!id||(person.role!=='Jugador'&&!person.approved))continue;
-    const old=local.get(id)||{},profile=person.details.profile||{};
-    members.push({...old,id,role:person.role,name:person.name||profile.name||old.name||'',academy,photo:old.photo||'',bio:old.bio??profile.goal??''});
-    if(person.role==='Jugador'){
-      const record=syncAthlete(id),mine=syncCtx.role==='Jugador'&&id===syncCtx.memberId;
+    const id=person.member_id;if(!id)continue;
+    const old=local.get(id)||{};
+    members.push({...old,id,role:person.role,name:person.name||old.name||'',academy,photo:old.photo||'',bio:'',email:'',phone:''});
+    const mine=syncCtx.role==='Jugador'&&id===syncCtx.memberId;
+    if(person.role==='Jugador'&&!mine&&details.has(id)){
       // El perfil de otro jugador lo manda la nube; el propio lo manda este navegador.
-      if(!mine){const {monthlyReviews,photo,...fields}=profile;Object.assign(record.profile,fields,{memberId:id,academy})}
+      const {monthlyReviews,photo,...fields}=details.get(id)||{};
+      Object.assign(syncAthlete(id).profile,fields,{name:person.name||fields.name||'',memberId:id,academy});
     }
   }
   state.directory=(state.directory||[]).filter(m=>m.academy!==academy).concat(members);
@@ -192,13 +196,14 @@ async function pullItems({first=false}={}){
   if(!syncReady()||syncBusy||syncTimer)return;
   syncBusy=true;
   try{
-    const [{data:people,error},rows]=await Promise.all([
-      cloud.from('profiles').select('role,name,approved,details').eq('academy_id',syncCtx.academyId),
+    const [{data:people,error},{data:profiles,error:problem},rows]=await Promise.all([
+      cloud.rpc('academy_members'),
+      cloud.from('profiles').select('details').eq('academy_id',syncCtx.academyId),
       fetchRows()
     ]);
-    if(error)throw error;
+    if(error||problem)throw error||problem;
     if(!syncReady())return;
-    applyMembers(people||[]);
+    applyMembers(people||[],profiles||[]);
     let all=rows;
     // Primera vez en este navegador: lo que solo existe aquí se sube (no se pierde nada).
     if(first){
