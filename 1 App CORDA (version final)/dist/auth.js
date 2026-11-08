@@ -7,6 +7,8 @@
 //   próxima vez que su dueño inicia sesión.
 const ACCOUNTS_KEY='corda-accounts',SESSION_KEY='corda-session',REMEMBER_KEY='corda-remember',PBKDF2_ROUNDS=310000;
 let pendingAccount=null,currentAccount=null;
+// ¿Llegó desde el enlace de "Olvidé mi contraseña"? Se lee antes de que Supabase limpie la URL.
+const recoveryLink=/type=recovery/.test(location.hash+location.search);
 
 // ---------- Cliente de Supabase ----------
 // "Recordarme" decide si la sesión de Supabase sobrevive al cerrar el navegador (localStorage)
@@ -24,11 +26,26 @@ const cloud=(()=>{
     return supabase.createClient(CORDA_SUPABASE.url,CORDA_SUPABASE.key,{auth:{storage:cloudStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   }catch{return null}
 })();
+cloud?.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(newPasswordScreen,0)});
+
+// Academias dadas de alta en Supabase (se eligen de una lista para que el nombre coincida siempre).
+const INDEPENDENT_ACADEMY='Entreno de forma independiente';
+let academyList=['Mouratoglou Tennis Center Guadalajara'];
+(async()=>{
+  try{const {data,error}=await cloud.from('academies').select('name').order('name');if(!error&&data?.length)academyList=data.map(a=>a.name)}catch{}
+})();
+function academySelect(name,value,{independent=false,label='Academia'}={}){
+  const options=[...academyList];
+  if(independent)options.push(INDEPENDENT_ACADEMY);
+  if(value&&!options.includes(value))options.push(value);
+  return `<label>${label}<select name="${name}" required><option value="">Elige tu academia</option>${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+}
 function cloudError(error){
   const t=coverText,code=error?.code||'',message=String(error?.message||'');
   if(code==='invalid_credentials'||/invalid login/i.test(message))return t('Correo o contraseña incorrectos.','Incorrect email or password.','E-mail ou mot de passe incorrect.');
   if(code==='email_not_confirmed'||/not confirmed/i.test(message))return t('Primero confirma tu correo: abre el enlace que te enviamos.','Confirm your email first: open the link we sent you.','Confirmez d’abord votre e-mail : ouvrez le lien envoyé.');
   if(/rate limit|too many/i.test(code+message)||error?.status===429)return t('Demasiados intentos. Espera unos minutos y vuelve a probar.','Too many attempts. Wait a few minutes and try again.','Trop de tentatives. Attendez quelques minutes.');
+  if(code==='same_password')return t('Esa ya es tu contraseña. Elige una diferente.','That is already your password. Choose a different one.','C’est déjà votre mot de passe. Choisissez-en un autre.');
   if(code==='weak_password'||/password should/i.test(message))return t('Esa contraseña es muy débil. Usa una más larga o con números y símbolos.','That password is too weak. Use a longer one with numbers and symbols.','Mot de passe trop faible. Utilisez-en un plus long.');
   if(!error?.status||/fetch|network/i.test(message))return t('No hay conexión con el servidor. Revisa tu internet.','Could not reach the server. Check your connection.','Impossible de joindre le serveur. Vérifiez votre connexion.');
   return t('No se pudo completar. Intenta de nuevo.','Something went wrong. Try again.','Une erreur est survenue. Réessayez.');
@@ -108,6 +125,7 @@ function signInScreen(prefill=''){
     <p class="auth-error" id="auth-error" role="alert" hidden></p>
     <div class="formactions">${accessLink('auth-home','← '+t('Inicio','Home','Accueil'))}<button class="btn lime" id="signin-submit">${t('Entrar','Sign in','Se connecter')}</button></div>
   </form>
+  <p>${accessLink('auth-forgot',t('¿Olvidaste tu contraseña?','Forgot your password?','Mot de passe oublié ?'))}</p>
   <p>${t('¿Aún no tienes cuenta?','No account yet?','Pas encore de compte ?')} ${accessLink('auth-register',t('Regístrate','Register','Inscrivez-vous'))}</p>
   ${legacy?`<p class="hint">${t('¿Ya usabas CORDA antes de las cuentas?','Used CORDA before accounts?','Vous utilisiez CORDA avant les comptes ?')} ${accessLink('auth-legacy',t('Entra a tu perfil y crea tu acceso','Open your profile and create your login','Ouvrez votre profil et créez votre accès'))}</p>`:''}
   </section>`);
@@ -115,6 +133,7 @@ function signInScreen(prefill=''){
   bindPasswordToggles();
   $('#auth-home').onclick=()=>{entry='welcome';render()};
   $('#auth-register').onclick=()=>pickRole('register');
+  $('#auth-forgot').onclick=()=>forgotScreen($('#signin-form [name=email]').value);
   if($('#auth-legacy'))$('#auth-legacy').onclick=()=>pickRole('signin');
   const form=$('#signin-form');
   form.onsubmit=async e=>{
@@ -141,6 +160,69 @@ function signInScreen(prefill=''){
         return fail(cloudError(problem));
       }
       if(!await openCloudAccount(data.user,remember))fail(t('Tu cuenta existe, pero no encontramos su perfil. Escríbenos para revisarlo.','Your account exists but its profile is missing. Contact us.','Votre compte existe mais son profil est introuvable. Contactez-nous.'));
+    }catch(problem){fail(cloudError(problem))}
+    finally{if(document.contains(submit))submit.disabled=false}
+  };
+}
+
+// ---------- Olvidé mi contraseña ----------
+// Supabase manda un enlace al correo; al abrirlo, la app pide la contraseña nueva.
+function forgotScreen(prefill=''){
+  entry='access';pendingAccount=null;
+  const t=coverText;
+  accessScene('access-screen',`${coverSelector()}<section class="access-panel"><small class="eyebrow">CORDA</small><h1>${t('Recupera tu acceso','Reset your password','Réinitialisez votre mot de passe')}</h1><p>${t('Escribe el correo de tu cuenta y te mandaremos un enlace para crear una contraseña nueva.','Enter your account email and we will send you a link to create a new password.','Saisissez votre e-mail et nous vous enverrons un lien pour créer un nouveau mot de passe.')}</p>
+  <form id="forgot-form" class="auth-form" method="post" action="#">
+    <label>${t('Correo electrónico','Email','E-mail')}<input name="email" type="email" required maxlength="180" autocomplete="username" value="${esc(prefill)}"></label>
+    <p class="auth-error" id="auth-error" role="alert" hidden></p>
+    <div class="formactions">${accessLink('auth-back','← '+t('Iniciar sesión','Sign in','Connexion'))}<button class="btn lime" id="forgot-submit">${t('Enviar enlace','Send link','Envoyer le lien')}</button></div>
+  </form></section>`);
+  bindCoverLanguage(()=>forgotScreen($('#forgot-form [name=email]')?.value||prefill));
+  $('#auth-back').onclick=()=>signInScreen($('#forgot-form [name=email]').value);
+  const form=$('#forgot-form');
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const email=normalEmail(form.elements.email.value),error=$('#auth-error'),submit=$('#forgot-submit');
+    const fail=text=>{if(document.contains(error)){error.textContent=text;error.hidden=false}};
+    error.hidden=true;
+    if(!cloud)return fail(offlineMessage());
+    submit.disabled=true;
+    try{
+      const {error:problem}=await cloud.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+      if(problem)return fail(cloudError(problem));
+      // No decimos si el correo existe: así nadie puede averiguar quién tiene cuenta.
+      $('.access-panel').innerHTML=`<small class="eyebrow">CORDA</small><h1>${t('Revisa tu correo','Check your email','Vérifiez votre e-mail')}</h1><p>${t('Si hay una cuenta con','If there is an account for','Si un compte existe pour')} <b>${esc(email)}</b>, ${t('te llegará un enlace para crear tu contraseña nueva. Si no lo ves en unos minutos, revisa tu carpeta de spam.','you will get a link to create a new password. Check your spam folder if it does not arrive in a few minutes.','vous recevrez un lien pour créer un nouveau mot de passe. Vérifiez vos spams.')}</p><div class="formactions">${accessLink('auth-back','← '+t('Iniciar sesión','Sign in','Connexion'))}</div>`;
+      $('#auth-back').onclick=()=>signInScreen(email);
+    }catch(problem){fail(cloudError(problem))}
+    finally{if(document.contains(submit))submit.disabled=false}
+  };
+}
+function newPasswordScreen(){
+  entry='access';pendingAccount=null;
+  const t=coverText;
+  accessScene('access-screen',`${coverSelector()}<section class="access-panel"><small class="eyebrow">CORDA</small><h1>${t('Crea tu contraseña nueva','Create a new password','Créez un nouveau mot de passe')}</h1><p>${t('Después entrarás directo a tu perfil.','You will then go straight to your profile.','Vous accéderez ensuite directement à votre profil.')}</p>
+  <form id="newpass-form" class="auth-form" method="post" action="#">
+    ${passwordInput('password',t('Contraseña nueva (mínimo 8 caracteres)','New password (at least 8 characters)','Nouveau mot de passe (8 caractères minimum)'),'new-password')}
+    ${passwordInput('confirm',t('Repite la contraseña','Repeat the password','Répétez le mot de passe'),'new-password')}
+    <p class="auth-error" id="auth-error" role="alert" hidden></p>
+    <div class="formactions"><span></span><button class="btn lime" id="newpass-submit">${t('Guardar y entrar','Save and sign in','Enregistrer et entrer')}</button></div>
+  </form></section>`);
+  bindCoverLanguage(newPasswordScreen);
+  bindPasswordToggles();
+  const form=$('#newpass-form');
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d=Object.fromEntries(new FormData(form)),error=$('#auth-error'),submit=$('#newpass-submit');
+    const fail=text=>{if(document.contains(error)){error.textContent=text;error.hidden=false}};
+    error.hidden=true;
+    if(d.password.length<8)return fail(t('La contraseña debe tener al menos 8 caracteres.','The password must have at least 8 characters.','Le mot de passe doit contenir au moins 8 caractères.'));
+    if(d.password!==d.confirm)return fail(t('Las contraseñas no coinciden.','The passwords do not match.','Les mots de passe ne correspondent pas.'));
+    submit.disabled=true;
+    try{
+      const {data,error:problem}=await cloud.auth.updateUser({password:d.password});
+      if(problem)return fail(problem.status===401||/session/i.test(problem.message||'')?t('El enlace ya caducó. Pide uno nuevo desde «¿Olvidaste tu contraseña?».','The link has expired. Request a new one from “Forgot your password?”.','Le lien a expiré. Demandez-en un nouveau.'):cloudError(problem));
+      history.replaceState(null,'',location.pathname);
+      if(!await openCloudAccount(data.user,keepSignedIn())){entry='welcome';render()}
+      toast(t('Listo: tu contraseña quedó actualizada.','Done: your password was updated.','C’est fait : votre mot de passe a été mis à jour.'));
     }catch(problem){fail(cloudError(problem))}
     finally{if(document.contains(submit))submit.disabled=false}
   };
@@ -307,13 +389,14 @@ function openAccount(account){
 // (por ejemplo, si la persona llega desde el enlace de confirmación del correo).
 function restoreSession(){
   checkCloudSession();
+  if(recoveryLink)return false;
   const email=sessionEmail();if(!email)return false;
   const account=findAccount(email);
   if(!account||!openAccount(account)){forgetSession();return false}
   return true;
 }
 async function checkCloudSession(){
-  if(!cloud||typeof phoneDemo!=='undefined'&&phoneDemo)return;
+  if(!cloud||typeof phoneDemo!=='undefined'&&phoneDemo||recoveryLink)return;
   try{
     const confirming=/access_token|type=signup|[?&]code=/.test(location.hash+location.search);
     const {data}=await cloud.auth.getSession(),user=data.session?.user;

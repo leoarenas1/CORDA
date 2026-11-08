@@ -24,6 +24,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Fase B de Supabase (8 nov 2026):** `dist/sync.js` sincroniza plan, encuestas, evaluaciones, metas, torneos, mensualidades, anuncios y citas con la tabla `items` (SQL en `supabase/03_datos_compartidos.sql`).
 
+> **Recuperar contraseña y lista de academias (8 nov 2026):** «¿Olvidaste tu contraseña?» manda un enlace por correo; la academia se elige de la lista de Supabase (`supabase/04_academias_publicas.sql`).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -250,14 +252,14 @@ function onboarding(){
  {title:'Empecemos por ti.',desc:'Cada jugador tiene su propia historia.',body:`<div class="formgrid">${field('Nombre','firstName',first)}${field('Apellido','lastName',last)}</div>`},
  {title:'¿Cuándo cumples años?',desc:'Elige día, mes y año de nacimiento.',body:birthInput(draft.birthDate)},
  {title:'¿En qué etapa juegas?',desc:'Elige el camino que mejor describe tu tenis hoy.',body:choices('level',pathways,draft.level)+utrInput(draft.utr)},
- {title:`¿Dónde juegas${first?', '+esc(first):''}?`,desc:'Tu academia será el punto de encuentro con tu coach.',body:`<label>Nombre de tu academia<input name="academy" value="${esc(draft.academy||'')}" required maxlength="180" list="academies" placeholder="Busca o escribe tu academia" autocomplete="organization"></label><datalist id="academies"><option value="Mouratoglou Tennis Center Guadalajara"><option value="Entreno de forma independiente"></datalist><p class="wizard-helper">En esta demo, puedes escribir tu academia o indicar que entrenas por tu cuenta.</p>`},
+ {title:`¿Dónde juegas${first?', '+esc(first):''}?`,desc:'Tu academia será el punto de encuentro con tu coach.',body:`${academySelect('academy',draft.academy,{independent:true,label:'Tu academia'})}<p class="wizard-helper">Si tu academia no aparece, elige «Entreno de forma independiente» y escríbenos para darla de alta.</p>`},
  {title:'¿Cómo construyes un punto?',desc:'Elige la frase que más se parece a ti en la cancha.',body:choices('style',identities,draft.style)},
  {title:'Tu compañera de cancha.',desc:'Cuéntanos con qué juegas.',body:`<label>Tu raqueta <span class="optional">(opcional)</span><input name="racket" value="${esc(draft.racket||'')}" maxlength="120" placeholder="Ej. HEAD Speed MP" autocomplete="off"></label><label class="utr-field">Mano dominante</label>${choices('hand',[['Diestro','Mano derecha'],['Zurdo','Mano izquierda'],['Ambidiestro','Ambas manos']],draft.hand||'Diestro')}`},
  {title:'¿Cuál es tu próximo paso?',desc:'Escribe una meta concreta. Será tu 100 % en «Mi progreso».',body:`<div class="goal-tips"><b>Una buena meta dice tres cosas:</b><ul><li><span>Qué</span> quieres lograr</li><li><span>Cuánto</span>: un número que se pueda medir</li><li><span>Para cuándo</span>: una fecha o un torneo</li></ul></div><label>Quiero…<textarea name="goal" required maxlength="400" placeholder="Ej. Meter 7 de cada 10 segundos saques en partido antes de marzo.">${esc(draft.goal||'')}</textarea></label><p class="wizard-helper">Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».</p>`},
  {title:'Ponle cara a tu juego.',desc:'Una foto para que tu coach te reconozca. Tú decides.',body:`<div class="wizard-photo"><div id="photo-preview">${avatar({...draft,name:first})}</div><label class="photo-picker">${draft.photo?'Cambiar foto':'Elegir una foto'}<input id="photo" type="file" accept="image/png,image/jpeg"></label><small>JPG o PNG · Máximo 2 MB</small>${draft.photo?'<button type="button" id="removephoto" class="link">Quitar foto</button>':''}</div>`}
  ];
  if(!$('#wizard-panel')){
-   accessScene('wizard','<header class="wizard-top"><button type="button" id="wizard-home" class="brand" aria-label="Volver al inicio">CORDA<span>.</span></button></header><section id="wizard-panel" class="wizard-panel"></section><footer class="wizard-foot">PROTOTIPO · TU PERFIL SE GUARDA EN ESTE NAVEGADOR</footer>');
+   accessScene('wizard','<header class="wizard-top"><button type="button" id="wizard-home" class="brand" aria-label="Volver al inicio">CORDA<span>.</span></button></header><section id="wizard-panel" class="wizard-panel"></section><footer class="wizard-foot">TU PERFIL SE GUARDA EN TU CUENTA CORDA</footer>');
  $('#wizard-home').onclick=()=>{capture();entry='welcome';render()};
  }
  const current=pages[step];$('#wizard-panel').innerHTML=`<div class="wizard-progress" aria-label="Paso ${step+1} de ${pages.length}">${pages.map((_,i)=>`<i class="${i<=step?'active':''}"></i>`).join('')}</div><p class="wizard-count">${String(step+1).padStart(2,'0')} / 08 <span>${['TU NOMBRE','TU CUMPLEAÑOS','TU ETAPA','TU ACADEMIA','TU ESTILO','TU RAQUETA','TU OBJETIVO','TU FOTO'][step]}</span></p><h1 tabindex="-1" id="step-title">${current.title}</h1><p class="wizard-description">${current.desc}</p><form id="onboard">${current.body}<div class="formactions"><button type="button" id="back" class="link">${step?'← Atrás':'← Inicio'}</button><button class="btn lime" id="wizard-next">${step===pages.length-1?(draft.photo?'Entrar a mi academia':'Omitir foto y entrar'):'Continuar'} ${icon('arrow')}</button></div></form>`;
@@ -271,7 +273,7 @@ async function readImage(f){if(!['image/png','image/jpeg'].includes(f.type)||f.s
 function readFile(f){return new Promise((resolve,reject)=>{let reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('No se pudo leer el archivo'));reader.readAsDataURL(f)})}
 function modal(title,body,submit,button='Guardar'){const m=$('#modal');m.innerHTML=`<div class="row"><h2>${title}</h2><button id="close" aria-label="Cerrar">✕</button></div><form id="modalform"><div class="formgrid">${body}</div>${submit?`<div class="formactions"><button type="button" id="cancel" class="link">Cancelar</button><button class="btn lime">${button}</button></div>`:''}</form>`;m.showModal();$('#close').onclick=()=>m.close();if($('#cancel'))$('#cancel').onclick=()=>m.close();$('#modalform').onsubmit=e=>{e.preventDefault();if(submit){if(submit(Object.fromEntries(new FormData(e.target)))===false)return;save();m.close();render();toast('Cambios guardados')}}}
 function bind(){bindRoleActions();bindPortal();bindCommunity();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;render();window.scrollTo(0,0)});document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;render()});document.querySelectorAll('[data-session]').forEach(b=>b.onclick=()=>openSession(+b.dataset.session));document.querySelectorAll('[data-progress]').forEach(b=>b.onclick=()=>{const g=state.goals.find(g=>g.id===+b.dataset.progress);modal('Actualizar avance',field('Avance evaluado (0–100)','progress',g.progress,'number'),d=>{let n=Number(d.progress);if(n<0||n>100){toast('El avance debe estar entre 0 y 100.');return false}g.progress=n})});document.querySelectorAll('[data-exercise]').forEach(b=>b.onclick=()=>{let e=state.exercises.find(e=>e.id===+b.dataset.exercise);e.done=!e.done;save();render()});
-const on=(id,fn)=>{if($(id))$(id).onclick=fn};on('#signout',signOut);on('#newgoal',()=>modal('Un nuevo objetivo',field('Objetivo','title')+'<label class="full">¿Cómo sabrás que lo lograste?<textarea name="detail" required maxlength="400"></textarea></label>',d=>state.goals.push({...d,id:Date.now(),progress:0})));on('#newsession',()=>modal('Planificar una sesión',field('Nombre de la sesión','title')+select('Disciplina','type',['Tenis','Físico'])+field('Fecha','date',agendaDate,'date')+field('Hora','time','07:00','time')+field('Duración en minutos','duration','60','number')+field('Cancha o gimnasio','place','Cancha 1')+field('Coach responsable','coach')+field('Material recomendado','gear','','text',false)+'<label class="full">Guía rápida (un paso por línea)<textarea name="guide" maxlength="750"></textarea></label>'+field('Drills o enfoque físico','summary','','text')+select('Objetivo relacionado','goal',state.goals.map(g=>g.title).concat('Preparación física'))+'<label class="full">Plan detallado · ejercicios, series, duración o carga indicada por el coach<textarea name="notes" required maxlength="1200"></textarea></label>',d=>{if(+d.duration<=0||+d.duration>600){toast('Elige una duración entre 1 y 600 minutos.');return false}state.sessions.push({...d,day:(new Date(d.date+'T12:00:00').getDay()+6)%7,id:Date.now(),done:false})}));on('#exercise',()=>modal('Añadir ejercicio',field('Ejercicio','title')+field('Series y repeticiones','sets','')+'<label class="full">Indicaciones del preparador<textarea name="notes" maxlength="500" required></textarea></label>',d=>state.exercises.push({...d,id:Date.now(),done:false})));on('#competition',()=>modal('Próxima competencia',field('Torneo','name')+field('Fecha','date',dateAfter(localDay(),14),'date')+field('Sede','place'),d=>{if(d.date<localDay()){toast('Elige hoy o una fecha futura.');return false}state.competition.push({...d,start:localDay()})}));on('#newvideo',()=>modal('Añadir video',field('Título del video','title')+field('Enlace HTTPS','url','','url'),d=>{try{const u=new URL(d.url);if(u.protocol!=='https:')throw Error();state.videos.push(d)}catch{toast('Introduce un enlace HTTPS válido.');return false}}));on('#editnote',()=>modal('Nota del coach',`<label class="full">Mensaje<textarea name="note" maxlength="500" required>${esc(state.coachNote)}</textarea></label>`,d=>state.coachNote=d.note));on('#editprofile',()=>modal('Editar mi perfil',field('Nombre','firstName',state.profile.firstName||state.profile.name.split(' ')[0])+field('Apellido','lastName',state.profile.lastName||state.profile.name.split(' ').slice(1).join(' '),'text',false)+field('Academia','academy',state.profile.academy)+select('Estilo','style',activeOptions(identities,state.profile.style),state.profile.style)+select('Mano dominante','hand',['Diestro','Zurdo','Ambidiestro'],state.profile.hand)+select('Etapa','level',activeOptions(pathways,state.profile.level),state.profile.level)+utrInput(state.profile.utr)+field('Raqueta','racket',state.profile.racket||'','text',false)+select('Disponibilidad','availability',['Mañanas','Tardes','Mañanas y tardes','Fines de semana'],state.profile.availability)+`<label class="full">Objetivo<textarea name="goal" maxlength="400" required>${esc(state.profile.goal)}</textarea></label><label class="full">Preferencias<textarea name="preferences" maxlength="400">${esc(state.profile.preferences)}</textarea></label>`,d=>Object.assign(state.profile,{...d,name:[d.firstName,d.lastName].filter(Boolean).join(' '),utr:d.utr?Number(d.utr).toFixed(2):''})));on('#export',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='corda-mi-perfil.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});on('#restart',()=>{modal('Volver al registro','<p class="full muted">Recrearás tu perfil. Tus sesiones y objetivos se conservarán en este navegador.</p>',()=>{draft={...state.profile};entry='register';step=0},'Volver al registro')});bindFees();}
+const on=(id,fn)=>{if($(id))$(id).onclick=fn};on('#signout',signOut);on('#newgoal',()=>modal('Un nuevo objetivo',field('Objetivo','title')+'<label class="full">¿Cómo sabrás que lo lograste?<textarea name="detail" required maxlength="400"></textarea></label>',d=>state.goals.push({...d,id:Date.now(),progress:0})));on('#newsession',()=>modal('Planificar una sesión',field('Nombre de la sesión','title')+select('Disciplina','type',['Tenis','Físico'])+field('Fecha','date',agendaDate,'date')+field('Hora','time','07:00','time')+field('Duración en minutos','duration','60','number')+field('Cancha o gimnasio','place','Cancha 1')+field('Coach responsable','coach')+field('Material recomendado','gear','','text',false)+'<label class="full">Guía rápida (un paso por línea)<textarea name="guide" maxlength="750"></textarea></label>'+field('Drills o enfoque físico','summary','','text')+select('Objetivo relacionado','goal',state.goals.map(g=>g.title).concat('Preparación física'))+'<label class="full">Plan detallado · ejercicios, series, duración o carga indicada por el coach<textarea name="notes" required maxlength="1200"></textarea></label>',d=>{if(+d.duration<=0||+d.duration>600){toast('Elige una duración entre 1 y 600 minutos.');return false}state.sessions.push({...d,day:(new Date(d.date+'T12:00:00').getDay()+6)%7,id:Date.now(),done:false})}));on('#exercise',()=>modal('Añadir ejercicio',field('Ejercicio','title')+field('Series y repeticiones','sets','')+'<label class="full">Indicaciones del preparador<textarea name="notes" maxlength="500" required></textarea></label>',d=>state.exercises.push({...d,id:Date.now(),done:false})));on('#competition',()=>modal('Próxima competencia',field('Torneo','name')+field('Fecha','date',dateAfter(localDay(),14),'date')+field('Sede','place'),d=>{if(d.date<localDay()){toast('Elige hoy o una fecha futura.');return false}state.competition.push({...d,start:localDay()})}));on('#newvideo',()=>modal('Añadir video',field('Título del video','title')+field('Enlace HTTPS','url','','url'),d=>{try{const u=new URL(d.url);if(u.protocol!=='https:')throw Error();state.videos.push(d)}catch{toast('Introduce un enlace HTTPS válido.');return false}}));on('#editnote',()=>modal('Nota del coach',`<label class="full">Mensaje<textarea name="note" maxlength="500" required>${esc(state.coachNote)}</textarea></label>`,d=>state.coachNote=d.note));on('#editprofile',()=>modal('Editar mi perfil',field('Nombre','firstName',state.profile.firstName||state.profile.name.split(' ')[0])+field('Apellido','lastName',state.profile.lastName||state.profile.name.split(' ').slice(1).join(' '),'text',false)+academySelect('academy',state.profile.academy,{independent:true})+select('Estilo','style',activeOptions(identities,state.profile.style),state.profile.style)+select('Mano dominante','hand',['Diestro','Zurdo','Ambidiestro'],state.profile.hand)+select('Etapa','level',activeOptions(pathways,state.profile.level),state.profile.level)+utrInput(state.profile.utr)+field('Raqueta','racket',state.profile.racket||'','text',false)+select('Disponibilidad','availability',['Mañanas','Tardes','Mañanas y tardes','Fines de semana'],state.profile.availability)+`<label class="full">Objetivo<textarea name="goal" maxlength="400" required>${esc(state.profile.goal)}</textarea></label><label class="full">Preferencias<textarea name="preferences" maxlength="400">${esc(state.profile.preferences)}</textarea></label>`,d=>Object.assign(state.profile,{...d,name:[d.firstName,d.lastName].filter(Boolean).join(' '),utr:d.utr?Number(d.utr).toFixed(2):''})));on('#export',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='corda-mi-perfil.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});on('#restart',()=>{modal('Volver al registro','<p class="full muted">Recrearás tu perfil. Tus sesiones y objetivos se conservarán en este navegador.</p>',()=>{draft={...state.profile};entry='register';step=0},'Volver al registro')});bindFees();}
 
 function openSession(id){const s=state.sessions.find(s=>s.id===id);modal(esc(s.title),`<div class="full"><span class="badge">${esc(s.type)} · ${esc(s.duration)} MIN</span><p>${esc(s.time)} · ${esc(s.place)} · ${esc(state.profile.academy)}<br>Con ${esc(sessionCoach(s))}</p><hr class="divider"><small>OBJETIVO DE LA SESIÓN</small><h3>${esc(s.goal)}</h3><p>${esc(s.notes)}</p>${s.cancelled?`<p class="hint">${esc(sessionStatus(s))}</p>`:''}<hr class="divider"><h3>Conversación de la sesión</h3>${sessionGuide(s)}<p class="hint">Mensajes locales de demostración. No se envían a otras personas.</p>${state.comments.filter(c=>c.session===id).map(c=>`<div class="note"><small>${esc(c.role)}</small><p>${esc(c.text)}</p></div>`).join('')}<label class="utr-field">Añadir comentario<textarea name="text" required maxlength="600" placeholder="¿Cómo te sentiste en la sesión?"></textarea></label></div>`,d=>state.comments.push({session:id,role,text:d.text}),'Guardar comentario');startSessionGuide($('#modal'));}
 initAgenda();
@@ -326,6 +328,8 @@ function welcome(){
 //   próxima vez que su dueño inicia sesión.
 const ACCOUNTS_KEY='corda-accounts',SESSION_KEY='corda-session',REMEMBER_KEY='corda-remember',PBKDF2_ROUNDS=310000;
 let pendingAccount=null,currentAccount=null;
+// ¿Llegó desde el enlace de "Olvidé mi contraseña"? Se lee antes de que Supabase limpie la URL.
+const recoveryLink=/type=recovery/.test(location.hash+location.search);
 
 // ---------- Cliente de Supabase ----------
 // "Recordarme" decide si la sesión de Supabase sobrevive al cerrar el navegador (localStorage)
@@ -343,11 +347,26 @@ const cloud=(()=>{
     return supabase.createClient(CORDA_SUPABASE.url,CORDA_SUPABASE.key,{auth:{storage:cloudStorage,persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   }catch{return null}
 })();
+cloud?.auth.onAuthStateChange(event=>{if(event==='PASSWORD_RECOVERY')setTimeout(newPasswordScreen,0)});
+
+// Academias dadas de alta en Supabase (se eligen de una lista para que el nombre coincida siempre).
+const INDEPENDENT_ACADEMY='Entreno de forma independiente';
+let academyList=['Mouratoglou Tennis Center Guadalajara'];
+(async()=>{
+  try{const {data,error}=await cloud.from('academies').select('name').order('name');if(!error&&data?.length)academyList=data.map(a=>a.name)}catch{}
+})();
+function academySelect(name,value,{independent=false,label='Academia'}={}){
+  const options=[...academyList];
+  if(independent)options.push(INDEPENDENT_ACADEMY);
+  if(value&&!options.includes(value))options.push(value);
+  return `<label>${label}<select name="${name}" required><option value="">Elige tu academia</option>${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+}
 function cloudError(error){
   const t=coverText,code=error?.code||'',message=String(error?.message||'');
   if(code==='invalid_credentials'||/invalid login/i.test(message))return t('Correo o contraseña incorrectos.','Incorrect email or password.','E-mail ou mot de passe incorrect.');
   if(code==='email_not_confirmed'||/not confirmed/i.test(message))return t('Primero confirma tu correo: abre el enlace que te enviamos.','Confirm your email first: open the link we sent you.','Confirmez d’abord votre e-mail : ouvrez le lien envoyé.');
   if(/rate limit|too many/i.test(code+message)||error?.status===429)return t('Demasiados intentos. Espera unos minutos y vuelve a probar.','Too many attempts. Wait a few minutes and try again.','Trop de tentatives. Attendez quelques minutes.');
+  if(code==='same_password')return t('Esa ya es tu contraseña. Elige una diferente.','That is already your password. Choose a different one.','C’est déjà votre mot de passe. Choisissez-en un autre.');
   if(code==='weak_password'||/password should/i.test(message))return t('Esa contraseña es muy débil. Usa una más larga o con números y símbolos.','That password is too weak. Use a longer one with numbers and symbols.','Mot de passe trop faible. Utilisez-en un plus long.');
   if(!error?.status||/fetch|network/i.test(message))return t('No hay conexión con el servidor. Revisa tu internet.','Could not reach the server. Check your connection.','Impossible de joindre le serveur. Vérifiez votre connexion.');
   return t('No se pudo completar. Intenta de nuevo.','Something went wrong. Try again.','Une erreur est survenue. Réessayez.');
@@ -427,6 +446,7 @@ function signInScreen(prefill=''){
     <p class="auth-error" id="auth-error" role="alert" hidden></p>
     <div class="formactions">${accessLink('auth-home','← '+t('Inicio','Home','Accueil'))}<button class="btn lime" id="signin-submit">${t('Entrar','Sign in','Se connecter')}</button></div>
   </form>
+  <p>${accessLink('auth-forgot',t('¿Olvidaste tu contraseña?','Forgot your password?','Mot de passe oublié ?'))}</p>
   <p>${t('¿Aún no tienes cuenta?','No account yet?','Pas encore de compte ?')} ${accessLink('auth-register',t('Regístrate','Register','Inscrivez-vous'))}</p>
   ${legacy?`<p class="hint">${t('¿Ya usabas CORDA antes de las cuentas?','Used CORDA before accounts?','Vous utilisiez CORDA avant les comptes ?')} ${accessLink('auth-legacy',t('Entra a tu perfil y crea tu acceso','Open your profile and create your login','Ouvrez votre profil et créez votre accès'))}</p>`:''}
   </section>`);
@@ -434,6 +454,7 @@ function signInScreen(prefill=''){
   bindPasswordToggles();
   $('#auth-home').onclick=()=>{entry='welcome';render()};
   $('#auth-register').onclick=()=>pickRole('register');
+  $('#auth-forgot').onclick=()=>forgotScreen($('#signin-form [name=email]').value);
   if($('#auth-legacy'))$('#auth-legacy').onclick=()=>pickRole('signin');
   const form=$('#signin-form');
   form.onsubmit=async e=>{
@@ -460,6 +481,69 @@ function signInScreen(prefill=''){
         return fail(cloudError(problem));
       }
       if(!await openCloudAccount(data.user,remember))fail(t('Tu cuenta existe, pero no encontramos su perfil. Escríbenos para revisarlo.','Your account exists but its profile is missing. Contact us.','Votre compte existe mais son profil est introuvable. Contactez-nous.'));
+    }catch(problem){fail(cloudError(problem))}
+    finally{if(document.contains(submit))submit.disabled=false}
+  };
+}
+
+// ---------- Olvidé mi contraseña ----------
+// Supabase manda un enlace al correo; al abrirlo, la app pide la contraseña nueva.
+function forgotScreen(prefill=''){
+  entry='access';pendingAccount=null;
+  const t=coverText;
+  accessScene('access-screen',`${coverSelector()}<section class="access-panel"><small class="eyebrow">CORDA</small><h1>${t('Recupera tu acceso','Reset your password','Réinitialisez votre mot de passe')}</h1><p>${t('Escribe el correo de tu cuenta y te mandaremos un enlace para crear una contraseña nueva.','Enter your account email and we will send you a link to create a new password.','Saisissez votre e-mail et nous vous enverrons un lien pour créer un nouveau mot de passe.')}</p>
+  <form id="forgot-form" class="auth-form" method="post" action="#">
+    <label>${t('Correo electrónico','Email','E-mail')}<input name="email" type="email" required maxlength="180" autocomplete="username" value="${esc(prefill)}"></label>
+    <p class="auth-error" id="auth-error" role="alert" hidden></p>
+    <div class="formactions">${accessLink('auth-back','← '+t('Iniciar sesión','Sign in','Connexion'))}<button class="btn lime" id="forgot-submit">${t('Enviar enlace','Send link','Envoyer le lien')}</button></div>
+  </form></section>`);
+  bindCoverLanguage(()=>forgotScreen($('#forgot-form [name=email]')?.value||prefill));
+  $('#auth-back').onclick=()=>signInScreen($('#forgot-form [name=email]').value);
+  const form=$('#forgot-form');
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const email=normalEmail(form.elements.email.value),error=$('#auth-error'),submit=$('#forgot-submit');
+    const fail=text=>{if(document.contains(error)){error.textContent=text;error.hidden=false}};
+    error.hidden=true;
+    if(!cloud)return fail(offlineMessage());
+    submit.disabled=true;
+    try{
+      const {error:problem}=await cloud.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+      if(problem)return fail(cloudError(problem));
+      // No decimos si el correo existe: así nadie puede averiguar quién tiene cuenta.
+      $('.access-panel').innerHTML=`<small class="eyebrow">CORDA</small><h1>${t('Revisa tu correo','Check your email','Vérifiez votre e-mail')}</h1><p>${t('Si hay una cuenta con','If there is an account for','Si un compte existe pour')} <b>${esc(email)}</b>, ${t('te llegará un enlace para crear tu contraseña nueva. Si no lo ves en unos minutos, revisa tu carpeta de spam.','you will get a link to create a new password. Check your spam folder if it does not arrive in a few minutes.','vous recevrez un lien pour créer un nouveau mot de passe. Vérifiez vos spams.')}</p><div class="formactions">${accessLink('auth-back','← '+t('Iniciar sesión','Sign in','Connexion'))}</div>`;
+      $('#auth-back').onclick=()=>signInScreen(email);
+    }catch(problem){fail(cloudError(problem))}
+    finally{if(document.contains(submit))submit.disabled=false}
+  };
+}
+function newPasswordScreen(){
+  entry='access';pendingAccount=null;
+  const t=coverText;
+  accessScene('access-screen',`${coverSelector()}<section class="access-panel"><small class="eyebrow">CORDA</small><h1>${t('Crea tu contraseña nueva','Create a new password','Créez un nouveau mot de passe')}</h1><p>${t('Después entrarás directo a tu perfil.','You will then go straight to your profile.','Vous accéderez ensuite directement à votre profil.')}</p>
+  <form id="newpass-form" class="auth-form" method="post" action="#">
+    ${passwordInput('password',t('Contraseña nueva (mínimo 8 caracteres)','New password (at least 8 characters)','Nouveau mot de passe (8 caractères minimum)'),'new-password')}
+    ${passwordInput('confirm',t('Repite la contraseña','Repeat the password','Répétez le mot de passe'),'new-password')}
+    <p class="auth-error" id="auth-error" role="alert" hidden></p>
+    <div class="formactions"><span></span><button class="btn lime" id="newpass-submit">${t('Guardar y entrar','Save and sign in','Enregistrer et entrer')}</button></div>
+  </form></section>`);
+  bindCoverLanguage(newPasswordScreen);
+  bindPasswordToggles();
+  const form=$('#newpass-form');
+  form.onsubmit=async e=>{
+    e.preventDefault();
+    const d=Object.fromEntries(new FormData(form)),error=$('#auth-error'),submit=$('#newpass-submit');
+    const fail=text=>{if(document.contains(error)){error.textContent=text;error.hidden=false}};
+    error.hidden=true;
+    if(d.password.length<8)return fail(t('La contraseña debe tener al menos 8 caracteres.','The password must have at least 8 characters.','Le mot de passe doit contenir au moins 8 caractères.'));
+    if(d.password!==d.confirm)return fail(t('Las contraseñas no coinciden.','The passwords do not match.','Les mots de passe ne correspondent pas.'));
+    submit.disabled=true;
+    try{
+      const {data,error:problem}=await cloud.auth.updateUser({password:d.password});
+      if(problem)return fail(problem.status===401||/session/i.test(problem.message||'')?t('El enlace ya caducó. Pide uno nuevo desde «¿Olvidaste tu contraseña?».','The link has expired. Request a new one from “Forgot your password?”.','Le lien a expiré. Demandez-en un nouveau.'):cloudError(problem));
+      history.replaceState(null,'',location.pathname);
+      if(!await openCloudAccount(data.user,keepSignedIn())){entry='welcome';render()}
+      toast(t('Listo: tu contraseña quedó actualizada.','Done: your password was updated.','C’est fait : votre mot de passe a été mis à jour.'));
     }catch(problem){fail(cloudError(problem))}
     finally{if(document.contains(submit))submit.disabled=false}
   };
@@ -626,13 +710,14 @@ function openAccount(account){
 // (por ejemplo, si la persona llega desde el enlace de confirmación del correo).
 function restoreSession(){
   checkCloudSession();
+  if(recoveryLink)return false;
   const email=sessionEmail();if(!email)return false;
   const account=findAccount(email);
   if(!account||!openAccount(account)){forgetSession();return false}
   return true;
 }
 async function checkCloudSession(){
-  if(!cloud||typeof phoneDemo!=='undefined'&&phoneDemo)return;
+  if(!cloud||typeof phoneDemo!=='undefined'&&phoneDemo||recoveryLink)return;
   try{
     const confirming=/access_token|type=signup|[?&]code=/.test(location.hash+location.search);
     const {data}=await cloud.auth.getSession(),user=data.session?.user;
@@ -1029,7 +1114,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108b"><link rel="stylesheet" href="style.css?v=20261108b"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108b"><link rel="stylesheet" href="styles/ace.css?v=20261108b"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108b"></script><script src="resenas.js?v=20261108b"></script><script src="portada.js?v=20261108b"></script><script src="community.js?v=20261108b"></script><script src="session-guide.js?v=20261108b"></script><script src="annual-progress.js?v=20261108b"></script><script src="progress-hub.js?v=20261108b"></script><script src="meetings.js?v=20261108b"></script><script src="monthly-fees.js?v=20261108b"></script><script src="portal.js?v=20261108b"></script><script src="private-payments.js?v=20261108b"></script><script src="roles.js?v=20261108b"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108b"></script><script src="auth.js?v=20261108b"></script><script src="sync.js?v=20261108b"></script><script src="sobre-corda.js?v=20261108b"></script><script src="app.js?v=20261108b"></script><script src="ace.js?v=20261108b"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108c"><link rel="stylesheet" href="style.css?v=20261108c"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108c"><link rel="stylesheet" href="styles/ace.css?v=20261108c"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108c"></script><script src="resenas.js?v=20261108c"></script><script src="portada.js?v=20261108c"></script><script src="community.js?v=20261108c"></script><script src="session-guide.js?v=20261108c"></script><script src="annual-progress.js?v=20261108c"></script><script src="progress-hub.js?v=20261108c"></script><script src="meetings.js?v=20261108c"></script><script src="monthly-fees.js?v=20261108c"></script><script src="portal.js?v=20261108c"></script><script src="private-payments.js?v=20261108c"></script><script src="roles.js?v=20261108c"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108c"></script><script src="auth.js?v=20261108c"></script><script src="sync.js?v=20261108c"></script><script src="sobre-corda.js?v=20261108c"></script><script src="app.js?v=20261108c"></script><script src="ace.js?v=20261108c"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1258,7 +1343,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108b"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108c"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -2043,7 +2128,7 @@ function enterAdult(account){
 }
 function adultSetup(existing){
   const academy=existing?.academy||state.profile?.academy||'Mouratoglou Tennis Center Guadalajara';
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${field('Academia','academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
   const form=$('#adult-form');
   function children(){
     if(role!=='Tutor')return;

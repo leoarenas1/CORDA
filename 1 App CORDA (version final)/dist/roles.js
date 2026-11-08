@@ -68,7 +68,7 @@ function enterAdult(account){
 }
 function adultSetup(existing){
   const academy=existing?.academy||state.profile?.academy||'Mouratoglou Tennis Center Guadalajara';
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${field('Academia','academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
   const form=$('#adult-form');
   function children(){
     if(role!=='Tutor')return;
