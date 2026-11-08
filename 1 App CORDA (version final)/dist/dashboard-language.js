@@ -73,8 +73,8 @@ Pausar video|Pause video|Mettre la vidéo en pause
 Reproducir video|Play video|Lire la vidéo
 Academia de demostración|Demo academy|Académie de démonstration
 Coach Alex (ejemplo)|Coach Alex (example)|Coach Alex (exemple)
-PROTOTIPO LOCAL|LOCAL PROTOTYPE|PROTOTYPE LOCAL
-Los cambios se guardan en este navegador. Sin cuentas compartidas.|Changes are saved in this browser. Accounts are not shared.|Les modifications sont enregistrées dans ce navigateur. Les comptes ne sont pas partagés.
+CUENTA EN LA NUBE|CLOUD ACCOUNT|COMPTE DANS LE CLOUD
+Tu acceso ya es real. Tus entrenamientos, por ahora, se guardan en este navegador.|Your login is real. Your training data is saved in this browser for now.|Votre accès est réel. Vos entraînements restent pour l’instant dans ce navigateur.
 Tu juego, con dirección.|Your game, with direction.|Votre jeu, avec un cap.
 MI AGENDA|MY SCHEDULE|MON CALENDRIER
 Sin próximas sesiones|No upcoming sessions|Aucune séance à venir
