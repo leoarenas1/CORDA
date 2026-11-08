@@ -184,11 +184,12 @@ function createAccessScreen(selectedRole,mode='register'){
   };
 }
 
-// Lo que se guarda del perfil en Supabase (sin la foto: llega en la fase C).
+// Lo que se guarda del perfil en Supabase.
 function cloudSnapshot(){
   const p=role==='Jugador'?state.profile:actor();
   if(!p?.memberId)return null;
-  const {photo,...profile}=p;
+  // Sin foto (llega en la fase C) ni evaluaciones mensuales (viven en items, las escribe el coach).
+  const {photo,monthlyReviews,...profile}=p;
   return {name:String(p.name||'').trim(),academy:String(p.academy||'').trim(),details:{memberId:p.memberId,profile}};
 }
 
@@ -202,7 +203,7 @@ function linkPendingAccount(){
   if(role!=='Jugador')account.profile={...profile};
   pendingAccount=null;
   if(cacheAccount(account)){currentAccount=account;rememberSession(account.email,remember)}
-  if(cloudUser)pushProfile();
+  if(cloudUser){pushProfile();cloud?.auth.getUser().then(({data})=>startSync(data.user)).catch(()=>{})}
   else if(password)cloudSignUp(account.email,password,remember);
 }
 
@@ -221,7 +222,7 @@ async function cloudSignUp(email,password,remember,migrating=false){
     return;
   }
   if(migrating){const old=findAccount(email);if(old){delete old.hash;delete old.salt;delete old.rounds;cacheAccount(old)}}
-  if(data.session){pushProfile();return}
+  if(data.session){pushProfile();startSync(data.user);return}
   modal(t('Confirma tu correo','Confirm your email','Confirmez votre e-mail'),
     `<p class="full">${t('Te enviamos un enlace a','We sent a link to','Nous avons envoyé un lien à')} <b>${esc(email)}</b>. ${t('Ábrelo para activar tu cuenta y poder entrar desde cualquier dispositivo.','Open it to activate your account and sign in from any device.','Ouvrez-le pour activer votre compte sur tous vos appareils.')}</p><p class="full muted">${t('Mientras tanto, ya puedes usar CORDA en este navegador. Si no lo ves, revisa tu carpeta de spam.','Meanwhile you can keep using CORDA in this browser. Check your spam folder if you do not see it.','En attendant, vous pouvez utiliser CORDA dans ce navigateur. Vérifiez vos spams.')}</p>`);
 }
@@ -241,6 +242,7 @@ async function openCloudAccount(user,remember){
   }
   if(account.memberId&&cacheAccount(account)&&openAccount(account)){
     rememberSession(email,remember);
+    startSync(user);
     return true;
   }
   // Cuenta sin perfil terminado: se completa ahora y se guarda en Supabase al final.
@@ -321,6 +323,7 @@ async function checkCloudSession(){
     }else if(currentAccount&&normalEmail(user.email)===currentAccount.email){
       if(confirming)toast(coverText('Tu correo quedó confirmado.','Your email is confirmed.','Votre e-mail est confirmé.'));
       pushProfile();
+      startSync(user);
     }
     if(confirming)history.replaceState(null,'',location.pathname);
   }catch{}
@@ -328,6 +331,7 @@ async function checkCloudSession(){
 
 function signOut(){
   rememberPlayer();save();forgetSession();
+  stopSync();
   cloud?.auth.signOut({scope:'local'}).catch(()=>{});
   clearTimeout(pushProfile.timer);lastPushed='';
   currentAccount=null;pendingAccount=null;role='Jugador';page='home';rosterDetail='';entry='welcome';

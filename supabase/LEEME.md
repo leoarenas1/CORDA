@@ -7,9 +7,9 @@ Plan para que la app tenga cuentas reales y datos compartidos entre jugador, coa
 | Fase | Qué cambia | Estado |
 |---|---|---|
 | **A · Cuentas** | Registro e inicio de sesión reales con correo y contraseña. Se guarda el perfil de cada persona (correo, nombre, rol, academia). | ✅ Funcionando (8 nov 2026). SQL: `01_cuentas.sql` + `02_perfil_completo.sql` |
-| **B · Datos compartidos** | Plan (sesiones), encuestas y evaluaciones, competencias, revisiones del coach, anuncios y equipo de la academia. El coach ve lo de sus jugadores. | Pendiente |
+| **B · Datos compartidos** | Plan (sesiones), encuestas y evaluaciones, competencias, revisiones del coach, anuncios y equipo de la academia. El coach ve lo de sus jugadores. | ✅ Funcionando (8 nov 2026). SQL: `03_datos_compartidos.sql`. Coaches y tutores se aprueban en Table Editor → profiles → approved. |
 | **C · Archivos** | Fotos de perfil y comprobantes de pago en Supabase Storage. | Pendiente |
-| **D · Pasar datos** | Al entrar por primera vez, ofrecer subir lo que ya está guardado en el navegador. | Pendiente |
+| **D · Pasar datos** | Al entrar por primera vez, ofrecer subir lo que ya está guardado en el navegador. | ✅ Incluido en la fase B: lo que solo existe en el navegador se sube al primer inicio de sesión. |
 
 Mientras se termina cada fase, lo que todavía no está en Supabase sigue guardándose en el navegador como hoy.
 
