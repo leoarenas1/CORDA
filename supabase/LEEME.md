@@ -53,3 +53,4 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `09_tutor_autorizado.sql` | El tutor de un menor solo se vincula si el menor escribió su correo; invitaciones y estado del tutor. |
 | `10_codigos_de_acceso.sql` | Códigos de acceso de un solo uso: la academia, el rol y la aprobación salen del código; Coach y Tutor no se registran sin él. |
 | `11_codigo_del_dueno.sql` | Cómo entra el primer coach (dueño): su código se crea en el SQL Editor con `create_owner_code`, no desde la app. |
+| `pruebas_seguridad.sql` | No es un ajuste: pruebas de seguridad con usuarios inventados (se deshacen solas). Correr después de cada cambio de reglas. |
