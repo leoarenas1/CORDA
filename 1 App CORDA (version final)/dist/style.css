@@ -776,3 +776,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   /* Foto centrada sobre la columna de la tarjeta del torneo (columna derecha = 1/2.5 del ancho) */
   .heading:has(.heading-avatar) .heading-actions{right:calc((100% - var(--space-8)) * .2 - 60px)}
 }
+
+/* «Lo que mejoraste»: verde medio (el mismo de la selección del menú) con texto marfil */
+.shell main .coach-month>div.monthly-gain{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
+.shell main .coach-month .monthly-gain b,.shell main .coach-month .monthly-gain p{color:var(--marfil)}
+.coach-month .monthly-gain .gain-check{background:var(--verde-noche);color:var(--lima)}
