@@ -725,3 +725,22 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Espacio entre las sesiones de tenis y la biblioteca de video */
 .video-library{margin-top:var(--space-6)}
+
+/* ---------- Biblioteca de video ---------- */
+.video-filters{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-4) 0}
+.video-filters button{padding:var(--space-1) var(--space-3);border:1px solid var(--line);border-radius:var(--radius-pill);background:transparent;color:var(--ink);font:inherit;font-size:var(--small-size);cursor:pointer}
+.video-filters button[aria-pressed="true"]{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:var(--space-6);margin-top:var(--space-4)}
+.video-card{display:grid;gap:var(--space-3);align-content:start}
+.video-card.is-seen .video-thumb img{opacity:.6}
+.video-thumb{position:relative;display:block;width:100%;aspect-ratio:16/9;padding:0;border:0;border-radius:var(--radius-md);overflow:hidden;background:var(--verde-noche);cursor:pointer}
+.video-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.video-play{position:absolute;inset:0;display:grid;place-items:center}
+.video-play .icon{width:52px;height:52px;padding:14px;border-radius:50%;background:var(--lima);color:var(--on-lima);fill:currentColor}
+.video-link{display:grid;place-items:center;align-content:center;gap:var(--space-2);color:var(--marfil);text-decoration:none}
+.video-body{display:grid;gap:var(--space-1);justify-items:start}
+.video-body h3{margin:0}
+.video-note{margin:0;color:var(--ink-muted)}
+.video-seen-by{margin:0;font-size:var(--small-size);color:var(--accent-text)}
+.video-frame{position:relative;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;background:#000}
+.video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}

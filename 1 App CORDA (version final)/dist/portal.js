@@ -231,3 +231,9 @@ document.addEventListener('click',event=>{
   const edit=event.target.closest?.('[data-tournament]');
   if(edit)openTournament(edit.dataset.tournament);
 });
+
+// Pestaña Tenis: sesiones de esta semana en adelante, en orden de fecha y hora.
+function tennisSessions(){
+  const today=localDay(),monday=dateAfter(today,-((new Date(today+'T12:00:00').getDay()+6)%7));
+  return state.sessions.filter(s=>s.type==='Tenis'&&String(s.date)>=monday).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+}
