@@ -706,3 +706,14 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* ---------- Saludo del día ---------- */
 .demo.greeting{display:grid;gap:var(--space-1)}
 .demo.greeting b{color:var(--ink);font-size:var(--body-size);line-height:var(--body-line)}
+
+/* ---------- Foto de perfil junto al título de Inicio ---------- */
+.heading-actions{display:flex;align-items:center;gap:var(--space-4)}
+.heading-avatar{padding:0;border:0;background:none;cursor:pointer;border-radius:var(--radius-pill)}
+.heading-avatar .avatar{width:72px;height:72px;border:2px solid var(--arena);object-fit:cover;font-size:var(--h3-size)}
+.heading-avatar:hover .avatar{border-color:var(--lima)}
+.heading-avatar:focus-visible{outline:2px solid var(--lima);outline-offset:3px}
+@media(max-width:680px){
+  .heading:has(.heading-avatar){flex-direction:row;align-items:center}
+  .heading-avatar .avatar{width:56px;height:56px}
+}

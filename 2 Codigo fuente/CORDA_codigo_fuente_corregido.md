@@ -1152,7 +1152,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108h"><link rel="stylesheet" href="style.css?v=20261108h"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108h"><link rel="stylesheet" href="styles/ace.css?v=20261108h"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108h"></script><script src="resenas.js?v=20261108h"></script><script src="portada.js?v=20261108h"></script><script src="community.js?v=20261108h"></script><script src="session-guide.js?v=20261108h"></script><script src="annual-progress.js?v=20261108h"></script><script src="progress-hub.js?v=20261108h"></script><script src="meetings.js?v=20261108h"></script><script src="monthly-fees.js?v=20261108h"></script><script src="portal.js?v=20261108h"></script><script src="private-payments.js?v=20261108h"></script><script src="roles.js?v=20261108h"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108h"></script><script src="auth.js?v=20261108h"></script><script src="sync.js?v=20261108h"></script><script src="sobre-corda.js?v=20261108h"></script><script src="app.js?v=20261108h"></script><script src="ace.js?v=20261108h"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108i"><link rel="stylesheet" href="style.css?v=20261108i"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108i"><link rel="stylesheet" href="styles/ace.css?v=20261108i"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108i"></script><script src="resenas.js?v=20261108i"></script><script src="portada.js?v=20261108i"></script><script src="community.js?v=20261108i"></script><script src="session-guide.js?v=20261108i"></script><script src="annual-progress.js?v=20261108i"></script><script src="progress-hub.js?v=20261108i"></script><script src="meetings.js?v=20261108i"></script><script src="monthly-fees.js?v=20261108i"></script><script src="portal.js?v=20261108i"></script><script src="private-payments.js?v=20261108i"></script><script src="roles.js?v=20261108i"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108i"></script><script src="auth.js?v=20261108i"></script><script src="sync.js?v=20261108i"></script><script src="sobre-corda.js?v=20261108i"></script><script src="app.js?v=20261108i"></script><script src="ace.js?v=20261108i"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1381,7 +1381,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108h"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108i"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -1596,7 +1596,7 @@ function playerHome(){
   const notices=`<section class="card"><small class="eyebrow">Mi academia</small><h2>Avisos del equipo</h2><p class="hint">${esc(notice?.title||'Aviso de entrenamiento.')}</p>${rainNotice()}<button class="link" data-page="team">Abrir tablón ↗</button></section>`;
   const payment=`<section class="card"><small class="eyebrow">Mensualidad · ${dateLabel(today,{month:'long'})}</small><h2>${esc(feeStatus(feeLedger(),today.slice(0,7)))}</h2><button data-page="payments" class="link">Ver mensualidad ↗</button></section>`;
   const side=role==='Tutor'?payment:competing?tournamentCard():notices;
-  return heading(role==='Coach'?'Plan de entrenamiento':role==='Tutor'?'Agenda del jugador':'Mi entrenamiento',dateLabel(today,{weekday:'long',day:'numeric',month:'long'})+' · '+esc(state.profile.academy),role==='Coach'?'<button id="newsession" class="btn">+ Crear sesión</button>':'')+
+  return heading(role==='Coach'?'Plan de entrenamiento':role==='Tutor'?'Agenda del jugador':'Mi entrenamiento',dateLabel(today,{weekday:'long',day:'numeric',month:'long'})+' · '+esc(state.profile.academy),`<div class="heading-actions">${role==='Coach'?'<button id="newsession" class="btn">+ Crear sesión</button>':''}${headingAvatar()}</div>`)+
     (role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
     '<div class="flow-week">'+(role==='Tutor'?notices:competing?payment+notices:payment)+meetingCard()+'</div>'+playerBanner();
 }
@@ -1636,6 +1636,12 @@ function calendarPage() {
   return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+
     '<section class="card plan-competitions"><div class="sectiontitle"><h2>Competencias</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<h3>'+esc(c.name)+'</h3><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
+}
+
+// Foto de perfil de quien inició sesión, a la derecha del título de Inicio. Lleva a «Mi perfil».
+function headingAvatar(){
+  const me=actor()||state.profile;
+  return `<button type="button" class="heading-avatar" data-page="profile" aria-label="Mi perfil" title="Mi perfil">${avatar(me)}</button>`;
 }
 ````
 
@@ -3248,6 +3254,17 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* ---------- Saludo del día ---------- */
 .demo.greeting{display:grid;gap:var(--space-1)}
 .demo.greeting b{color:var(--ink);font-size:var(--body-size);line-height:var(--body-line)}
+
+/* ---------- Foto de perfil junto al título de Inicio ---------- */
+.heading-actions{display:flex;align-items:center;gap:var(--space-4)}
+.heading-avatar{padding:0;border:0;background:none;cursor:pointer;border-radius:var(--radius-pill)}
+.heading-avatar .avatar{width:72px;height:72px;border:2px solid var(--arena);object-fit:cover;font-size:var(--h3-size)}
+.heading-avatar:hover .avatar{border-color:var(--lima)}
+.heading-avatar:focus-visible{outline:2px solid var(--lima);outline-offset:3px}
+@media(max-width:680px){
+  .heading:has(.heading-avatar){flex-direction:row;align-items:center}
+  .heading-avatar .avatar{width:56px;height:56px}
+}
 ````
 
 ## Archivo: `dist/styles/ace.css`
