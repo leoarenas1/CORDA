@@ -29,7 +29,7 @@ function weeklyPage(){
   return heading('Pagos privados','Control semanal de tus clases particulares · MXN','<button class="btn lime" id="private-add">+ Añadir jugador</button>')+
     `<section class="card"><div class="private-week"><button class="link" data-private-shift="-7" aria-label="Semana anterior">← Anterior</button><div><small class="eyebrow">Semana de clases</small><h2>${weekLabel(privateWeek)}</h2><button class="link" id="private-today">Semana actual</button></div><button class="link" data-private-shift="7" aria-label="Semana siguiente">Siguiente →</button></div>
     <div class="private-totals"><div><small>Cobrado</small><b>${mxn(sum(paid))}</b></div><div><small>Pendiente</small><b>${mxn(sum(students)-sum(paid))}</b></div><div><small>Jugadores al corriente</small><b>${paid.length} de ${students.length}</b></div></div></section>
-    <div class="private-list">${students.map(s=>{
+    ${coachPrivateInbox(privateWeek)}<div class="private-list">${students.map(s=>{
       const row=privateRow(s,privateWeek);
       return `<section class="card"><div class="row"><div><small class="eyebrow">${s.academyPlayer?'Jugador de la academia':'Jugador externo'}</small><h2>${esc(s.name)}</h2></div><span class="badge ${row.paid?'':'clay'}">${row.paid?'✓ Pagado':'Pendiente'}</span></div><h3>${mxn(row.amount)}</h3><button class="btn small" data-private-edit="${esc(s.id)}">Registrar o editar pago</button><label class="private-file">Adjuntar comprobante<input type="file" data-private-file="${esc(s.id)}" accept="image/jpeg,image/png,application/pdf"></label>
       ${row.files.length?row.files.map(f=>`<div class="private-receipt"><b>${esc(f.name)}</b><div><button class="link" data-private-view="${f.id}">Ver</button><button class="link" data-private-download="${f.id}">Descargar ↓</button></div></div>`).join(''):'<small>Sin comprobantes esta semana.</small>'}</section>`;
@@ -96,3 +96,74 @@ function bindPrivatePayments(){
     }catch{toast('No se pudo abrir el comprobante en este navegador.')}
   });
 }
+
+// ---------- Clases particulares: el jugador le manda su comprobante a SU coach ----------
+// No cuenta para la mensualidad de la academia. Solo lo ven el jugador, su tutor y el coach elegido
+// (reglas en supabase/07_clases_particulares.sql). Se guarda en state.privateSent[jugador].
+function privateSent(playerId){
+  state.privateSent??={};
+  return state.privateSent[playerId]??=[];
+}
+function academyCoaches(){
+  return (state.directory||[]).filter(m=>m.role==='Coach'&&m.academy===state.profile.academy);
+}
+function privateStatusBadge(item){
+  return `<span class="badge ${item.status==='Pagado'?'':'clay'}">${item.status==='Pagado'?'✓ Confirmado':'En revisión'}</span>`;
+}
+function privateReceiptLink(item){
+  if(item.receipt?.path)return `<button type="button" class="link" data-receipt="${esc(item.receipt.path)}">Ver comprobante ↗</button>`;
+  return item.receipt?.data?`<a class="link" href="${esc(item.receipt.data)}" download="${esc(item.receipt.name)}">Ver comprobante ↗</a>`:'';
+}
+function playerPrivateCard(){
+  if(role==='Coach'||!state.profile?.memberId)return '';
+  const list=privateSent(state.profile.memberId).slice().sort((a,b)=>b.at-a.at);
+  return `<section class="card private-lessons" id="private-lessons"><small class="eyebrow">Clases particulares</small><h2>Pagos a tu coach</h2>
+    <p class="hint">¿Tomas clases particulares y le pagas directo a tu coach? Sube aquí el comprobante. Solo lo verá ese coach; no cuenta para la mensualidad de la academia.</p>
+    ${role==='Jugador'?'<button class="btn lime" id="private-send">Subir comprobante de clase particular</button>':''}
+    ${list.length?`<div class="private-sent">${list.map(item=>`<div class="private-receipt"><div><b>${esc(item.coachName)}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}</div></div>`).join('')}</div>`:''}
+  </section>`;
+}
+function openPrivateSend(){
+  const coaches=academyCoaches();
+  if(!coaches.length){toast('Todavía no hay coaches registrados en tu academia.');return}
+  modal('Comprobante de clase particular',`<label class="full">¿A qué coach le pagaste?<select name="coach" required><option value="">Elige a tu coach</option>${coaches.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
+    <label>Fecha de la clase<input type="date" name="date" required value="${localDay()}"></label>
+    <label>Importe pagado (MXN, opcional)<input type="number" name="amount" min="0" max="999999" step="0.01"></label>
+    <label class="full">Comprobante<input type="file" name="file" required accept="image/jpeg,image/png,application/pdf"></label>
+    <p class="full hint">JPG, PNG o PDF · hasta 3 MB. Solo lo verá el coach que elijas.</p>`,data=>{
+    const coach=coaches.find(c=>c.id===data.coach),file=data.file;
+    if(!coach){toast('Elige a tu coach.');return false}
+    if(!(file instanceof File)||!file.size){toast('Adjunta el comprobante.');return false}
+    if(!['image/jpeg','image/png','application/pdf'].includes(file.type)||file.size>3*1024*1024){toast('Elige un JPG, PNG o PDF de hasta 3 MB.');return false}
+    const button=$('#modalform .formactions .btn');if(button)button.disabled=true;
+    readFile(file).then(url=>{
+      privateSent(state.profile.memberId).push({id:newMemberId(),coachId:coach.id,coachName:coach.name,week:weekOf(data.date||localDay()),date:data.date,amount:data.amount?Number(data.amount):'',receipt:{name:file.name,data:url},status:'En revisión',at:Date.now()});
+      if(!save())return;
+      $('#modal').close();render();toast('Comprobante enviado a '+coach.name+'.');
+    }).catch(()=>{toast('No se pudo leer el comprobante.');if(button)button.disabled=false});
+    return false;
+  },'Enviar al coach');
+}
+// Lo que los jugadores le mandaron a este coach.
+function coachPrivateInbox(week){
+  const me=actor()?.memberId,rows=[];
+  for(const [playerId,list] of Object.entries(state.privateSent||{}))
+    for(const item of list)if(item.coachId===me&&(item.status!=='Pagado'||item.week===week))rows.push({playerId,item});
+  if(!rows.length)return '';
+  rows.sort((a,b)=>b.item.at-a.item.at);
+  const name=id=>(state.directory||[]).find(m=>m.id===id)?.name||'Jugador';
+  return `<section class="card private-inbox"><small class="eyebrow">Enviados por tus jugadores</small><h2>Comprobantes de clases particulares</h2>
+    ${rows.map(({playerId,item})=>`<div class="private-receipt"><div><b>${esc(name(playerId))}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}${item.status!=='Pagado'?`<button class="btn small" data-private-confirm="${esc(playerId)}|${esc(item.id)}">Confirmar pago</button>`:''}</div></div>`).join('')}</section>`;
+}
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('#private-send')){openPrivateSend();return}
+  const confirm=event.target.closest?.('[data-private-confirm]');
+  if(!confirm||role!=='Coach')return;
+  const [playerId,id]=confirm.dataset.privateConfirm.split('|'),item=privateSent(playerId).find(i=>i.id===id);
+  if(!item)return;
+  item.status='Pagado';
+  // Si el jugador ya está en "Pagos privados", esa semana queda pagada.
+  const student=coachLedger().students.find(s=>s.academyPlayer===playerId);
+  if(student){const row=privateRow(student,item.week);student.weeks[item.week]={...row,amount:item.amount||row.amount,paid:true}}
+  save();render();toast('Pago confirmado.');
+});

@@ -695,3 +695,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* Botones secundarios sobre el video: arena; lima solo para la acción principal */
 .club-cover .club-actions .btn:not(.lime),.club-person .member-edit{min-height:40px;padding:0 var(--space-4);border:1px solid var(--arena);border-radius:var(--radius-md);background:var(--arena);color:var(--on-lima);text-decoration:none;font-weight:var(--label-weight)}
 .club-cover .club-actions .btn:not(.lime):hover,.club-person .member-edit:hover{background:#E8D7B2;border-color:#E8D7B2}
+
+/* ---------- Clases particulares (comprobantes al coach) ---------- */
+.private-lessons{margin-top:var(--space-4)}
+.private-lessons .btn{margin:var(--space-2) 0 var(--space-3)}
+.private-sent .private-receipt small,.private-inbox .private-receipt small{display:block;color:var(--ink-muted)}
+.private-sent .private-receipt>div:last-child,.private-inbox .private-receipt>div:last-child{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.private-inbox{margin-bottom:var(--space-4)}

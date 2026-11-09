@@ -38,14 +38,14 @@ function feePage(){
   return heading('Mensualidad','Consulta tu matrícula, adjunta el comprobante y revisa qué meses ya están pagados.')+
     `<section class="card"><div class="row"><h2>Mis pagos de ${year}</h2><div><button class="link" data-fee-year="${year-1}" aria-label="Año anterior">←</button><button class="link" data-fee-year="${year+1}" aria-label="Año siguiente">→</button></div></div><div class="fee-months">${months}</div></section>
     <div class="columns fee-detail"><section class="card"><small class="eyebrow">Mes seleccionado</small><h2>${dateLabel(feeMonth+'-01',{month:'long',year:'numeric'})}</h2><span class="badge">${status==='Pagado'?'✓ ':''}${status}</span><div class="metric">${row.amount?esc(Number(row.amount).toLocaleString('es-MX',{style:'currency',currency:'MXN'})):'Por definir'} <small>MXN</small></div>
-    ${row.receipt?`<p class="hint">Comprobante · ${esc(row.receipt.name)}</p><a href="${esc(row.receipt.data)}" download="${esc(row.receipt.name)}">Descargar comprobante ↗</a>`:''}
+    ${row.receipt?`<p class="hint">Comprobante · ${esc(row.receipt.name)}</p>${row.receipt.path?`<button type="button" class="link" data-receipt="${esc(row.receipt.path)}">Ver comprobante ↗</button>`:`<a href="${esc(row.receipt.data)}" download="${esc(row.receipt.name)}">Descargar comprobante ↗</a>`}`:''}
     ${status!=='Pagado'?`<label class="fee-upload">Adjuntar comprobante a este mes<input type="file" id="fee-upload" accept="image/jpeg,image/png,application/pdf"><small>JPG, PNG o PDF · Hasta 1.5 MB</small></label>`:''}
     ${role==='Coach'&&row.receipt&&status==='En revisión'?'<button class="btn lime" id="fee-confirm">Confirmar pago recibido</button>':''}</section>
     <section class="card"><div class="row"><h2>Cómo pagar</h2>${role==='Coach'?'<button id="fee-config" class="link">Configurar</button>':''}</div>
     <ol class="fee-steps"><li>Selecciona el mes y revisa el importe indicado por tu academia.</li><li>Transfiere el importe en MXN a la cuenta indicada abajo. En el concepto o referencia escribe <strong>únicamente tu matrícula de 7 caracteres</strong>, incluidos los ceros iniciales. Un concepto distinto puede ocasionar el rechazo del pago.</li><li>Sube el comprobante al mes que pagaste. Cuando administración verifique el ingreso, verás una palomita verde junto a ese mes.</li></ol>
     <div class="fee-reference"><small>Tu matrícula personal</small><b>${esc(ledger.code||'Pendiente de asignar')}</b></div>
     <dl class="bank-info">${[['Banco',bank.bank],['Beneficiario',bank.holder],['Número de cuenta',bank.account],['CLABE',bank.clabe]].map(([k,v])=>`<dt>${k}</dt><dd>${esc(v||'Pendiente de configurar')}</dd>`).join('')}</dl>
-    ${!ledger.code||!(bank.account||bank.clabe)?'<p class="hint">Solicita a administración los datos pendientes antes de transferir.</p>':''}</section></div>`;
+    ${!ledger.code||!(bank.account||bank.clabe)?'<p class="hint">Solicita a administración los datos pendientes antes de transferir.</p>':''}</section></div>${playerPrivateCard()}`;
 }
 function updateFeeRow(ledger,key,patch){
   const previous=ledger.months[key];

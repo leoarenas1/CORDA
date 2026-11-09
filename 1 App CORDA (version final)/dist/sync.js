@@ -6,8 +6,8 @@
 // Quién puede ver o editar cada cosa lo deciden las reglas RLS de supabase/03_datos_compartidos.sql.
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
-const PLAYER_KINDS=new Set(['checkin_player','competition','goal','fee_month','fee_code']);
-const DELETABLE=new Set(['session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month']);
+const PLAYER_KINDS=new Set(['checkin_player','competition','goal','fee_month','fee_code','private_receipt']);
+const DELETABLE=new Set(['session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -52,12 +52,13 @@ function collectItems(){
   const group=syncGroup();
   Object.entries(group.officeHours).forEach(([host,rules])=>put('','office_hours',host,rules));
   put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null});
-  (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||''}));
+  (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||'',photo:m.photoRef||null}));
   (state.privateLessons||[]).forEach(book=>put('','private_book',book.coachId,book));
   for(const id of syncPlayers()){
     for(const [kind,get] of PLAYER_MAPS)Object.entries(get(id)).forEach(([key,value])=>put(id,kind,key,value));
     (syncAthlete(id).goals||[]).forEach(goal=>{if(!isDemoItem(goal))put(id,'goal',syncId(goal),goal)});
     const code=syncLedger(id).code;if(code)put(id,'fee_code','code',{code});
+    privateSent(id).forEach(item=>put(id,'private_receipt',item.id,item));
   }
   if(syncCtx.role==='Jugador')(state.competition||[]).forEach(c=>put(syncCtx.memberId,'competition',syncId(c),c));
   return out;
@@ -84,6 +85,7 @@ async function pushItems(){
   if(syncBusy){syncAgain=true;return}
   syncBusy=true;
   try{
+    try{await uploadMedia()}catch{} // si Storage falla, los datos se suben igual
     const now=collectItems(),upserts=[],deletes=new Map();
     for(const [slot,item] of now){
       if(!canWrite(item))continue;
@@ -174,7 +176,10 @@ function applyRows(rows){
   if(settings){group.address=settings.address||group.address;if(settings.brand)group.brand=settings.brand;if(settings.feeBank)group.feeBank=settings.feeBank}
   for(const r of rowsOf('','member_card')){
     const member=state.directory.find(m=>m.id===r.key&&m.academy===syncCtx.academyName);
-    if(member)Object.assign(member,{bio:r.data.bio,email:r.data.email,phone:r.data.phone});
+    if(!member)continue;
+    Object.assign(member,{bio:r.data.bio,email:r.data.email,phone:r.data.phone});
+    member.photoRef=r.data.photo||null;
+    if(!member.photoRef&&member.id!==actor()?.memberId){member.photo='';member.photoV=null}
   }
   if(syncCtx.staff){state.privateLessons??=[];fillList(state.privateLessons,rowsOf('','private_book').map(r=>r.data))}
   for(const id of syncPlayers()){
@@ -182,6 +187,7 @@ function applyRows(rows){
     const goals=syncAthlete(id).goals,cloudGoals=rowsOf(id,'goal').map(r=>r.data);
     fillList(goals,cloudGoals.length?cloudGoals.sort(byOrder):goals.filter(isDemoItem));
     syncLedger(id).code=rowsOf(id,'fee_code')[0]?.data?.code||syncLedger(id).code||'';
+    fillList(privateSent(id),rowsOf(id,'private_receipt').map(r=>r.data).sort((a,b)=>a.at-b.at));
   }
   if(syncCtx.role==='Jugador'&&state.competition)fillList(state.competition,rowsOf(syncCtx.memberId,'competition').map(r=>r.data).sort((a,b)=>String(a.date).localeCompare(String(b.date))));
   // Lo que acabamos de bajar ya está "sincronizado".
@@ -222,6 +228,8 @@ async function pullItems({first=false}={}){
     applyRows(all);
     try{if(!phoneDemo)localStorage.setItem('corda-v1',JSON.stringify(state))}catch{}
     if(safeToRender()){const y=window.scrollY;render();window.scrollTo(0,y)}
+    fetchAvatars();
+    if(first)scheduleSync(); // pasa a Storage las fotos y comprobantes que solo estaban en el navegador
   }catch{
     // Sin conexión: la app sigue con lo que hay en este navegador y reintenta en el siguiente ciclo.
   }finally{syncBusy=false}
@@ -252,3 +260,83 @@ function stopSync(){
   syncPoll=null;syncTimer=null;syncCtx=null;syncedItems=new Map();syncAgain=false;
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullItems()});
+
+// ---------- Fase C: fotos y comprobantes en Supabase Storage ----------
+// Carpeta privada "media": <academia>/<integrante>/avatar.jpg y <academia>/<integrante>/receipts/…
+// La foto se reduce a 320 px antes de subirla. Los comprobantes se abren con un enlace temporal.
+const MEDIA_BUCKET='media';
+function textHash(text){let h=5381;for(let i=0;i<text.length;i++)h=(Math.imul(h,33)^text.charCodeAt(i))>>>0;return h.toString(36)+':'+text.length}
+const dataBlob=url=>fetch(url).then(r=>r.blob());
+function blobData(blob){return new Promise((ok,fail)=>{const reader=new FileReader();reader.onload=()=>ok(reader.result);reader.onerror=fail;reader.readAsDataURL(blob)})}
+async function smallAvatar(url){
+  const bitmap=await createImageBitmap(await dataBlob(url)),scale=Math.min(1,320/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+  canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+  return new Promise(ok=>canvas.toBlob(ok,'image/jpeg',.85));
+}
+const mediaRoot=id=>syncCtx.academyId+'/'+id;
+async function uploadMedia(){
+  const bucket=cloud.storage.from(MEDIA_BUCKET);
+  for(const m of state.directory||[]){
+    if(m.academy!==syncCtx.academyName||!m.id||!canWrite({member_id:'',kind:'member_card',key:m.id}))continue;
+    if(!m.photo){if(m.photoRef){m.photoRef=null;m.photoHash=''}continue}
+    if(!String(m.photo).startsWith('data:'))continue;
+    const hash=textHash(m.photo);
+    if(m.photoRef&&hash===m.photoHash)continue;
+    const path=mediaRoot(m.id)+'/avatar.jpg';
+    const {error}=await bucket.upload(path,await smallAvatar(m.photo),{upsert:true,contentType:'image/jpeg'});
+    if(error)throw error;
+    m.photoRef={path,v:Date.now()};m.photoHash=hash;m.photoV=m.photoRef.v;
+  }
+  for(const id of syncPlayers()){
+    for(const [month,row] of Object.entries(syncLedger(id).months)){
+      const receipt=row?.receipt;
+      if(!String(receipt?.data||'').startsWith('data:')||!canWrite({member_id:id,kind:'fee_month',key:month}))continue;
+      const blob=await dataBlob(receipt.data),ext={'image/png':'png','application/pdf':'pdf'}[blob.type]||'jpg';
+      const path=mediaRoot(id)+'/receipts/'+month+'-'+newMemberId().slice(0,8)+'.'+ext;
+      const {error}=await bucket.upload(path,blob,{contentType:blob.type||'image/jpeg'});
+      if(error)throw error;
+      row.receipt={name:receipt.name,path,type:blob.type};
+    }
+    for(const item of privateSent(id)){
+      const receipt=item.receipt;
+      if(!String(receipt?.data||'').startsWith('data:')||!canWrite({member_id:id,kind:'private_receipt',key:item.id}))continue;
+      const blob=await dataBlob(receipt.data),ext={'image/png':'png','application/pdf':'pdf'}[blob.type]||'jpg';
+      const path=mediaRoot(id)+'/private/'+item.coachId+'/'+item.id+'.'+ext;
+      const {error}=await bucket.upload(path,blob,{upsert:true,contentType:blob.type||'image/jpeg'});
+      if(error)throw error;
+      item.receipt={name:receipt.name,path,type:blob.type};
+    }
+  }
+}
+async function fetchAvatars(){
+  if(!syncCtx)return;
+  let changed=false;
+  const me=actor()?.memberId;
+  for(const m of state.directory||[]){
+    const ref=m.photoRef;
+    if(!ref?.path||m.photoV===ref.v)continue;
+    if(m.id===me&&m.photo){m.photoV=ref.v;continue} // la foto propia ya está en este navegador
+    try{
+      const {data,error}=await cloud.storage.from(MEDIA_BUCKET).download(ref.path);
+      if(error||!data)continue;
+      m.photo=await blobData(data);m.photoV=ref.v;m.photoHash=textHash(m.photo);changed=true;
+      if(m.id===me){if(actor())actor().photo=m.photo}
+      else if(state.athletes?.[m.id])state.athletes[m.id].profile.photo=m.photo;
+    }catch{}
+  }
+  if(!changed)return;
+  try{if(!phoneDemo)localStorage.setItem('corda-v1',JSON.stringify(state))}catch{}
+  if(safeToRender()){const y=window.scrollY;render();window.scrollTo(0,y)}
+}
+// "Ver comprobante": enlace temporal de 2 minutos al archivo privado.
+document.addEventListener('click',async event=>{
+  const button=event.target.closest?.('[data-receipt]');
+  if(!button||!cloud)return;
+  event.preventDefault();
+  const tab=window.open('','_blank');
+  const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(button.dataset.receipt,120);
+  if(error||!data?.signedUrl){tab?.close();toast(coverText('No se pudo abrir el comprobante.','The receipt could not be opened.','Impossible d’ouvrir le justificatif.'));return}
+  if(tab)tab.location=data.signedUrl;else location.assign(data.signedUrl);
+});

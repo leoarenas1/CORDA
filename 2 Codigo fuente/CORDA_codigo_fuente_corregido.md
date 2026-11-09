@@ -28,6 +28,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Privacidad de perfiles (8 nov 2026):** en «Mi academia» solo se ven nombre, rol y lo que cada quien escriba en su ficha; las metas ya no se muestran (`supabase/05_privacidad_perfiles.sql`).
 
+> **Fase C y clases particulares (8 nov 2026):** fotos y comprobantes en Supabase Storage (`supabase/06_fotos_y_comprobantes.sql`); el jugador sube el comprobante de una clase particular y solo lo ve el coach elegido (`supabase/07_clases_particulares.sql`).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1118,7 +1120,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108d"><link rel="stylesheet" href="style.css?v=20261108d"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108d"><link rel="stylesheet" href="styles/ace.css?v=20261108d"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108d"></script><script src="resenas.js?v=20261108d"></script><script src="portada.js?v=20261108d"></script><script src="community.js?v=20261108d"></script><script src="session-guide.js?v=20261108d"></script><script src="annual-progress.js?v=20261108d"></script><script src="progress-hub.js?v=20261108d"></script><script src="meetings.js?v=20261108d"></script><script src="monthly-fees.js?v=20261108d"></script><script src="portal.js?v=20261108d"></script><script src="private-payments.js?v=20261108d"></script><script src="roles.js?v=20261108d"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108d"></script><script src="auth.js?v=20261108d"></script><script src="sync.js?v=20261108d"></script><script src="sobre-corda.js?v=20261108d"></script><script src="app.js?v=20261108d"></script><script src="ace.js?v=20261108d"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108f"><link rel="stylesheet" href="style.css?v=20261108f"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108f"><link rel="stylesheet" href="styles/ace.css?v=20261108f"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108f"></script><script src="resenas.js?v=20261108f"></script><script src="portada.js?v=20261108f"></script><script src="community.js?v=20261108f"></script><script src="session-guide.js?v=20261108f"></script><script src="annual-progress.js?v=20261108f"></script><script src="progress-hub.js?v=20261108f"></script><script src="meetings.js?v=20261108f"></script><script src="monthly-fees.js?v=20261108f"></script><script src="portal.js?v=20261108f"></script><script src="private-payments.js?v=20261108f"></script><script src="roles.js?v=20261108f"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108f"></script><script src="auth.js?v=20261108f"></script><script src="sync.js?v=20261108f"></script><script src="sobre-corda.js?v=20261108f"></script><script src="app.js?v=20261108f"></script><script src="ace.js?v=20261108f"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1293,14 +1295,14 @@ function feePage(){
   return heading('Mensualidad','Consulta tu matrícula, adjunta el comprobante y revisa qué meses ya están pagados.')+
     `<section class="card"><div class="row"><h2>Mis pagos de ${year}</h2><div><button class="link" data-fee-year="${year-1}" aria-label="Año anterior">←</button><button class="link" data-fee-year="${year+1}" aria-label="Año siguiente">→</button></div></div><div class="fee-months">${months}</div></section>
     <div class="columns fee-detail"><section class="card"><small class="eyebrow">Mes seleccionado</small><h2>${dateLabel(feeMonth+'-01',{month:'long',year:'numeric'})}</h2><span class="badge">${status==='Pagado'?'✓ ':''}${status}</span><div class="metric">${row.amount?esc(Number(row.amount).toLocaleString('es-MX',{style:'currency',currency:'MXN'})):'Por definir'} <small>MXN</small></div>
-    ${row.receipt?`<p class="hint">Comprobante · ${esc(row.receipt.name)}</p><a href="${esc(row.receipt.data)}" download="${esc(row.receipt.name)}">Descargar comprobante ↗</a>`:''}
+    ${row.receipt?`<p class="hint">Comprobante · ${esc(row.receipt.name)}</p>${row.receipt.path?`<button type="button" class="link" data-receipt="${esc(row.receipt.path)}">Ver comprobante ↗</button>`:`<a href="${esc(row.receipt.data)}" download="${esc(row.receipt.name)}">Descargar comprobante ↗</a>`}`:''}
     ${status!=='Pagado'?`<label class="fee-upload">Adjuntar comprobante a este mes<input type="file" id="fee-upload" accept="image/jpeg,image/png,application/pdf"><small>JPG, PNG o PDF · Hasta 1.5 MB</small></label>`:''}
     ${role==='Coach'&&row.receipt&&status==='En revisión'?'<button class="btn lime" id="fee-confirm">Confirmar pago recibido</button>':''}</section>
     <section class="card"><div class="row"><h2>Cómo pagar</h2>${role==='Coach'?'<button id="fee-config" class="link">Configurar</button>':''}</div>
     <ol class="fee-steps"><li>Selecciona el mes y revisa el importe indicado por tu academia.</li><li>Transfiere el importe en MXN a la cuenta indicada abajo. En el concepto o referencia escribe <strong>únicamente tu matrícula de 7 caracteres</strong>, incluidos los ceros iniciales. Un concepto distinto puede ocasionar el rechazo del pago.</li><li>Sube el comprobante al mes que pagaste. Cuando administración verifique el ingreso, verás una palomita verde junto a ese mes.</li></ol>
     <div class="fee-reference"><small>Tu matrícula personal</small><b>${esc(ledger.code||'Pendiente de asignar')}</b></div>
     <dl class="bank-info">${[['Banco',bank.bank],['Beneficiario',bank.holder],['Número de cuenta',bank.account],['CLABE',bank.clabe]].map(([k,v])=>`<dt>${k}</dt><dd>${esc(v||'Pendiente de configurar')}</dd>`).join('')}</dl>
-    ${!ledger.code||!(bank.account||bank.clabe)?'<p class="hint">Solicita a administración los datos pendientes antes de transferir.</p>':''}</section></div>`;
+    ${!ledger.code||!(bank.account||bank.clabe)?'<p class="hint">Solicita a administración los datos pendientes antes de transferir.</p>':''}</section></div>${playerPrivateCard()}`;
 }
 function updateFeeRow(ledger,key,patch){
   const previous=ledger.months[key];
@@ -1347,7 +1349,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108d"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108f"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -1639,7 +1641,7 @@ function weeklyPage(){
   return heading('Pagos privados','Control semanal de tus clases particulares · MXN','<button class="btn lime" id="private-add">+ Añadir jugador</button>')+
     `<section class="card"><div class="private-week"><button class="link" data-private-shift="-7" aria-label="Semana anterior">← Anterior</button><div><small class="eyebrow">Semana de clases</small><h2>${weekLabel(privateWeek)}</h2><button class="link" id="private-today">Semana actual</button></div><button class="link" data-private-shift="7" aria-label="Semana siguiente">Siguiente →</button></div>
     <div class="private-totals"><div><small>Cobrado</small><b>${mxn(sum(paid))}</b></div><div><small>Pendiente</small><b>${mxn(sum(students)-sum(paid))}</b></div><div><small>Jugadores al corriente</small><b>${paid.length} de ${students.length}</b></div></div></section>
-    <div class="private-list">${students.map(s=>{
+    ${coachPrivateInbox(privateWeek)}<div class="private-list">${students.map(s=>{
       const row=privateRow(s,privateWeek);
       return `<section class="card"><div class="row"><div><small class="eyebrow">${s.academyPlayer?'Jugador de la academia':'Jugador externo'}</small><h2>${esc(s.name)}</h2></div><span class="badge ${row.paid?'':'clay'}">${row.paid?'✓ Pagado':'Pendiente'}</span></div><h3>${mxn(row.amount)}</h3><button class="btn small" data-private-edit="${esc(s.id)}">Registrar o editar pago</button><label class="private-file">Adjuntar comprobante<input type="file" data-private-file="${esc(s.id)}" accept="image/jpeg,image/png,application/pdf"></label>
       ${row.files.length?row.files.map(f=>`<div class="private-receipt"><b>${esc(f.name)}</b><div><button class="link" data-private-view="${f.id}">Ver</button><button class="link" data-private-download="${f.id}">Descargar ↓</button></div></div>`).join(''):'<small>Sin comprobantes esta semana.</small>'}</section>`;
@@ -1706,6 +1708,77 @@ function bindPrivatePayments(){
     }catch{toast('No se pudo abrir el comprobante en este navegador.')}
   });
 }
+
+// ---------- Clases particulares: el jugador le manda su comprobante a SU coach ----------
+// No cuenta para la mensualidad de la academia. Solo lo ven el jugador, su tutor y el coach elegido
+// (reglas en supabase/07_clases_particulares.sql). Se guarda en state.privateSent[jugador].
+function privateSent(playerId){
+  state.privateSent??={};
+  return state.privateSent[playerId]??=[];
+}
+function academyCoaches(){
+  return (state.directory||[]).filter(m=>m.role==='Coach'&&m.academy===state.profile.academy);
+}
+function privateStatusBadge(item){
+  return `<span class="badge ${item.status==='Pagado'?'':'clay'}">${item.status==='Pagado'?'✓ Confirmado':'En revisión'}</span>`;
+}
+function privateReceiptLink(item){
+  if(item.receipt?.path)return `<button type="button" class="link" data-receipt="${esc(item.receipt.path)}">Ver comprobante ↗</button>`;
+  return item.receipt?.data?`<a class="link" href="${esc(item.receipt.data)}" download="${esc(item.receipt.name)}">Ver comprobante ↗</a>`:'';
+}
+function playerPrivateCard(){
+  if(role==='Coach'||!state.profile?.memberId)return '';
+  const list=privateSent(state.profile.memberId).slice().sort((a,b)=>b.at-a.at);
+  return `<section class="card private-lessons" id="private-lessons"><small class="eyebrow">Clases particulares</small><h2>Pagos a tu coach</h2>
+    <p class="hint">¿Tomas clases particulares y le pagas directo a tu coach? Sube aquí el comprobante. Solo lo verá ese coach; no cuenta para la mensualidad de la academia.</p>
+    ${role==='Jugador'?'<button class="btn lime" id="private-send">Subir comprobante de clase particular</button>':''}
+    ${list.length?`<div class="private-sent">${list.map(item=>`<div class="private-receipt"><div><b>${esc(item.coachName)}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}</div></div>`).join('')}</div>`:''}
+  </section>`;
+}
+function openPrivateSend(){
+  const coaches=academyCoaches();
+  if(!coaches.length){toast('Todavía no hay coaches registrados en tu academia.');return}
+  modal('Comprobante de clase particular',`<label class="full">¿A qué coach le pagaste?<select name="coach" required><option value="">Elige a tu coach</option>${coaches.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
+    <label>Fecha de la clase<input type="date" name="date" required value="${localDay()}"></label>
+    <label>Importe pagado (MXN, opcional)<input type="number" name="amount" min="0" max="999999" step="0.01"></label>
+    <label class="full">Comprobante<input type="file" name="file" required accept="image/jpeg,image/png,application/pdf"></label>
+    <p class="full hint">JPG, PNG o PDF · hasta 3 MB. Solo lo verá el coach que elijas.</p>`,data=>{
+    const coach=coaches.find(c=>c.id===data.coach),file=data.file;
+    if(!coach){toast('Elige a tu coach.');return false}
+    if(!(file instanceof File)||!file.size){toast('Adjunta el comprobante.');return false}
+    if(!['image/jpeg','image/png','application/pdf'].includes(file.type)||file.size>3*1024*1024){toast('Elige un JPG, PNG o PDF de hasta 3 MB.');return false}
+    const button=$('#modalform .formactions .btn');if(button)button.disabled=true;
+    readFile(file).then(url=>{
+      privateSent(state.profile.memberId).push({id:newMemberId(),coachId:coach.id,coachName:coach.name,week:weekOf(data.date||localDay()),date:data.date,amount:data.amount?Number(data.amount):'',receipt:{name:file.name,data:url},status:'En revisión',at:Date.now()});
+      if(!save())return;
+      $('#modal').close();render();toast('Comprobante enviado a '+coach.name+'.');
+    }).catch(()=>{toast('No se pudo leer el comprobante.');if(button)button.disabled=false});
+    return false;
+  },'Enviar al coach');
+}
+// Lo que los jugadores le mandaron a este coach.
+function coachPrivateInbox(week){
+  const me=actor()?.memberId,rows=[];
+  for(const [playerId,list] of Object.entries(state.privateSent||{}))
+    for(const item of list)if(item.coachId===me&&(item.status!=='Pagado'||item.week===week))rows.push({playerId,item});
+  if(!rows.length)return '';
+  rows.sort((a,b)=>b.item.at-a.item.at);
+  const name=id=>(state.directory||[]).find(m=>m.id===id)?.name||'Jugador';
+  return `<section class="card private-inbox"><small class="eyebrow">Enviados por tus jugadores</small><h2>Comprobantes de clases particulares</h2>
+    ${rows.map(({playerId,item})=>`<div class="private-receipt"><div><b>${esc(name(playerId))}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}${item.status!=='Pagado'?`<button class="btn small" data-private-confirm="${esc(playerId)}|${esc(item.id)}">Confirmar pago</button>`:''}</div></div>`).join('')}</section>`;
+}
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('#private-send')){openPrivateSend();return}
+  const confirm=event.target.closest?.('[data-private-confirm]');
+  if(!confirm||role!=='Coach')return;
+  const [playerId,id]=confirm.dataset.privateConfirm.split('|'),item=privateSent(playerId).find(i=>i.id===id);
+  if(!item)return;
+  item.status='Pagado';
+  // Si el jugador ya está en "Pagos privados", esa semana queda pagada.
+  const student=coachLedger().students.find(s=>s.academyPlayer===playerId);
+  if(student){const row=privateRow(student,item.week);student.weeks[item.week]={...row,amount:item.amount||row.amount,paid:true}}
+  save();render();toast('Pago confirmado.');
+});
 ````
 
 ## Archivo: `dist/progress-hub.js`
@@ -3132,6 +3205,13 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* Botones secundarios sobre el video: arena; lima solo para la acción principal */
 .club-cover .club-actions .btn:not(.lime),.club-person .member-edit{min-height:40px;padding:0 var(--space-4);border:1px solid var(--arena);border-radius:var(--radius-md);background:var(--arena);color:var(--on-lima);text-decoration:none;font-weight:var(--label-weight)}
 .club-cover .club-actions .btn:not(.lime):hover,.club-person .member-edit:hover{background:#E8D7B2;border-color:#E8D7B2}
+
+/* ---------- Clases particulares (comprobantes al coach) ---------- */
+.private-lessons{margin-top:var(--space-4)}
+.private-lessons .btn{margin:var(--space-2) 0 var(--space-3)}
+.private-sent .private-receipt small,.private-inbox .private-receipt small{display:block;color:var(--ink-muted)}
+.private-sent .private-receipt>div:last-child,.private-inbox .private-receipt>div:last-child{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.private-inbox{margin-bottom:var(--space-4)}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -3538,8 +3618,8 @@ const CORDA_SUPABASE={
 // Quién puede ver o editar cada cosa lo deciden las reglas RLS de supabase/03_datos_compartidos.sql.
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
-const PLAYER_KINDS=new Set(['checkin_player','competition','goal','fee_month','fee_code']);
-const DELETABLE=new Set(['session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month']);
+const PLAYER_KINDS=new Set(['checkin_player','competition','goal','fee_month','fee_code','private_receipt']);
+const DELETABLE=new Set(['session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -3584,12 +3664,13 @@ function collectItems(){
   const group=syncGroup();
   Object.entries(group.officeHours).forEach(([host,rules])=>put('','office_hours',host,rules));
   put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null});
-  (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||''}));
+  (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||'',photo:m.photoRef||null}));
   (state.privateLessons||[]).forEach(book=>put('','private_book',book.coachId,book));
   for(const id of syncPlayers()){
     for(const [kind,get] of PLAYER_MAPS)Object.entries(get(id)).forEach(([key,value])=>put(id,kind,key,value));
     (syncAthlete(id).goals||[]).forEach(goal=>{if(!isDemoItem(goal))put(id,'goal',syncId(goal),goal)});
     const code=syncLedger(id).code;if(code)put(id,'fee_code','code',{code});
+    privateSent(id).forEach(item=>put(id,'private_receipt',item.id,item));
   }
   if(syncCtx.role==='Jugador')(state.competition||[]).forEach(c=>put(syncCtx.memberId,'competition',syncId(c),c));
   return out;
@@ -3616,6 +3697,7 @@ async function pushItems(){
   if(syncBusy){syncAgain=true;return}
   syncBusy=true;
   try{
+    try{await uploadMedia()}catch{} // si Storage falla, los datos se suben igual
     const now=collectItems(),upserts=[],deletes=new Map();
     for(const [slot,item] of now){
       if(!canWrite(item))continue;
@@ -3706,7 +3788,10 @@ function applyRows(rows){
   if(settings){group.address=settings.address||group.address;if(settings.brand)group.brand=settings.brand;if(settings.feeBank)group.feeBank=settings.feeBank}
   for(const r of rowsOf('','member_card')){
     const member=state.directory.find(m=>m.id===r.key&&m.academy===syncCtx.academyName);
-    if(member)Object.assign(member,{bio:r.data.bio,email:r.data.email,phone:r.data.phone});
+    if(!member)continue;
+    Object.assign(member,{bio:r.data.bio,email:r.data.email,phone:r.data.phone});
+    member.photoRef=r.data.photo||null;
+    if(!member.photoRef&&member.id!==actor()?.memberId){member.photo='';member.photoV=null}
   }
   if(syncCtx.staff){state.privateLessons??=[];fillList(state.privateLessons,rowsOf('','private_book').map(r=>r.data))}
   for(const id of syncPlayers()){
@@ -3714,6 +3799,7 @@ function applyRows(rows){
     const goals=syncAthlete(id).goals,cloudGoals=rowsOf(id,'goal').map(r=>r.data);
     fillList(goals,cloudGoals.length?cloudGoals.sort(byOrder):goals.filter(isDemoItem));
     syncLedger(id).code=rowsOf(id,'fee_code')[0]?.data?.code||syncLedger(id).code||'';
+    fillList(privateSent(id),rowsOf(id,'private_receipt').map(r=>r.data).sort((a,b)=>a.at-b.at));
   }
   if(syncCtx.role==='Jugador'&&state.competition)fillList(state.competition,rowsOf(syncCtx.memberId,'competition').map(r=>r.data).sort((a,b)=>String(a.date).localeCompare(String(b.date))));
   // Lo que acabamos de bajar ya está "sincronizado".
@@ -3754,6 +3840,8 @@ async function pullItems({first=false}={}){
     applyRows(all);
     try{if(!phoneDemo)localStorage.setItem('corda-v1',JSON.stringify(state))}catch{}
     if(safeToRender()){const y=window.scrollY;render();window.scrollTo(0,y)}
+    fetchAvatars();
+    if(first)scheduleSync(); // pasa a Storage las fotos y comprobantes que solo estaban en el navegador
   }catch{
     // Sin conexión: la app sigue con lo que hay en este navegador y reintenta en el siguiente ciclo.
   }finally{syncBusy=false}
@@ -3784,6 +3872,86 @@ function stopSync(){
   syncPoll=null;syncTimer=null;syncCtx=null;syncedItems=new Map();syncAgain=false;
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pullItems()});
+
+// ---------- Fase C: fotos y comprobantes en Supabase Storage ----------
+// Carpeta privada "media": <academia>/<integrante>/avatar.jpg y <academia>/<integrante>/receipts/…
+// La foto se reduce a 320 px antes de subirla. Los comprobantes se abren con un enlace temporal.
+const MEDIA_BUCKET='media';
+function textHash(text){let h=5381;for(let i=0;i<text.length;i++)h=(Math.imul(h,33)^text.charCodeAt(i))>>>0;return h.toString(36)+':'+text.length}
+const dataBlob=url=>fetch(url).then(r=>r.blob());
+function blobData(blob){return new Promise((ok,fail)=>{const reader=new FileReader();reader.onload=()=>ok(reader.result);reader.onerror=fail;reader.readAsDataURL(blob)})}
+async function smallAvatar(url){
+  const bitmap=await createImageBitmap(await dataBlob(url)),scale=Math.min(1,320/Math.max(bitmap.width,bitmap.height));
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
+  canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height);
+  return new Promise(ok=>canvas.toBlob(ok,'image/jpeg',.85));
+}
+const mediaRoot=id=>syncCtx.academyId+'/'+id;
+async function uploadMedia(){
+  const bucket=cloud.storage.from(MEDIA_BUCKET);
+  for(const m of state.directory||[]){
+    if(m.academy!==syncCtx.academyName||!m.id||!canWrite({member_id:'',kind:'member_card',key:m.id}))continue;
+    if(!m.photo){if(m.photoRef){m.photoRef=null;m.photoHash=''}continue}
+    if(!String(m.photo).startsWith('data:'))continue;
+    const hash=textHash(m.photo);
+    if(m.photoRef&&hash===m.photoHash)continue;
+    const path=mediaRoot(m.id)+'/avatar.jpg';
+    const {error}=await bucket.upload(path,await smallAvatar(m.photo),{upsert:true,contentType:'image/jpeg'});
+    if(error)throw error;
+    m.photoRef={path,v:Date.now()};m.photoHash=hash;m.photoV=m.photoRef.v;
+  }
+  for(const id of syncPlayers()){
+    for(const [month,row] of Object.entries(syncLedger(id).months)){
+      const receipt=row?.receipt;
+      if(!String(receipt?.data||'').startsWith('data:')||!canWrite({member_id:id,kind:'fee_month',key:month}))continue;
+      const blob=await dataBlob(receipt.data),ext={'image/png':'png','application/pdf':'pdf'}[blob.type]||'jpg';
+      const path=mediaRoot(id)+'/receipts/'+month+'-'+newMemberId().slice(0,8)+'.'+ext;
+      const {error}=await bucket.upload(path,blob,{contentType:blob.type||'image/jpeg'});
+      if(error)throw error;
+      row.receipt={name:receipt.name,path,type:blob.type};
+    }
+    for(const item of privateSent(id)){
+      const receipt=item.receipt;
+      if(!String(receipt?.data||'').startsWith('data:')||!canWrite({member_id:id,kind:'private_receipt',key:item.id}))continue;
+      const blob=await dataBlob(receipt.data),ext={'image/png':'png','application/pdf':'pdf'}[blob.type]||'jpg';
+      const path=mediaRoot(id)+'/private/'+item.coachId+'/'+item.id+'.'+ext;
+      const {error}=await bucket.upload(path,blob,{upsert:true,contentType:blob.type||'image/jpeg'});
+      if(error)throw error;
+      item.receipt={name:receipt.name,path,type:blob.type};
+    }
+  }
+}
+async function fetchAvatars(){
+  if(!syncCtx)return;
+  let changed=false;
+  const me=actor()?.memberId;
+  for(const m of state.directory||[]){
+    const ref=m.photoRef;
+    if(!ref?.path||m.photoV===ref.v)continue;
+    if(m.id===me&&m.photo){m.photoV=ref.v;continue} // la foto propia ya está en este navegador
+    try{
+      const {data,error}=await cloud.storage.from(MEDIA_BUCKET).download(ref.path);
+      if(error||!data)continue;
+      m.photo=await blobData(data);m.photoV=ref.v;m.photoHash=textHash(m.photo);changed=true;
+      if(m.id===me){if(actor())actor().photo=m.photo}
+      else if(state.athletes?.[m.id])state.athletes[m.id].profile.photo=m.photo;
+    }catch{}
+  }
+  if(!changed)return;
+  try{if(!phoneDemo)localStorage.setItem('corda-v1',JSON.stringify(state))}catch{}
+  if(safeToRender()){const y=window.scrollY;render();window.scrollTo(0,y)}
+}
+// "Ver comprobante": enlace temporal de 2 minutos al archivo privado.
+document.addEventListener('click',async event=>{
+  const button=event.target.closest?.('[data-receipt]');
+  if(!button||!cloud)return;
+  event.preventDefault();
+  const tab=window.open('','_blank');
+  const {data,error}=await cloud.storage.from(MEDIA_BUCKET).createSignedUrl(button.dataset.receipt,120);
+  if(error||!data?.signedUrl){tab?.close();toast(coverText('No se pudo abrir el comprobante.','The receipt could not be opened.','Impossible d’ouvrir le justificatif.'));return}
+  if(tab)tab.location=data.signedUrl;else location.assign(data.signedUrl);
+});
 ````
 
 ## Archivo: `ASSET_CREDITS.md`
