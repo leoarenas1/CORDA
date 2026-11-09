@@ -42,6 +42,7 @@ function initAgenda() {
       s.summary ??= 'Estabilidad del tronco e isometría';
     }
   });
+  refreshDemoWeek(today);
   prepareRainExample(today);
   state.exampleTournament ??= {name:'Copa de preparación',place:'Sede de muestra',date:dateAfter(today,21),start:today};
 

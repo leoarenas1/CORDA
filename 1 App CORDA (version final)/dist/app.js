@@ -63,7 +63,7 @@ initAgenda();
 if(phoneDemo){
   state.profile={name:'Leonardo',firstName:'Leonardo',academy:'Academia de demostración',level:'Circuito competitivo',goal:'Ganar profundidad con el segundo saque.'};
   const start=new Date(Date.now()+45*60000);
-  const gym=state.sessions.find(s=>s.id===state.rainExample.gymId);
+  const gym=state.rainExample&&state.sessions.find(s=>s.id===state.rainExample.gymId);
   if(gym){gym.date=localDay(start);gym.day=(start.getDay()+6)%7;gym.time=String(start.getHours()).padStart(2,'0')+':'+String(start.getMinutes()).padStart(2,'0')}
   entry='app';
 }
