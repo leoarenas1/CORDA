@@ -29,7 +29,7 @@ const LEGAL_DOCS={
 <h3>2. Qué datos recabamos</h3>
 <ul>
 <li><b>Cuenta:</b> correo electrónico, contraseña (se guarda cifrada; nadie en CORDA puede leerla) y tu rol: jugador, coach o tutor.</li>
-<li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional).</li>
+<li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional). Si eres menor de 18 años, también el correo de tu madre, padre o tutor, para invitarle a autorizarte.</li>
 <li><b>Entrenamiento:</b> sesiones y asistencia, comentarios y evaluaciones del coach, ejercicios, videos que marcas como vistos, torneos (nombre, fecha, modalidad, superficie y resultado) y reuniones.</li>
 <li><b>Bienestar (dato sensible):</b> en las encuestas diarias puedes registrar tu energía, tu ánimo y qué faltó en el entrenamiento. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
 <li><b>Pagos:</b> los comprobantes de transferencia que decidas subir (imagen o PDF) de mensualidades o clases particulares. Pueden mostrar el nombre del titular y datos de una cuenta bancaria, así que sube solo el comprobante. CORDA <b>no cobra ni procesa pagos</b> y no guarda números de tarjeta.</li>
@@ -80,7 +80,7 @@ const LEGAL_DOCS={
 <p>La conexión usa HTTPS. Cada persona solo accede a lo que su rol permite y esas reglas se aplican en la base de datos, no solo en la pantalla. Las fotos y comprobantes se guardan en un espacio privado y se abren con enlaces que caducan en pocos minutos. Ningún sistema es infalible; si ocurre una vulneración que afecte tus derechos, te lo informaremos.</p>
 
 <h3>9. Menores de edad</h3>
-<p>Los jugadores menores de 18 años solo pueden usar CORDA con la autorización de su madre, padre o tutor legal, quien puede crear su propia cuenta de Tutor para ver el avance y ejercer los derechos ARCO del menor. Ver el <b>Consentimiento de madre, padre o tutor</b>. Si crees que un menor se registró sin autorización, avísanos y eliminaremos su cuenta.</p>
+<p>Los jugadores menores de 18 años usan CORDA con la autorización de su madre, padre o tutor legal. Al registrarse, el menor escribe el correo de su tutor; el tutor crea su cuenta de Tutor con ese correo, acepta y desde ahí ve el avance del menor, lo administra y ejerce sus derechos ARCO. Mientras el tutor acepta, el menor puede seguir usando la app. CORDA solo usa ese correo para vincular al tutor con el menor. Ver el <b>Consentimiento de madre, padre o tutor</b>. Si crees que un menor se registró sin autorización, avísanos y eliminaremos su cuenta.</p>
 
 <h3>10. Cambios a este aviso</h3>
 <p>Si cambiamos este aviso, publicaremos la nueva versión en la app con su fecha y te pediremos aceptarla otra vez cuando el cambio sea importante.</p>
@@ -153,7 +153,7 @@ const LEGAL_DOCS={
 <li>Puedo crear mi cuenta de Tutor para ver el avance del menor, y puedo ejercer en su nombre los derechos de acceso, rectificación, cancelación y oposición, o retirar este consentimiento, escribiendo a <a href="mailto:${LEGAL.correo}">${LEGAL.correo}</a>. Si lo retiro, la cuenta del menor se cerrará.</li>
 <li>Me comprometo a acompañar y supervisar el uso de CORDA por parte del menor, y a no subir información de otras personas sin su permiso.</li>
 </ol>
-<p>Cuando un jugador menor se registra por su cuenta, CORDA le pide declarar que su madre, padre o tutor lo autoriza. Esa persona debe confirmarlo registrándose como Tutor o escribiéndonos; si no podemos confirmar la autorización, podemos cerrar la cuenta del menor.</p>`
+<p>Cuando un jugador menor se registra por su cuenta, CORDA le pide declarar que su madre, padre o tutor lo autoriza y el correo de esa persona. El tutor confirma esa autorización creando su cuenta de Tutor con ese correo y aceptando al menor. Si no podemos confirmar la autorización, podemos cerrar la cuenta del menor.</p>`
   }
 };
 
@@ -183,18 +183,35 @@ function consentFields(role){
   const link=(doc,text)=>`<button type="button" class="link" data-legal="${doc}">${text}</button>`;
   return `<fieldset class="consent-box"><legend>Antes de continuar</legend>
     ${role==='Jugador'?`<div class="consent-age" role="radiogroup" aria-label="Edad"><label class="consent-row"><input type="radio" name="age" value="adult" required> <span>Tengo 18 años o más.</span></label>
-    <label class="consent-row"><input type="radio" name="age" value="minor" required> <span>Soy menor de 18 años y mi madre, padre o tutor legal me autoriza a usar CORDA. ${link('guardian','Leer el consentimiento')}</span></label></div>`:''}
+    <label class="consent-row"><input type="radio" name="age" value="minor" required> <span>Soy menor de 18 años y mi madre, padre o tutor legal me autoriza a usar CORDA. ${link('guardian','Leer el consentimiento')}</span></label>
+    <label class="consent-tutor" hidden>Correo de tu madre, padre o tutor<input type="email" name="tutorEmail" maxlength="180" autocomplete="off"><small>Tu tutor debe crear su cuenta de Tutor con este correo para autorizarte. Mientras tanto puedes seguir usando CORDA.</small></label></div>`:''}
     <label class="consent-row"><input type="checkbox" name="terms" required> <span>Leí y acepto el ${link('privacy','Aviso de privacidad')} y los ${link('terms','Términos y condiciones')}, y autorizo de forma expresa el tratamiento de los datos de bienestar que yo decida registrar.</span></label>
     ${role==='Tutor'?`<label class="consent-row"><input type="checkbox" name="guardian" required> <span>Soy madre, padre o tutor legal del jugador menor de edad y doy mi ${link('guardian','consentimiento para el tratamiento de sus datos')}.</span></label>`:''}
   </fieldset>`;
 }
-// Lee las casillas del registro; devuelve el registro de aceptación o null si falta algo.
-function readConsent(role,data){
-  if(!data.terms)return null;
-  if(role==='Tutor'&&!data.guardian)return null;
-  if(role==='Jugador'&&!['adult','minor'].includes(data.age))return null;
+// Muestra el campo del correo del tutor solo cuando el jugador dice que es menor.
+function bindConsent(root){
+  const box=root.querySelector('.consent-tutor');
+  if(!box)return;
+  const sync=()=>{const minor=root.querySelector('[name=age]:checked')?.value==='minor';box.hidden=!minor;box.querySelector('input').required=minor};
+  root.querySelectorAll('[name=age]').forEach(radio=>radio.onchange=sync);sync();
+}
+// Lee las casillas del registro. Devuelve el registro de aceptación (con tutorEmail si es menor) o {error} si falta algo.
+function readConsent(role,data,ownEmail=''){
+  const missing={error:'Marca las casillas para continuar.'};
+  if(!data.terms)return missing;
+  if(role==='Tutor'&&!data.guardian)return missing;
+  if(role==='Jugador'&&!['adult','minor'].includes(data.age))return missing;
   const consent={version:LEGAL.version,at:new Date().toISOString(),role};
-  if(role==='Jugador')consent.minor=data.age==='minor';
+  if(role==='Jugador'){
+    consent.minor=data.age==='minor';
+    if(consent.minor){
+      const email=cleanEmail(data.tutorEmail);
+      if(!EMAIL_RE.test(email))return {error:'Escribe un correo válido para tu tutor.'};
+      if(ownEmail&&email===cleanEmail(ownEmail))return {error:'Escribe el correo de tu tutor, no el tuyo.'};
+      consent.tutorEmail=email;
+    }
+  }
   if(role==='Tutor')consent.guardian=true;
   return consent;
 }
@@ -214,12 +231,15 @@ function consentGate(){
       <div class="formactions"><button type="button" class="link" id="consent-signout">Cerrar sesión</button><button class="btn lime">Aceptar y continuar</button></div></form>`;
   document.body.appendChild(dialog);
   dialog.addEventListener('cancel',e=>e.preventDefault());
+  bindConsent(dialog);
   dialog.querySelector('#consent-signout').onclick=()=>{dialog.close();dialog.remove();if(typeof signOut==='function')signOut()};
   dialog.querySelector('#consent-form').onsubmit=e=>{
     e.preventDefault();
-    const consent=readConsent(gateRole,Object.fromEntries(new FormData(e.target)));
-    if(!consent){dialog.querySelector('#consent-error').hidden=false;return}
+    const result=readConsent(gateRole,Object.fromEntries(new FormData(e.target)),currentAccount?.email);
+    if(result.error){const msg=dialog.querySelector('#consent-error');msg.textContent=result.error;msg.hidden=false;return}
+    const {tutorEmail,...consent}=result;
     state.consent=consent;
+    if(tutorEmail&&role==='Jugador'&&state.profile)state.profile.tutorEmail=tutorEmail;
     dialog.close();dialog.remove();
     save();
   };

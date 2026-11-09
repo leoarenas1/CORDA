@@ -38,6 +38,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Avisos legales (9 nov 2026):** `dist/legal.js` trae el Aviso de privacidad, los Términos y condiciones y el Consentimiento de madre, padre o tutor. El registro pide aceptarlos (los jugadores indican si son mayores o menores de 18 años; los tutores dan su consentimiento) y las cuentas que ya existían ven una ventana de aceptación. La constancia se guarda en `profiles.details.consent`. Borrador: falta completar el domicilio y que lo revise una persona abogada. Versión de caché `?v=20261109a`.
 
+> **Menores y tutor, y «Análisis del coach» (9 nov 2026):** el jugador menor de 18 años escribe el correo de su tutor y puede seguir usando la app; en Inicio ve un aviso con botones para mandar la invitación por WhatsApp o correo (`dist/guardian.js`). El tutor crea su cuenta con ese correo, acepta la invitación y administra al jugador; `supabase/09_tutor_autorizado.sql` hace que solo así se vincule. «Mi progreso» del jugador se llama ahora «Análisis del coach» mientras se define cómo medir su trayectoria con números. Versión de caché `?v=20261109b`.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -53,6 +55,7 @@ Es un prototipo con almacenamiento local en el navegador; este código no incluy
 - `dist/calendar.js`
 - `dist/community.js`
 - `dist/dashboard-language.js`
+- `dist/guardian.js`
 - `dist/index.html`
 - `dist/legal.js`
 - `dist/meetings.js`
@@ -124,7 +127,7 @@ const INTENTS=[
     return {text:`Tu próxima sesión: <b>${esc(dateLabel(s.date,{weekday:'long',day:'numeric',month:'long'}))}</b> · ${esc(s.time)} · ${esc(s.place)} · ${esc(sessionCoach(s))}.`,actions:[['Ver la sesión',()=>{close();openSession(s.id)}],['Abrir mi plan',go('calendar')]]};
   }},
   {keys:['pago','pagar','mensualidad','comprobante','transferencia','clabe','cuota','colegiatura','matricula'],answer:()=>({text:'Abre «Mensualidad», elige el mes y transfiere con tu matrícula como concepto. Luego sube el comprobante a ese mes. Verás una palomita cuando la academia lo confirme.',actions:inApp()&&role!=='Coach'?[['Ir a Mensualidad',go('payments')]]:inApp()?[]:[['Iniciar sesión',toSignIn]]})},
-  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','grafica','porcentaje'],answer:()=>({text:'En «Mi progreso» ves qué tan cerca vas de tu meta (la que escribiste al registrarte es el 100 %). Hay tres gráficas: cómo te sientes, cómo te ve tu coach y la comparación. Elige el periodo: diario, semanal, mensual, trimestral o anual.',actions:inApp()?[['Ir a Mi progreso',go('goals')]]:[]})},
+  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','grafica','porcentaje'],answer:()=>({text:'En «Análisis del coach» ves qué tan cerca vas de tu meta (la que escribiste al registrarte es el 100 %). Hay tres gráficas: cómo te sientes, cómo te ve tu coach y la comparación. Elige el periodo: diario, semanal, mensual, trimestral o anual.',actions:inApp()?[['Ir a Análisis del coach',go('goals')]]:[]})},
   {keys:['encuesta','como me fue','como me senti','notificacion','aviso diario'],answer:()=>({text:'Después de cada entrenamiento, al abrir CORDA te llega la pregunta «¿Cómo te fue hoy?». Tu respuesta calcula tu porcentaje del día. Tu coach responde lo mismo sobre ti.',actions:isPlayerSide()?[['Responder ahora',()=>{close();openPlayerCheckin()}]]:[]})},
   {keys:['torneo','competencia','competir','partido'],answer:()=>({text:'En Inicio o en tu plan, toca «Añadir torneo». CORDA arma la cuenta regresiva y las etapas de preparación.',actions:isPlayerSide()?[['Abrir mi plan',go('calendar')]]:[]})},
   {keys:['agendar una cita','agendar cita','cita con','cita','junta','reunion','hablar con mi coach','director'],answer:()=>({text:'En Inicio, la tarjeta «Citas con la academia» te deja elegir con quién reunirte y ver los horarios libres.',actions:inApp()?[['Ir a Inicio',go('home')]]:[]})},
@@ -215,7 +218,7 @@ function monthlyReviewCard(){
   const last=Object.entries(state.reviews).sort(([a],[b])=>b.localeCompare(a))[0];
   return `<section class="card coach-month"><small class="eyebrow">Seguimiento del coach</small><h2>Tu balance del mes</h2><small class="review-period">${assessment?dateLabel(key+'-01',{month:'long',year:'numeric'}):'Ejemplo · Leonardo · Octubre 2026'}</small><div class="monthly-gain"><b><span class="gain-check" aria-hidden="true">✓</span>Lo que mejoraste</b><p>${esc(note.good)}</p></div><div><b>Tu siguiente ajuste</b><p>${esc(note.focus)}</p></div>
   ${last?`<p class="hint">Última corrección · ${dateLabel(last[0],{day:'numeric',month:'short'})}<br>${esc(last[1].focus)}</p>`:''}
-  <button data-page="goals" class="link">Ver mi progreso ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
+  <button data-page="goals" class="link">Ver análisis del coach ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
 }
 function bindAnnual(){
   const edit=document.querySelector('#edit-month');
@@ -271,7 +274,7 @@ function onboarding(){
  {title:`¿Dónde juegas${first?', '+esc(first):''}?`,desc:'Tu academia será el punto de encuentro con tu coach.',body:`${academySelect('academy',draft.academy,{independent:true,label:'Tu academia'})}<p class="wizard-helper">Si tu academia no aparece, elige «Entreno de forma independiente» y escríbenos para darla de alta.</p>`},
  {title:'¿Cómo construyes un punto?',desc:'Elige la frase que más se parece a ti en la cancha.',body:choices('style',identities,draft.style)},
  {title:'Tu compañera de cancha.',desc:'Cuéntanos con qué juegas.',body:`<label>Tu raqueta <span class="optional">(opcional)</span><input name="racket" value="${esc(draft.racket||'')}" maxlength="120" placeholder="Ej. HEAD Speed MP" autocomplete="off"></label><label class="utr-field">Mano dominante</label>${choices('hand',[['Diestro','Mano derecha'],['Zurdo','Mano izquierda'],['Ambidiestro','Ambas manos']],draft.hand||'Diestro')}`},
- {title:'¿Cuál es tu próximo paso?',desc:'Escribe una meta concreta. Será tu 100 % en «Mi progreso».',body:`<div class="goal-tips"><b>Una buena meta dice tres cosas:</b><ul><li><span>Qué</span> quieres lograr</li><li><span>Cuánto</span>: un número que se pueda medir</li><li><span>Para cuándo</span>: una fecha o un torneo</li></ul></div><label>Quiero…<textarea name="goal" required maxlength="400" placeholder="Ej. Meter 7 de cada 10 segundos saques en partido antes de marzo.">${esc(draft.goal||'')}</textarea></label><p class="wizard-helper">Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».</p>`},
+ {title:'¿Cuál es tu próximo paso?',desc:'Escribe una meta concreta. Será tu 100 % en «Análisis del coach».',body:`<div class="goal-tips"><b>Una buena meta dice tres cosas:</b><ul><li><span>Qué</span> quieres lograr</li><li><span>Cuánto</span>: un número que se pueda medir</li><li><span>Para cuándo</span>: una fecha o un torneo</li></ul></div><label>Quiero…<textarea name="goal" required maxlength="400" placeholder="Ej. Meter 7 de cada 10 segundos saques en partido antes de marzo.">${esc(draft.goal||'')}</textarea></label><p class="wizard-helper">Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».</p>`},
  {title:'Ponle cara a tu juego.',desc:'Una foto para que tu coach te reconozca. Tú decides.',body:`<div class="wizard-photo"><div id="photo-preview">${avatar({...draft,name:first})}</div><label class="photo-picker">${draft.photo?'Cambiar foto':'Elegir una foto'}<input id="photo" type="file" accept="image/png,image/jpeg"></label><small>JPG o PNG · Máximo 2 MB</small>${draft.photo?'<button type="button" id="removephoto" class="link">Quitar foto</button>':''}</div>`}
  ];
  if(!$('#wizard-panel')){
@@ -586,6 +589,7 @@ function createAccessScreen(selectedRole,mode='register'){
   <p>${t('¿Ya tienes cuenta?','Already have an account?','Vous avez déjà un compte ?')} ${accessLink('auth-signin',t('Inicia sesión','Sign in','Connectez-vous'))}</p></section>`);
   bindCoverLanguage(()=>createAccessScreen(selectedRole,mode));
   bindPasswordToggles();
+  bindConsent($('#register-form'));
   $('#auth-roles').onclick=()=>pickRole(mode);
   $('#auth-signin').onclick=()=>signInScreen();
   const form=$('#register-form');
@@ -600,8 +604,8 @@ function createAccessScreen(selectedRole,mode='register'){
     if(d.password.length<8)return fail(t('La contraseña debe tener al menos 8 caracteres.','The password must have at least 8 characters.','Le mot de passe doit contenir au moins 8 caractères.'));
     if(d.password!==d.confirm)return fail(t('Las contraseñas no coinciden.','The passwords do not match.','Les mots de passe ne correspondent pas.'));
     // La contraseña solo vive en memoria hasta crear la cuenta en Supabase; nunca se guarda.
-    const consent=readConsent(selectedRole,d);
-    if(!consent)return fail(t('Marca las casillas de aceptación para continuar.','Tick the acceptance boxes to continue.','Cochez les cases d’acceptation pour continuer.'));
+    const consent=readConsent(selectedRole,d,email);
+    if(consent.error)return fail(consent.error);
     pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password,consent};
     chooseRole(selectedRole,mode);
   };
@@ -622,7 +626,11 @@ function linkPendingAccount(){
   const profile=role==='Jugador'?state.profile:actor();
   if(!profile?.memberId||role!==pendingAccount.role)return;
   const {remember,password,cloudUser,consent,...account}=pendingAccount;
-  if(consent)state.consent=consent;
+  if(consent){
+    const {tutorEmail,...record}=consent;
+    state.consent=record;
+    if(tutorEmail&&role==='Jugador'&&state.profile)state.profile.tutorEmail=tutorEmail;
+  }
   account.memberId=profile.memberId;account.created=Date.now();
   if(role!=='Jugador')account.profile={...profile};
   pendingAccount=null;
@@ -1127,7 +1135,7 @@ function dailyGreeting(){
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
 Mi plan|My plan|Mon programme
-Mi progreso|My progress|Ma progression
+Análisis del coach|Coach analysis|Analyse du coach
 Mi academia|My academy|Mon académie
 Mensualidad|Monthly fees|Mensualité
 Tu academia|Your academy|Votre académie
@@ -1187,7 +1195,7 @@ Ejemplo|Example|Exemple
 Octubre 2026|October 2026|Octobre 2026
 Lo que mejoraste|What you improved|Vos progrès
 Tu siguiente ajuste|Your next adjustment|Votre prochain axe de travail
-Ver mi progreso ↗|View my progress ↗|Voir ma progression ↗
+Ver análisis del coach ↗|View coach analysis ↗|Voir l’analyse du coach ↗
 Pendiente|Pending|En attente
 Ver mensualidad ↗|View monthly fees ↗|Voir la mensualité ↗
 Comunicación|Communication|Communication
@@ -1304,10 +1312,115 @@ function translateDashboard(){
 }
 ````
 
+## Archivo: `dist/guardian.js`
+
+````javascript
+// Jugadores menores de 18 años y su tutor.
+// 1. El menor escribe el correo de su madre, padre o tutor (profile.tutorEmail) y puede seguir usando CORDA.
+// 2. En Inicio ve un aviso con botones para mandar la invitación por WhatsApp o correo (CORDA todavía no manda correos solo).
+// 3. El tutor crea su cuenta de Tutor con ESE correo. Al entrar ve la invitación (rpc guardian_invites) y la acepta:
+//    así se vincula a su jugador y lo administra desde su interfaz de tutor.
+// 4. En Supabase, my_child() solo deja ver los datos del menor si el correo del tutor coincide con el que escribió el menor
+//    (supabase/09_tutor_autorizado.sql). El aviso del menor se quita cuando el tutor está vinculado y aprobado (rpc my_guardian).
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const cleanEmail=value=>String(value||'').trim().toLowerCase();
+
+function ageFrom(birthDate){
+  const born=new Date(birthDate+'T12:00:00');
+  if(isNaN(born))return null;
+  const now=new Date();
+  let age=now.getFullYear()-born.getFullYear();
+  if(now.getMonth()<born.getMonth()||(now.getMonth()===born.getMonth()&&now.getDate()<born.getDate()))age--;
+  return age;
+}
+// Menor de edad: por fecha de nacimiento; si no la hay, por lo que declaró al registrarse.
+function isMinor(profile=state.profile){
+  const age=profile?.birthDate?ageFrom(profile.birthDate):null;
+  return age===null?!!state.consent?.minor:age<18;
+}
+
+// ---------- Estado del tutor (se pregunta a Supabase) ----------
+// 'none' = aún sin cuenta · 'registered' = creó cuenta pero no lo ha vinculado · 'linked' = vinculado, falta la aprobación del administrador · 'active' = listo
+let guardianInfo={state:'unknown',at:0};
+async function refreshGuardian(){
+  if(!cloud||role!=='Jugador'||!state.profile?.tutorEmail||Date.now()-guardianInfo.at<60000)return;
+  guardianInfo.at=Date.now();
+  try{
+    const {data,error}=await cloud.rpc('my_guardian');
+    const next=error?'unknown':String(data||'none');
+    if(next!==guardianInfo.state){guardianInfo.state=next;if(page==='home'&&entry==='app'&&!$('#modal')?.open)render()}
+  }catch{}
+}
+
+// ---------- Invitación ----------
+function inviteTexts(){
+  const first=String(state.profile?.name||'').split(' ')[0]||'tu jugador';
+  const url=location.origin+location.pathname,email=state.profile.tutorEmail;
+  const text=`Hola, soy ${first}. Me registré en CORDA, la app de mi academia de tenis. Entra a ${url}, elige «Tutor» y crea tu cuenta con este correo (${email}). Así podrás ver mi avance y administrar mi cuenta.`;
+  return {text,wa:'https://wa.me/?text='+encodeURIComponent(text),
+    mail:'mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent('Invitación a CORDA como tutor')+'&body='+encodeURIComponent(text)};
+}
+function guardianBanner(){
+  if(role!=='Jugador'||entry!=='app'||(typeof phoneDemo!=='undefined'&&phoneDemo)||!isMinor())return '';
+  const email=state.profile.tutorEmail;
+  if(email)refreshGuardian();
+  if(guardianInfo.state==='active')return '';
+  const t=coverText;
+  if(!email){
+    return `<section class="card checkin-banner calendar-banner guardian-banner"><div><small class="eyebrow">${t('Tu tutor','Your guardian','Votre tuteur')}</small><h2>${t('Agrega el correo de tu madre, padre o tutor','Add your parent or guardian’s email','Ajoutez l’e-mail de votre parent ou tuteur')}</h2><p class="hint">${t('Como eres menor de 18 años, tu tutor debe crear su cuenta en CORDA para autorizarte y administrar tu perfil. Puedes seguir usando la app mientras tanto.','Because you are under 18, your guardian must create a CORDA account to authorize you and manage your profile. You can keep using the app meanwhile.','Comme vous avez moins de 18 ans, votre tuteur doit créer un compte CORDA pour vous autoriser. Vous pouvez continuer à utiliser l’app.')}</p></div>
+      <div class="calendar-actions"><button class="btn lime" data-guardian-email>${t('Agregar correo','Add email','Ajouter l’e-mail')}</button></div></section>`;
+  }
+  const invite=inviteTexts(),status={
+    none:t('Esperando a tu tutor. Mándale la invitación: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation : il doit créer un compte Tuteur avec cet e-mail.'),
+    unknown:t('Esperando a tu tutor. Mándale la invitación: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation : il doit créer un compte Tuteur avec cet e-mail.'),
+    registered:t('Tu tutor ya creó su cuenta. Falta que entre y te acepte como su jugador.','Your guardian created an account. They still need to sign in and accept you.','Votre tuteur a créé son compte. Il doit se connecter et vous accepter.'),
+    linked:t('Tu tutor ya te aceptó. Falta que el administrador de CORDA apruebe su cuenta.','Your guardian accepted you. CORDA’s administrator still has to approve their account.','Votre tuteur vous a accepté. L’administrateur de CORDA doit encore valider son compte.')
+  }[guardianInfo.state]||'';
+  return `<section class="card checkin-banner calendar-banner guardian-banner"><div><small class="eyebrow">${t('Tu tutor','Your guardian','Votre tuteur')}</small><h2>${t('Autorización pendiente','Authorization pending','Autorisation en attente')}</h2><p class="hint">${status}</p><p class="hint"><b>${esc(email)}</b></p></div>
+    <div class="calendar-actions"><a class="btn lime" href="${invite.wa}" target="_blank" rel="noopener noreferrer">${t('Enviar por WhatsApp','Send by WhatsApp','Envoyer par WhatsApp')}</a>
+    <a class="btn light" href="${invite.mail}">${t('Enviar por correo','Send by email','Envoyer par e-mail')}</a>
+    <button class="link" data-guardian-email>${t('Cambiar correo','Change email','Changer l’e-mail')}</button></div></section>`;
+}
+function openGuardianEmail(){
+  modal('Correo de tu tutor',
+    field('Correo de tu madre, padre o tutor','tutorEmail',state.profile?.tutorEmail||'','email')+
+    '<p class="full hint">Solo se usa para que tu tutor pueda ver tu avance y administrar tu perfil. Debe crear su cuenta de Tutor con este mismo correo.</p>',
+    d=>{
+      const email=cleanEmail(d.tutorEmail);
+      if(!EMAIL_RE.test(email)){toast('Escribe un correo válido.');return false}
+      if(currentAccount?.email&&email===cleanEmail(currentAccount.email)){toast('Escribe el correo de tu tutor, no el tuyo.');return false}
+      state.profile.tutorEmail=email;guardianInfo={state:'unknown',at:0};
+    },'Guardar');
+}
+document.addEventListener('click',event=>{if(event.target.closest?.('[data-guardian-email]'))openGuardianEmail()});
+
+// ---------- Lado del tutor: invitaciones recibidas ----------
+async function guardianInvites(){
+  if(!cloud)return [];
+  try{
+    const {data:session}=await cloud.auth.getSession();
+    if(!session.session)return [];
+    const {data,error}=await cloud.rpc('guardian_invites');
+    return error||!Array.isArray(data)?[]:data;
+  }catch{return []}
+}
+// Guarda en Supabase que este tutor ya eligió a su jugador y reinicia la sincronización con ese jugador.
+async function saveGuardianLink(){
+  try{
+    const {data}=await cloud.auth.getUser(),snapshot=cloudSnapshot();
+    if(!data.user||!snapshot)return false;
+    const {error}=await cloud.from('profiles').update({name:snapshot.name,details:snapshot.details}).eq('id',data.user.id);
+    if(error)return false;
+    startSync(data.user);
+    return true;
+  }catch{return false}
+}
+````
+
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109a"><link rel="stylesheet" href="style.css?v=20261109a"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109a"><link rel="stylesheet" href="styles/ace.css?v=20261109a"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109a"></script><script src="resenas.js?v=20261109a"></script><script src="portada.js?v=20261109a"></script><script src="community.js?v=20261109a"></script><script src="session-guide.js?v=20261109a"></script><script src="annual-progress.js?v=20261109a"></script><script src="progress-hub.js?v=20261109a"></script><script src="meetings.js?v=20261109a"></script><script src="monthly-fees.js?v=20261109a"></script><script src="portal.js?v=20261109a"></script><script src="private-payments.js?v=20261109a"></script><script src="roles.js?v=20261109a"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109a"></script><script src="legal.js?v=20261109a"></script><script src="auth.js?v=20261109a"></script><script src="sync.js?v=20261109a"></script><script src="videos.js?v=20261109a"></script><script src="physical.js?v=20261109a"></script><script src="calendar.js?v=20261109a"></script><script src="sobre-corda.js?v=20261109a"></script><script src="app.js?v=20261109a"></script><script src="ace.js?v=20261109a"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109b"><link rel="stylesheet" href="style.css?v=20261109b"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109b"><link rel="stylesheet" href="styles/ace.css?v=20261109b"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109b"></script><script src="resenas.js?v=20261109b"></script><script src="portada.js?v=20261109b"></script><script src="community.js?v=20261109b"></script><script src="session-guide.js?v=20261109b"></script><script src="annual-progress.js?v=20261109b"></script><script src="progress-hub.js?v=20261109b"></script><script src="meetings.js?v=20261109b"></script><script src="monthly-fees.js?v=20261109b"></script><script src="portal.js?v=20261109b"></script><script src="private-payments.js?v=20261109b"></script><script src="roles.js?v=20261109b"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109b"></script><script src="legal.js?v=20261109b"></script><script src="auth.js?v=20261109b"></script><script src="sync.js?v=20261109b"></script><script src="guardian.js?v=20261109b"></script><script src="videos.js?v=20261109b"></script><script src="physical.js?v=20261109b"></script><script src="calendar.js?v=20261109b"></script><script src="sobre-corda.js?v=20261109b"></script><script src="app.js?v=20261109b"></script><script src="ace.js?v=20261109b"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -1344,7 +1457,7 @@ const LEGAL_DOCS={
 <h3>2. Qué datos recabamos</h3>
 <ul>
 <li><b>Cuenta:</b> correo electrónico, contraseña (se guarda cifrada; nadie en CORDA puede leerla) y tu rol: jugador, coach o tutor.</li>
-<li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional).</li>
+<li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional). Si eres menor de 18 años, también el correo de tu madre, padre o tutor, para invitarle a autorizarte.</li>
 <li><b>Entrenamiento:</b> sesiones y asistencia, comentarios y evaluaciones del coach, ejercicios, videos que marcas como vistos, torneos (nombre, fecha, modalidad, superficie y resultado) y reuniones.</li>
 <li><b>Bienestar (dato sensible):</b> en las encuestas diarias puedes registrar tu energía, tu ánimo y qué faltó en el entrenamiento. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
 <li><b>Pagos:</b> los comprobantes de transferencia que decidas subir (imagen o PDF) de mensualidades o clases particulares. Pueden mostrar el nombre del titular y datos de una cuenta bancaria, así que sube solo el comprobante. CORDA <b>no cobra ni procesa pagos</b> y no guarda números de tarjeta.</li>
@@ -1395,7 +1508,7 @@ const LEGAL_DOCS={
 <p>La conexión usa HTTPS. Cada persona solo accede a lo que su rol permite y esas reglas se aplican en la base de datos, no solo en la pantalla. Las fotos y comprobantes se guardan en un espacio privado y se abren con enlaces que caducan en pocos minutos. Ningún sistema es infalible; si ocurre una vulneración que afecte tus derechos, te lo informaremos.</p>
 
 <h3>9. Menores de edad</h3>
-<p>Los jugadores menores de 18 años solo pueden usar CORDA con la autorización de su madre, padre o tutor legal, quien puede crear su propia cuenta de Tutor para ver el avance y ejercer los derechos ARCO del menor. Ver el <b>Consentimiento de madre, padre o tutor</b>. Si crees que un menor se registró sin autorización, avísanos y eliminaremos su cuenta.</p>
+<p>Los jugadores menores de 18 años usan CORDA con la autorización de su madre, padre o tutor legal. Al registrarse, el menor escribe el correo de su tutor; el tutor crea su cuenta de Tutor con ese correo, acepta y desde ahí ve el avance del menor, lo administra y ejerce sus derechos ARCO. Mientras el tutor acepta, el menor puede seguir usando la app. CORDA solo usa ese correo para vincular al tutor con el menor. Ver el <b>Consentimiento de madre, padre o tutor</b>. Si crees que un menor se registró sin autorización, avísanos y eliminaremos su cuenta.</p>
 
 <h3>10. Cambios a este aviso</h3>
 <p>Si cambiamos este aviso, publicaremos la nueva versión en la app con su fecha y te pediremos aceptarla otra vez cuando el cambio sea importante.</p>
@@ -1468,7 +1581,7 @@ const LEGAL_DOCS={
 <li>Puedo crear mi cuenta de Tutor para ver el avance del menor, y puedo ejercer en su nombre los derechos de acceso, rectificación, cancelación y oposición, o retirar este consentimiento, escribiendo a <a href="mailto:${LEGAL.correo}">${LEGAL.correo}</a>. Si lo retiro, la cuenta del menor se cerrará.</li>
 <li>Me comprometo a acompañar y supervisar el uso de CORDA por parte del menor, y a no subir información de otras personas sin su permiso.</li>
 </ol>
-<p>Cuando un jugador menor se registra por su cuenta, CORDA le pide declarar que su madre, padre o tutor lo autoriza. Esa persona debe confirmarlo registrándose como Tutor o escribiéndonos; si no podemos confirmar la autorización, podemos cerrar la cuenta del menor.</p>`
+<p>Cuando un jugador menor se registra por su cuenta, CORDA le pide declarar que su madre, padre o tutor lo autoriza y el correo de esa persona. El tutor confirma esa autorización creando su cuenta de Tutor con ese correo y aceptando al menor. Si no podemos confirmar la autorización, podemos cerrar la cuenta del menor.</p>`
   }
 };
 
@@ -1498,18 +1611,35 @@ function consentFields(role){
   const link=(doc,text)=>`<button type="button" class="link" data-legal="${doc}">${text}</button>`;
   return `<fieldset class="consent-box"><legend>Antes de continuar</legend>
     ${role==='Jugador'?`<div class="consent-age" role="radiogroup" aria-label="Edad"><label class="consent-row"><input type="radio" name="age" value="adult" required> <span>Tengo 18 años o más.</span></label>
-    <label class="consent-row"><input type="radio" name="age" value="minor" required> <span>Soy menor de 18 años y mi madre, padre o tutor legal me autoriza a usar CORDA. ${link('guardian','Leer el consentimiento')}</span></label></div>`:''}
+    <label class="consent-row"><input type="radio" name="age" value="minor" required> <span>Soy menor de 18 años y mi madre, padre o tutor legal me autoriza a usar CORDA. ${link('guardian','Leer el consentimiento')}</span></label>
+    <label class="consent-tutor" hidden>Correo de tu madre, padre o tutor<input type="email" name="tutorEmail" maxlength="180" autocomplete="off"><small>Tu tutor debe crear su cuenta de Tutor con este correo para autorizarte. Mientras tanto puedes seguir usando CORDA.</small></label></div>`:''}
     <label class="consent-row"><input type="checkbox" name="terms" required> <span>Leí y acepto el ${link('privacy','Aviso de privacidad')} y los ${link('terms','Términos y condiciones')}, y autorizo de forma expresa el tratamiento de los datos de bienestar que yo decida registrar.</span></label>
     ${role==='Tutor'?`<label class="consent-row"><input type="checkbox" name="guardian" required> <span>Soy madre, padre o tutor legal del jugador menor de edad y doy mi ${link('guardian','consentimiento para el tratamiento de sus datos')}.</span></label>`:''}
   </fieldset>`;
 }
-// Lee las casillas del registro; devuelve el registro de aceptación o null si falta algo.
-function readConsent(role,data){
-  if(!data.terms)return null;
-  if(role==='Tutor'&&!data.guardian)return null;
-  if(role==='Jugador'&&!['adult','minor'].includes(data.age))return null;
+// Muestra el campo del correo del tutor solo cuando el jugador dice que es menor.
+function bindConsent(root){
+  const box=root.querySelector('.consent-tutor');
+  if(!box)return;
+  const sync=()=>{const minor=root.querySelector('[name=age]:checked')?.value==='minor';box.hidden=!minor;box.querySelector('input').required=minor};
+  root.querySelectorAll('[name=age]').forEach(radio=>radio.onchange=sync);sync();
+}
+// Lee las casillas del registro. Devuelve el registro de aceptación (con tutorEmail si es menor) o {error} si falta algo.
+function readConsent(role,data,ownEmail=''){
+  const missing={error:'Marca las casillas para continuar.'};
+  if(!data.terms)return missing;
+  if(role==='Tutor'&&!data.guardian)return missing;
+  if(role==='Jugador'&&!['adult','minor'].includes(data.age))return missing;
   const consent={version:LEGAL.version,at:new Date().toISOString(),role};
-  if(role==='Jugador')consent.minor=data.age==='minor';
+  if(role==='Jugador'){
+    consent.minor=data.age==='minor';
+    if(consent.minor){
+      const email=cleanEmail(data.tutorEmail);
+      if(!EMAIL_RE.test(email))return {error:'Escribe un correo válido para tu tutor.'};
+      if(ownEmail&&email===cleanEmail(ownEmail))return {error:'Escribe el correo de tu tutor, no el tuyo.'};
+      consent.tutorEmail=email;
+    }
+  }
   if(role==='Tutor')consent.guardian=true;
   return consent;
 }
@@ -1529,12 +1659,15 @@ function consentGate(){
       <div class="formactions"><button type="button" class="link" id="consent-signout">Cerrar sesión</button><button class="btn lime">Aceptar y continuar</button></div></form>`;
   document.body.appendChild(dialog);
   dialog.addEventListener('cancel',e=>e.preventDefault());
+  bindConsent(dialog);
   dialog.querySelector('#consent-signout').onclick=()=>{dialog.close();dialog.remove();if(typeof signOut==='function')signOut()};
   dialog.querySelector('#consent-form').onsubmit=e=>{
     e.preventDefault();
-    const consent=readConsent(gateRole,Object.fromEntries(new FormData(e.target)));
-    if(!consent){dialog.querySelector('#consent-error').hidden=false;return}
+    const result=readConsent(gateRole,Object.fromEntries(new FormData(e.target)),currentAccount?.email);
+    if(result.error){const msg=dialog.querySelector('#consent-error');msg.textContent=result.error;msg.hidden=false;return}
+    const {tutorEmail,...consent}=result;
     state.consent=consent;
+    if(tutorEmail&&role==='Jugador'&&state.profile)state.profile.tutorEmail=tutorEmail;
     dialog.close();dialog.remove();
     save();
   };
@@ -2055,14 +2188,14 @@ function playerHome(){
   const payment=`<section class="card"><small class="eyebrow">Mensualidad · ${dateLabel(today,{month:'long'})}</small><h2>${esc(feeStatus(feeLedger(),today.slice(0,7)))}</h2><button data-page="payments" class="link">Ver mensualidad ↗</button></section>`;
   const side=role==='Tutor'?payment:competing?tournamentCard():notices;
   return heading(role==='Coach'?'Plan de entrenamiento':role==='Tutor'?'Agenda del jugador':'Mi entrenamiento',dateLabel(today,{weekday:'long',day:'numeric',month:'long'})+' · '+esc(state.profile.academy),`<div class="heading-actions">${role==='Coach'?'<button id="newsession" class="btn">+ Crear sesión</button>':''}${headingAvatar()}</div>`)+
-    calendarBanner()+(role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
+    guardianBanner()+calendarBanner()+(role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
     '<div class="flow-week">'+(role==='Tutor'?notices:competing?payment+notices:payment)+meetingCard()+'</div>'+playerBanner();
 }
 function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Mi progreso',esc(state.profile.name)+' · '+esc(state.profile.academy))+progressHub(state.profile.memberId,state.profile.goal);
+  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+progressHub(state.profile.memberId,state.profile.goal);
 }
 function bindPortal() {
   bindAnnual();
@@ -2322,7 +2455,7 @@ document.addEventListener('click',event=>{
 ## Archivo: `dist/progress-hub.js`
 
 ````javascript
-// Mi progreso: encuesta diaria del jugador, evaluación diaria del coach y tres gráficas.
+// Análisis del coach (antes «Mi progreso»): encuesta diaria del jugador, evaluación diaria del coach y tres gráficas.
 // El 100 % es la meta que el jugador escribió al registrarse (state.profile.goal).
 // Datos: state.checkins[memberId] = {player:{'AAAA-MM-DD':{score,mood,good,missing}}, coach:{...:{score,good,missing,by}}}
 // La "notificación" es un aviso dentro de la app al abrirla después del entrenamiento.
@@ -2701,7 +2834,7 @@ function useAthlete(member){
   state.profile=a.profile;state.reviews=a.reviews;state.goals=a.goals;
 }
 function roleNav(){
-  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Mi progreso','Mi academia','Mensualidad'];
+  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Análisis del coach','Mi academia','Mensualidad'];
   return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'appointments':'payments',role==='Coach'?'calendar':'wallet']].map(([id,i],n)=>[id,i,labels[n]]).concat(role==='Coach'?[['private-payments','wallet','Pagos privados']]:[]).concat([['profile','profile','Mi perfil']]);
 }
 function pickRole(mode){
@@ -2741,19 +2874,29 @@ function enterAdult(account){
   }else{state.profile=account;state.goals=[];state.reviews={}}
   finishAccess();
 }
+// Tutor recién registrado: todavía no hay jugador vinculado.
+function tutorWaiting(){
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de Tutor</small><h1>Cuenta creada</h1><p>Revisa tu correo y confirma tu cuenta. Después inicia sesión: ahí verás la invitación de tu jugador para aceptarla y administrar su perfil.</p><p class="hint">El jugador tiene que haber escrito tu correo como correo de su tutor. Tu cuenta de Tutor también necesita la aprobación del administrador de CORDA.</p><div class="formactions"><button class="btn lime" id="tutor-signin">Ir a iniciar sesión</button></div></section>`);
+  $('#tutor-signin').onclick=()=>{currentAccount=null;signInScreen()};
+}
 function adultSetup(existing){
   const academy=existing?.academy||state.profile?.academy||'Mouratoglou Tennis Center Guadalajara';
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':currentAccount?'Vincula a tu jugador':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">${role==='Tutor'?(currentAccount?'Aceptar y entrar':'Crear mi cuenta'):'Entrar al portal'}</button></div></form></section>`);
   const form=$('#adult-form');
-  function children(){
+  // Tutor: el menor lo nombra con su correo; aquí se ven las invitaciones y se acepta (necesita sesión iniciada).
+  let invites=[];
+  async function children(){
     if(role!=='Tutor')return;
-    const players=academyPlayers(form.elements.academy.value.trim());
-    $('#linked-player').innerHTML=`<label>Jugador a tu cargo<select name="child" required><option value="">Selecciona un jugador</option>${players.map(m=>`<option value="${esc(m.id)}" ${existing?.childId===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}<option value="new-player">Agregar un jugador nuevo</option></select></label><div id="new-player-field"></div><small>Vínculo local de demostración.</small>`;
-    function sync(){
-      $('#new-player-field').innerHTML=form.elements.child.value==='new-player'
-        ? '<label>Nombre del nuevo jugador<input name="childName" maxlength="180" required></label>' : '';
+    const box=$('#linked-player');
+    if(!currentAccount){
+      box.innerHTML='<p class="hint">Crea tu cuenta con el mismo correo que el jugador escribió como correo de su tutor. Cuando confirmes tu correo y entres, aquí verás la invitación para aceptarla.</p>';
+      return;
     }
-    form.elements.child.onchange=sync;sync();
+    box.innerHTML='<p class="hint">Buscando invitaciones…</p>';
+    invites=await guardianInvites();
+    box.innerHTML=invites.length
+      ?`<label>Jugador que te nombró como tutor<select name="child" required>${invites.length>1?'<option value="">Selecciona un jugador</option>':''}${invites.map(i=>`<option value="${esc(i.member_id)}" ${existing?.childId===i.member_id?'selected':''}>${esc(i.name)}</option>`).join('')}</select></label><p class="hint">Al aceptar, confirmas que eres su madre, padre o tutor legal y podrás administrar su perfil.</p>`
+      :`<p class="hint">Todavía no hay ningún jugador que te haya nombrado como tutor con tu correo (<b>${esc(currentAccount.email||'')}</b>). Pídele que escriba ese correo en su perfil de CORDA y vuelve a entrar.</p>`;
   }
   form.elements.academy.oninput=children;children();$('.access-back').onclick=()=>currentAccount?(entry='app',render()):pickRole(pendingAccount?'register':'signin');
   form.onsubmit=e=>{
@@ -2761,11 +2904,17 @@ function adultSetup(existing){
     const account={name:d.name.trim(),academy:d.academy.trim(),memberId:existing?.memberId||newMemberId(),staff:role,role};
     if(!account.name||!account.academy){toast('Escribe tu nombre y academia.');return}
     if(role==='Tutor'){
-      let child=academyPlayers(account.academy).find(m=>m.id===d.child);
-      if(!child&&d.child!=='new-player'){toast('Selecciona un jugador de esta academia.');return}
-      if(!child){if(!d.childName?.trim()){toast('Escribe el nombre del jugador.');return}
-        child={name:d.childName.trim(),academy:account.academy,id:newMemberId(),role:'Jugador'};state.directory.push(child)}
-      account.childId=child.id;
+      if(!currentAccount){
+        // Registro: la cuenta se crea ya; el jugador se vincula al entrar con el correo confirmado.
+        account.childId='';
+        state.accessProfiles[role]=account;linkPendingAccount();save();tutorWaiting();return;
+      }
+      const invite=invites.find(i=>i.member_id===d.child);
+      if(!invite&&existing?.childId){enterAdult({...account,childId:existing.childId});return}
+      if(!invite){toast('Todavía no hay una invitación que aceptar.');return}
+      account.childId=invite.member_id;
+      if(!academyPlayers(account.academy).some(m=>m.id===invite.member_id))state.directory.push({name:invite.name,academy:account.academy,id:invite.member_id,role:'Jugador'});
+      enterAdult(account);saveGuardianLink();return;
     }
     enterAdult(account);
   };
@@ -3901,6 +4050,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .consent-gate{max-width:560px}
 .consent-gate .formactions{display:flex;justify-content:space-between;align-items:center}
 .auth-form .consent-row .link,.consent-row .link{display:inline;margin:0;padding:0;border:0;background:none;font:inherit;text-align:inherit;text-decoration:underline;white-space:normal;min-height:0}
+.consent-tutor[hidden]{display:none}
+.consent-tutor{display:grid;gap:var(--space-2);font-size:var(--small-size);font-weight:400}
+.consent-tutor small{opacity:.75}
+.guardian-banner .calendar-actions .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
 ````
 
 ## Archivo: `dist/styles/ace.css`

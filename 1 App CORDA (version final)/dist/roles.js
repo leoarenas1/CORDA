@@ -26,7 +26,7 @@ function useAthlete(member){
   state.profile=a.profile;state.reviews=a.reviews;state.goals=a.goals;
 }
 function roleNav(){
-  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Mi progreso','Mi academia','Mensualidad'];
+  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Análisis del coach','Mi academia','Mensualidad'];
   return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'appointments':'payments',role==='Coach'?'calendar':'wallet']].map(([id,i],n)=>[id,i,labels[n]]).concat(role==='Coach'?[['private-payments','wallet','Pagos privados']]:[]).concat([['profile','profile','Mi perfil']]);
 }
 function pickRole(mode){
@@ -66,19 +66,29 @@ function enterAdult(account){
   }else{state.profile=account;state.goals=[];state.reviews={}}
   finishAccess();
 }
+// Tutor recién registrado: todavía no hay jugador vinculado.
+function tutorWaiting(){
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de Tutor</small><h1>Cuenta creada</h1><p>Revisa tu correo y confirma tu cuenta. Después inicia sesión: ahí verás la invitación de tu jugador para aceptarla y administrar su perfil.</p><p class="hint">El jugador tiene que haber escrito tu correo como correo de su tutor. Tu cuenta de Tutor también necesita la aprobación del administrador de CORDA.</p><div class="formactions"><button class="btn lime" id="tutor-signin">Ir a iniciar sesión</button></div></section>`);
+  $('#tutor-signin').onclick=()=>{currentAccount=null;signInScreen()};
+}
 function adultSetup(existing){
   const academy=existing?.academy||state.profile?.academy||'Mouratoglou Tennis Center Guadalajara';
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">Entrar al portal</button></div></form></section>`);
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':currentAccount?'Vincula a tu jugador':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">${role==='Tutor'?(currentAccount?'Aceptar y entrar':'Crear mi cuenta'):'Entrar al portal'}</button></div></form></section>`);
   const form=$('#adult-form');
-  function children(){
+  // Tutor: el menor lo nombra con su correo; aquí se ven las invitaciones y se acepta (necesita sesión iniciada).
+  let invites=[];
+  async function children(){
     if(role!=='Tutor')return;
-    const players=academyPlayers(form.elements.academy.value.trim());
-    $('#linked-player').innerHTML=`<label>Jugador a tu cargo<select name="child" required><option value="">Selecciona un jugador</option>${players.map(m=>`<option value="${esc(m.id)}" ${existing?.childId===m.id?'selected':''}>${esc(m.name)}</option>`).join('')}<option value="new-player">Agregar un jugador nuevo</option></select></label><div id="new-player-field"></div><small>Vínculo local de demostración.</small>`;
-    function sync(){
-      $('#new-player-field').innerHTML=form.elements.child.value==='new-player'
-        ? '<label>Nombre del nuevo jugador<input name="childName" maxlength="180" required></label>' : '';
+    const box=$('#linked-player');
+    if(!currentAccount){
+      box.innerHTML='<p class="hint">Crea tu cuenta con el mismo correo que el jugador escribió como correo de su tutor. Cuando confirmes tu correo y entres, aquí verás la invitación para aceptarla.</p>';
+      return;
     }
-    form.elements.child.onchange=sync;sync();
+    box.innerHTML='<p class="hint">Buscando invitaciones…</p>';
+    invites=await guardianInvites();
+    box.innerHTML=invites.length
+      ?`<label>Jugador que te nombró como tutor<select name="child" required>${invites.length>1?'<option value="">Selecciona un jugador</option>':''}${invites.map(i=>`<option value="${esc(i.member_id)}" ${existing?.childId===i.member_id?'selected':''}>${esc(i.name)}</option>`).join('')}</select></label><p class="hint">Al aceptar, confirmas que eres su madre, padre o tutor legal y podrás administrar su perfil.</p>`
+      :`<p class="hint">Todavía no hay ningún jugador que te haya nombrado como tutor con tu correo (<b>${esc(currentAccount.email||'')}</b>). Pídele que escriba ese correo en su perfil de CORDA y vuelve a entrar.</p>`;
   }
   form.elements.academy.oninput=children;children();$('.access-back').onclick=()=>currentAccount?(entry='app',render()):pickRole(pendingAccount?'register':'signin');
   form.onsubmit=e=>{
@@ -86,11 +96,17 @@ function adultSetup(existing){
     const account={name:d.name.trim(),academy:d.academy.trim(),memberId:existing?.memberId||newMemberId(),staff:role,role};
     if(!account.name||!account.academy){toast('Escribe tu nombre y academia.');return}
     if(role==='Tutor'){
-      let child=academyPlayers(account.academy).find(m=>m.id===d.child);
-      if(!child&&d.child!=='new-player'){toast('Selecciona un jugador de esta academia.');return}
-      if(!child){if(!d.childName?.trim()){toast('Escribe el nombre del jugador.');return}
-        child={name:d.childName.trim(),academy:account.academy,id:newMemberId(),role:'Jugador'};state.directory.push(child)}
-      account.childId=child.id;
+      if(!currentAccount){
+        // Registro: la cuenta se crea ya; el jugador se vincula al entrar con el correo confirmado.
+        account.childId='';
+        state.accessProfiles[role]=account;linkPendingAccount();save();tutorWaiting();return;
+      }
+      const invite=invites.find(i=>i.member_id===d.child);
+      if(!invite&&existing?.childId){enterAdult({...account,childId:existing.childId});return}
+      if(!invite){toast('Todavía no hay una invitación que aceptar.');return}
+      account.childId=invite.member_id;
+      if(!academyPlayers(account.academy).some(m=>m.id===invite.member_id))state.directory.push({name:invite.name,academy:account.academy,id:invite.member_id,role:'Jugador'});
+      enterAdult(account);saveGuardianLink();return;
     }
     enterAdult(account);
   };

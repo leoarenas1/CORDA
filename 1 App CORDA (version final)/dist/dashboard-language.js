@@ -1,7 +1,7 @@
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
 Mi plan|My plan|Mon programme
-Mi progreso|My progress|Ma progression
+Análisis del coach|Coach analysis|Analyse du coach
 Mi academia|My academy|Mon académie
 Mensualidad|Monthly fees|Mensualité
 Tu academia|Your academy|Votre académie
@@ -61,7 +61,7 @@ Ejemplo|Example|Exemple
 Octubre 2026|October 2026|Octobre 2026
 Lo que mejoraste|What you improved|Vos progrès
 Tu siguiente ajuste|Your next adjustment|Votre prochain axe de travail
-Ver mi progreso ↗|View my progress ↗|Voir ma progression ↗
+Ver análisis del coach ↗|View coach analysis ↗|Voir l’analyse du coach ↗
 Pendiente|Pending|En attente
 Ver mensualidad ↗|View monthly fees ↗|Voir la mensualité ↗
 Comunicación|Communication|Communication

@@ -1,4 +1,4 @@
-// Mi progreso: encuesta diaria del jugador, evaluación diaria del coach y tres gráficas.
+// Análisis del coach (antes «Mi progreso»): encuesta diaria del jugador, evaluación diaria del coach y tres gráficas.
 // El 100 % es la meta que el jugador escribió al registrarse (state.profile.goal).
 // Datos: state.checkins[memberId] = {player:{'AAAA-MM-DD':{score,mood,good,missing}}, coach:{...:{score,good,missing,by}}}
 // La "notificación" es un aviso dentro de la app al abrirla después del entrenamiento.

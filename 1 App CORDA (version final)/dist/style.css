@@ -819,3 +819,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .consent-gate{max-width:560px}
 .consent-gate .formactions{display:flex;justify-content:space-between;align-items:center}
 .auth-form .consent-row .link,.consent-row .link{display:inline;margin:0;padding:0;border:0;background:none;font:inherit;text-align:inherit;text-decoration:underline;white-space:normal;min-height:0}
+.consent-tutor[hidden]{display:none}
+.consent-tutor{display:grid;gap:var(--space-2);font-size:var(--small-size);font-weight:400}
+.consent-tutor small{opacity:.75}
+.guardian-banner .calendar-actions .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}

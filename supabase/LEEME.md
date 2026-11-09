@@ -40,3 +40,14 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 - Aviso de privacidad (Ley Federal de Protección de Datos Personales en Posesión de los Particulares).
 - Consentimiento del tutor para jugadores menores de edad.
 - El correo de confirmación de Supabase sirve para pruebas (envía pocos por hora). Para muchos usuarios, configurar un servicio de correo propio (SMTP).
+
+## Ajustes después de las fases (correr en SQL Editor, en orden; se pueden repetir)
+
+| Archivo | Para qué |
+|---|---|
+| `04_academias_publicas.sql` | La lista de academias del registro (solo nombres). |
+| `05_privacidad_perfiles.sql` | Los perfiles son privados; la academia solo ve nombre y rol. |
+| `06_fotos_y_comprobantes.sql` | Fotos y comprobantes en Storage (bucket privado `media`). |
+| `07_clases_particulares.sql` | Comprobantes de clases particulares, visibles solo para el coach elegido. |
+| `08_videos_vistos.sql` | El jugador marca «Ya lo vi» en la biblioteca de video. |
+| `09_tutor_autorizado.sql` | El tutor de un menor solo se vincula si el menor escribió su correo; invitaciones y estado del tutor. |

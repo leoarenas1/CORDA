@@ -249,6 +249,7 @@ function createAccessScreen(selectedRole,mode='register'){
   <p>${t('¿Ya tienes cuenta?','Already have an account?','Vous avez déjà un compte ?')} ${accessLink('auth-signin',t('Inicia sesión','Sign in','Connectez-vous'))}</p></section>`);
   bindCoverLanguage(()=>createAccessScreen(selectedRole,mode));
   bindPasswordToggles();
+  bindConsent($('#register-form'));
   $('#auth-roles').onclick=()=>pickRole(mode);
   $('#auth-signin').onclick=()=>signInScreen();
   const form=$('#register-form');
@@ -263,8 +264,8 @@ function createAccessScreen(selectedRole,mode='register'){
     if(d.password.length<8)return fail(t('La contraseña debe tener al menos 8 caracteres.','The password must have at least 8 characters.','Le mot de passe doit contenir au moins 8 caractères.'));
     if(d.password!==d.confirm)return fail(t('Las contraseñas no coinciden.','The passwords do not match.','Les mots de passe ne correspondent pas.'));
     // La contraseña solo vive en memoria hasta crear la cuenta en Supabase; nunca se guarda.
-    const consent=readConsent(selectedRole,d);
-    if(!consent)return fail(t('Marca las casillas de aceptación para continuar.','Tick the acceptance boxes to continue.','Cochez les cases d’acceptation pour continuer.'));
+    const consent=readConsent(selectedRole,d,email);
+    if(consent.error)return fail(consent.error);
     pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password,consent};
     chooseRole(selectedRole,mode);
   };
@@ -285,7 +286,11 @@ function linkPendingAccount(){
   const profile=role==='Jugador'?state.profile:actor();
   if(!profile?.memberId||role!==pendingAccount.role)return;
   const {remember,password,cloudUser,consent,...account}=pendingAccount;
-  if(consent)state.consent=consent;
+  if(consent){
+    const {tutorEmail,...record}=consent;
+    state.consent=record;
+    if(tutorEmail&&role==='Jugador'&&state.profile)state.profile.tutorEmail=tutorEmail;
+  }
   account.memberId=profile.memberId;account.created=Date.now();
   if(role!=='Jugador')account.profile={...profile};
   pendingAccount=null;
