@@ -46,6 +46,8 @@ Respaldo de la academia para el coach (backup.js) y respuestas de Ace al día.
 
 Traducciones al inglés y francés de las pantallas principales de Jugador, Coach y Tutor (dashboard-language.js).
 
+Traducciones EN/FR de formularios emergentes, listas, avisos y asistente de registro (dashboard-language.js).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1535,7 +1537,310 @@ Evaluar jugador|Assess player|Évaluer le joueur
 Pendiente de evaluación.|Pending assessment.|Évaluation en attente.
 Objetivo del jugador|Player’s goal|Objectif du joueur
 Las observaciones de este jugador aparecerán aquí.|This player’s observations will appear here.|Les observations de ce joueur apparaîtront ici.
-Jugador vinculado|Linked player|Joueur lié`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Jugador vinculado|Linked player|Joueur lié
+OBJETIVO DE LA SESIÓN|SESSION GOAL|OBJECTIF DE LA SÉANCE
+Conversación de la sesión|Session conversation|Conversation de la séance
+INDICACIÓN DEL COACH|COACH’S INSTRUCTION|CONSIGNE DU COACH
+Qué llevar|What to bring|Quoi apporter
+Explicación del ejercicio|Exercise explanation|Explication de l’exercice
+Guía en bucle|Looped guide|Guide en boucle
+Video de la explicación|Explanation video|Vidéo d’explication
+Próximamente|Coming soon|Bientôt disponible
+Añadir comentario|Add comment|Ajouter un commentaire
+Cancelar|Cancel|Annuler
+Guardar comentario|Save comment|Enregistrer le commentaire
+Guía rápida de la actividad|Quick activity guide|Guide rapide de l’activité
+Video de la explicación, próximamente|Explanation video, coming soon|Vidéo d’explication, bientôt disponible
+¿Cómo te sentiste en la sesión?|How did you feel in the session?|Comment vous êtes-vous senti pendant la séance ?
+Junta presencial|In-person meeting|Réunion en personne
+Paso 1 de 2. Selecciona los círculos de quienes quieres que asistan.|Step 1 of 2. Select the circles of the people you want to attend.|Étape 1 sur 2. Sélectionnez les cercles des personnes que vous souhaitez inviter.
+Encuesta de hoy|Today’s survey|Enquête du jour
+¿Fuiste hoy al entrenamiento?|Did you go to training today?|Êtes-vous allé à l’entraînement aujourd’hui ?
+Sí fui|Yes, I went|Oui, j’y suis allé
+¿Qué tan cerca te sentiste hoy de tu meta?|How close to your goal did you feel today?|À quel point vous êtes-vous senti proche de votre objectif aujourd’hui ?
+¿Cómo te sentiste en el entrenamiento?|How did you feel in training?|Comment vous êtes-vous senti à l’entraînement ?
+Sin energía|No energy|Sans énergie
+Con cansancio|Tired|Fatigué
+Normal|Normal|Normal
+Bien|Good|Bien
+Excelente|Excellent|Excellent
+¿Qué te salió bien?|What went well?|Qu’est-ce qui s’est bien passé ?
+¿Qué te faltó?|What was missing?|Qu’est-ce qui vous a manqué ?
+¿Asistió hoy al entrenamiento?|Did they attend training today?|A-t-il assisté à l’entraînement aujourd’hui ?
+Sí asistió|Yes, attended|Oui, a assisté
+No asistió|Did not attend|N’a pas assisté
+Hoy, ¿qué tan cerca estuvo de su meta?|Today, how close was the player to their goal?|Aujourd’hui, à quel point le joueur était-il proche de son objectif ?
+¿Qué mejoró hoy?|What improved today?|Qu’est-ce qui s’est amélioré aujourd’hui ?
+¿Qué le falta?|What does the player still lack?|Que lui manque-t-il encore ?
+Nombre del torneo|Tournament name|Nom du tournoi
+Sin definir|Undefined|Non défini
+Sintética|Synthetic|Synthétique
+Añadir torneo|Add tournament|Ajouter un tournoi
+Teléfono con lada (opcional)|Phone with area code (optional)|Téléphone avec indicatif (facultatif)
+Descripción|Description|Description
+Añade solo los datos que quieras mostrar en el directorio de tu academia.|Add only the details you want to show in your academy directory.|Ajoutez uniquement les informations que vous souhaitez afficher dans l’annuaire de votre académie.
+Guardar|Save|Enregistrer
+Jugador de red|Net player|Joueur de filet
+Por descubrir|To be discovered|À découvrir
+Junior de proyección|High-potential junior|Junior à fort potentiel
+Mañanas|Mornings|Matins
+Mañanas y tardes|Mornings and afternoons|Matins et après-midis
+Fines de semana|Weekends|Week-ends
+Planificar una sesión|Plan a session|Planifier une séance
+Nombre de la sesión|Session name|Nom de la séance
+Duración en minutos|Duration in minutes|Durée en minutes
+Guía rápida (un paso por línea)|Quick guide (one step per line)|Guide rapide (une étape par ligne)
+Drills o enfoque físico|Drills or fitness focus|Exercices ou axe physique
+Plan detallado|Detailed plan|Plan détaillé
+ejercicios, series, duración o carga indicada por el coach|exercises, sets, duration or load set by the coach|exercices, séries, durée ou charge indiqués par le coach
+Marca los días de juntas y la franja de atención semanal. Cada cita dura 30 minutos.|Select your meeting days and weekly availability window. Each meeting lasts 30 minutes.|Sélectionnez vos jours de réunion et votre plage de disponibilité hebdomadaire. Chaque rendez-vous dure 30 minutes.
+Guardar horarios|Save hours|Enregistrer les horaires
+Miércoles|Wednesday|Mercredi
+Sábado|Saturday|Samedi
+Cómo medir el avance|How to measure progress|Comment mesurer la progression
+Mes evaluado|Month assessed|Mois évalué
+Preparación para el objetivo (%)|Readiness for the goal (%)|Préparation à l’objectif (%)
+Qué hizo bien|What they did well|Ce qu’il a bien fait
+Qué trabajar después|What to work on next|À travailler ensuite
+Logo|Logo|Logo
+Foto de portada|Cover photo|Photo de couverture
+enlace a la imagen|image link|lien vers l’image
+Invitación al grupo de WhatsApp|WhatsApp group invitation|Invitation au groupe WhatsApp
+Anuncio para la academia|Academy announcement|Annonce pour l’académie
+Título|Title|Titre
+Cancelar sesión por lluvia (opcional)|Cancel session due to rain (optional)|Annuler la séance à cause de la pluie (facultatif)
+Preparador físico|Fitness coach|Préparateur physique
+Calle, número, ciudad y país|Street, number, city and country|Rue, numéro, ville et pays
+Añadir jugador particular|Add private-lesson player|Ajouter un joueur de cours particuliers
+Externo a la academia|Outside the academy|Externe à l’académie
+Nombre del jugador externo|External player’s name|Nom du joueur externe
+Se incorpora desde la semana seleccionada.|Joins from the selected week.|Rejoint à partir de la semaine sélectionnée.
+Categoría|Category|Catégorie
+Sin categoría|No category|Sans catégorie
+Devolución|Return of serve|Retour
+Táctica|Tactics|Tactique
+Nota para tus jugadores (opcional)|Note for your players (optional)|Note pour vos joueurs (facultatif)
+Ej. Fíjate en la posición de los pies antes del impacto.|E.g. Watch your foot position before impact.|Ex. Surveillez la position de vos pieds avant l’impact.
+Añadir ejercicio|Add exercise|Ajouter un exercice
+Indicaciones del preparador|Trainer’s instructions|Indications du préparateur
+Adjunta el comprobante.|Attach the receipt.|Joignez le justificatif.
+Cambios guardados|Changes saved|Modifications enregistrées
+Cita agendada|Meeting scheduled|Rendez-vous planifié
+Comprobante guardado en la semana seleccionada.|Receipt saved in the selected week.|Justificatif enregistré pour la semaine sélectionnée.
+Código copiado.|Code copied.|Code copié.
+Código revocado.|Code revoked.|Code révoqué.
+Ejercicio quitado.|Exercise removed.|Exercice supprimé.
+El avance debe estar entre 0 y 100.|Progress must be between 0 and 100.|La progression doit être comprise entre 0 et 100.
+El video debe ser un enlace HTTPS.|The video must be an HTTPS link.|La vidéo doit être un lien HTTPS.
+Elige a tu coach.|Choose your coach.|Choisissez votre coach.
+Elige hoy o una fecha futura.|Choose today or a future date.|Choisissez aujourd’hui ou une date future.
+Elige un JPG, PNG o PDF de hasta 3 MB.|Choose a JPG, PNG or PDF up to 3 MB.|Choisissez un JPG, PNG ou PDF de 3 Mo maximum.
+Elige un JPG, PNG o PDF de hasta 5 MB.|Choose a JPG, PNG or PDF up to 5 MB.|Choisissez un JPG, PNG ou PDF de 5 Mo maximum.
+Elige un JPG, PNG o PDF menor de 1.5 MB.|Choose a JPG, PNG or PDF under 1.5 MB.|Choisissez un JPG, PNG ou PDF de moins de 1,5 Mo.
+Elige una duración entre 1 y 600 minutos.|Choose a duration between 1 and 600 minutes.|Choisissez une durée entre 1 et 600 minutes.
+Escribe el nombre del ejercicio.|Enter the exercise name.|Saisissez le nom de l’exercice.
+Escribe el nombre del jugador.|Enter the player’s name.|Saisissez le nom du joueur.
+Escribe el nombre y la sede.|Enter the name and the location.|Saisissez le nom et le lieu.
+Escribe la dirección de la sede.|Enter the location address.|Saisissez l’adresse du lieu.
+Escribe tu nombre y academia.|Enter your name and academy.|Saisissez votre nom et votre académie.
+Escribe un título y un aviso.|Enter a title and a notice.|Saisissez un titre et une annonce.
+Escribe un título.|Enter a title.|Saisissez un titre.
+Ese horario ya no está disponible.|That time slot is no longer available.|Ce créneau n’est plus disponible.
+Este jugador ya está en tus pagos privados.|This player is already in your private payments.|Ce joueur figure déjà dans vos paiements privés.
+Horarios de atención guardados|Meeting hours saved|Horaires de disponibilité enregistrés
+Inicia sesión con tu cuenta de coach para descargar el respaldo.|Sign in with your coach account to download the backup.|Connectez-vous avec votre compte coach pour télécharger la sauvegarde.
+La CLABE debe tener 18 dígitos.|The CLABE must have 18 digits.|La CLABE doit comporter 18 chiffres.
+La matrícula debe tener siete letras o números.|The enrollment code must have seven letters or numbers.|Le matricule doit comporter sept lettres ou chiffres.
+No hay datos que respaldar. Revisa que tu cuenta de coach esté aprobada.|There is no data to back up. Check that your coach account is approved.|Aucune donnée à sauvegarder. Vérifiez que votre compte coach est approuvé.
+No se pudo abrir el comprobante en este navegador.|The receipt could not be opened in this browser.|Impossible d’ouvrir le justificatif dans ce navigateur.
+No se pudo copiar. Selecciónalo y cópialo a mano.|Could not copy. Select it and copy it by hand.|Copie impossible. Sélectionnez-le et copiez-le à la main.
+No se pudo crear el código. Revisa tu conexión.|The code could not be created. Check your connection.|Impossible de créer le code. Vérifiez votre connexion.
+No se pudo crear el código.|The code could not be created.|Impossible de créer le code.
+No se pudo descargar el respaldo. Revisa tu conexión e inténtalo de nuevo.|The backup could not be downloaded. Check your connection and try again.|Impossible de télécharger la sauvegarde. Vérifiez votre connexion et réessayez.
+No se pudo guardar el comprobante en este navegador.|The receipt could not be saved in this browser.|Impossible d’enregistrer le justificatif dans ce navigateur.
+No se pudo guardar: libera espacio en el navegador.|Could not save: free up space in the browser.|Enregistrement impossible : libérez de l’espace dans le navigateur.
+No se pudo leer el comprobante.|The receipt could not be read.|Impossible de lire le justificatif.
+Pago confirmado|Payment confirmed|Paiement confirmé
+Pago confirmado.|Payment confirmed.|Paiement confirmé.
+Pega un enlace HTTPS válido (por ejemplo, de YouTube).|Paste a valid HTTPS link (for example, from YouTube).|Collez un lien HTTPS valide (par exemple, YouTube).
+Revisa el importe en MXN.|Check the amount in MXN.|Vérifiez le montant en MXN.
+Revisa el teléfono e incluye la lada del país.|Check the phone number and include the country code.|Vérifiez le numéro et incluez l’indicatif du pays.
+Todavía no hay coaches registrados en tu academia.|There are no coaches registered in your academy yet.|Aucun coach n’est encore inscrit dans votre académie.
+Todavía no hay entrenamientos en las próximas semanas.|There are no sessions in the coming weeks yet.|Aucune séance n’est encore prévue dans les prochaines semaines.
+Todavía no hay una invitación que aceptar.|There is no invitation to accept yet.|Aucune invitation à accepter pour le moment.
+Torneo quitado.|Tournament removed.|Tournoi supprimé.
+Video quitado.|Video removed.|Vidéo supprimée.
+Nadie entra a tu academia sin un código. Crea uno por persona: se usa una sola vez y vence en 30 días.|Nobody joins your academy without a code. Create one per person: it can be used once and expires in 30 days.|Personne n’entre dans votre académie sans code. Créez-en un par personne : il ne sert qu’une fois et expire au bout de 30 jours.
+Código nuevo|New code|Nouveau code
+Enviar por WhatsApp|Send by WhatsApp|Envoyer par WhatsApp
+Copiar|Copy|Copier
+Perfil|Profile|Profil
+Nombre de la persona|Person’s name|Nom de la personne
+Clave de la academia (opcional)|Academy ID (optional)|Identifiant de l’académie (facultatif)
+Jugador a su cargo|Player in their care|Joueur à sa charge
+Sin ligar a un jugador|Not linked to a player|Non lié à un joueur
+Crear código|Create code|Créer le code
+Códigos de tu academia|Your academy’s codes|Codes de votre académie
+pendiente|pending|en attente
+usado|used|utilisé
+revocado|revoked|révoqué
+vencido|expired|expiré
+Revocar|Revoke|Révoquer
+¿Seguro? Toca otra vez|Sure? Tap again|Sûr ? Touchez à nouveau
+Todavía no has creado ningún código.|You have not created any codes yet.|Vous n’avez créé aucun code pour le moment.
+Cargando…|Loading…|Chargement…
+Inicia sesión con tu cuenta de coach para crear códigos.|Sign in with your coach account to create codes.|Connectez-vous avec votre compte coach pour créer des codes.
+No se pudieron cargar los códigos. Revisa tu conexión y que tu cuenta de coach esté aprobada.|The codes could not be loaded. Check your connection and that your coach account is approved.|Impossible de charger les codes. Vérifiez votre connexion et que votre compte coach est approuvé.
+No hay conexión con el servidor. Revisa tu internet.|Could not reach the server. Check your internet connection.|Impossible de joindre le serveur. Vérifiez votre connexion internet.
+Solo un coach aprobado puede crear códigos.|Only an approved coach can create codes.|Seul un coach approuvé peut créer des codes.
+Rol no válido.|Invalid role.|Rôle non valide.
+Solo el dueño de la academia puede crear códigos de Coach.|Only the academy owner can create Coach codes.|Seul le propriétaire de l’académie peut créer des codes Coach.
+Escribe el nombre de la persona.|Enter the person’s name.|Saisissez le nom de la personne.
+Solo un coach aprobado puede revocar códigos.|Only an approved coach can revoke codes.|Seul un coach approuvé peut révoquer des codes.
+Código no encontrado.|Code not found.|Code introuvable.
+Solo el dueño puede revocar códigos de Coach.|Only the owner can revoke Coach codes.|Seul le propriétaire peut révoquer des codes Coach.
+Pausar|Pause|Pause
+Reproducir|Play|Lecture
+Director|Director|Directeur
+Ver calendario|View calendar|Voir le calendrier
+Nuevo torneo|New tournament|Nouveau tournoi
+Fecha|Date|Date
+Sede|Venue|Lieu
+Modalidad|Format|Format
+Singles|Singles|Simple
+Dobles|Doubles|Double
+Singles y dobles|Singles and doubles|Simple et double
+Superficie|Surface|Surface
+Arcilla|Clay|Terre battue
+Dura (concreto)|Hard (concrete)|Dur (béton)
+Pasto|Grass|Gazon
+No fui|I did not go|Je n’y suis pas allé
+0 · Empezando|0 · Just starting|0 · Je débute
+100 · Meta lograda|100 · Goal achieved|100 · Objectif atteint
+(opcional)|(optional)|(facultatif)
+Enviar|Send|Envoyer
+Mi ficha de equipo|My team card|Ma fiche d’équipe
+Correo de contacto (opcional)|Contact email (optional)|E-mail de contact (facultatif)
+Foto (opcional)|Photo (optional)|Photo (facultatif)
+Editar mi perfil|Edit my profile|Modifier mon profil
+Nombre|Name|Nom
+Apellido|Last name|Nom de famille
+Estilo|Style|Style
+Atacante de fondo|Baseline attacker|Attaquant de fond de court
+Contragolpeador|Counter-puncher|Contreur
+Todoterreno|All-court player|Joueur complet
+Mano dominante|Dominant hand|Main dominante
+Diestro|Right-handed|Droitier
+Zurdo|Left-handed|Gaucher
+Ambidiestro|Ambidextrous|Ambidextre
+Etapa|Stage|Étape
+Club social|Social club|Club loisir
+Circuito competitivo|Competitive circuit|Circuit compétitif
+Ruta profesional|Professional path|Parcours professionnel
+UTR individual|Individual UTR|UTR individuel
+Raqueta|Racket|Raquette
+Disponibilidad|Availability|Disponibilité
+Tardes|Afternoons|Après-midis
+Objetivo|Goal|Objectif
+Preferencias|Preferences|Préférences
+Disciplina|Discipline|Discipline
+Hora|Time|Heure
+Cancha o gimnasio|Court or gym|Court ou salle
+Coach responsable|Responsible coach|Coach responsable
+Material recomendado|Recommended gear|Matériel recommandé
+Objetivo relacionado|Related goal|Objectif associé
+Responsable|Responsible|Responsable
+Lunes|Monday|Lundi
+Martes|Tuesday|Mardi
+Jueves|Thursday|Jeudi
+Viernes|Friday|Vendredi
+Domingo|Sunday|Dimanche
+Progreso (%)|Progress (%)|Progression (%)
+Objetivo evaluado|Goal assessed|Objectif évalué
+Personalizar academia|Customize academy|Personnaliser l’académie
+Solo publicar aviso|Only publish notice|Publier uniquement l’annonce
+Aviso|Notice|Annonce
+Publicar anuncio|Publish announcement|Publier l’annonce
+Nuevo integrante|New member|Nouveau membre
+Rol|Role|Rôle
+Editar integrante|Edit member|Modifier le membre
+Cuota semanal (MXN)|Weekly fee (MXN)|Tarif hebdomadaire (MXN)
+Agregar video|Add video|Ajouter une vidéo
+Enlace de YouTube|YouTube link|Lien YouTube
+Derecha|Forehand|Coup droit
+Volea y red|Volley and net|Volée et filet
+Mental|Mental|Mental
+Partidos|Matches|Matchs
+Ejercicio|Exercise|Exercice
+Tipo|Type|Type
+Fuerza|Strength|Force
+Agilidad|Agility|Agilité
+Cardio|Cardio|Cardio
+Core|Core|Gainage
+Movilidad|Mobility|Mobilité
+Series y repeticiones|Sets and reps|Séries et répétitions
+Video de referencia (opcional)|Reference video (optional)|Vidéo de référence (facultatif)
+TU NOMBRE|YOUR NAME|VOTRE NOM
+Empecemos por ti.|Let’s start with you.|Commençons par vous.
+Cada jugador tiene su propia historia.|Every player has their own story.|Chaque joueur a sa propre histoire.
+TU PERFIL SE GUARDA EN TU CUENTA CORDA|YOUR PROFILE IS SAVED IN YOUR CORDA ACCOUNT|VOTRE PROFIL EST ENREGISTRÉ DANS VOTRE COMPTE CORDA
+TU CUMPLEAÑOS|YOUR BIRTHDAY|VOTRE ANNIVERSAIRE
+¿Cuándo cumples años?|When is your birthday?|Quand est votre anniversaire ?
+Elige día, mes y año de nacimiento.|Choose day, month and year of birth.|Choisissez le jour, le mois et l’année de naissance.
+← Atrás|← Back|← Retour
+TU ETAPA|YOUR STAGE|VOTRE ÉTAPE
+¿En qué etapa juegas?|What stage are you at?|À quelle étape en êtes-vous ?
+Elige el camino que mejor describe tu tenis hoy.|Choose the path that best describes your tennis today.|Choisissez le parcours qui décrit le mieux votre tennis aujourd’hui.
+Juego por gusto y disfruto los partidos del club.|I play for fun and enjoy club matches.|Je joue par plaisir et j’aime les matchs du club.
+Entreno para ligas, torneos y partidos oficiales.|I train for leagues, tournaments and official matches.|Je m’entraîne pour des ligues, des tournois et des matchs officiels.
+Compito en categorías juveniles y preparo mi salto al siguiente nivel.|I compete in junior categories and prepare to move up to the next level.|Je participe à des catégories juniors et je prépare le passage au niveau supérieur.
+Mi calendario gira alrededor del circuito profesional.|My calendar revolves around the professional circuit.|Mon calendrier tourne autour du circuit professionnel.
+De 1.00 a 16.50. Puedes dejarlo en blanco.|From 1.00 to 16.50. You can leave it blank.|De 1,00 à 16,50. Vous pouvez le laisser vide.
+TU ACADEMIA|YOUR ACADEMY|VOTRE ACADÉMIE
+Tu academia será el punto de encuentro con tu coach.|Your academy will be your meeting point with your coach.|Votre académie sera le point de rencontre avec votre coach.
+Tu academia te da un código de acceso al registrarte. Si no lo tienes, pídeselo a tu coach.|Your academy gives you an access code when you sign up. If you do not have it, ask your coach.|Votre académie vous donne un code d’accès à l’inscription. Si vous ne l’avez pas, demandez-le à votre coach.
+TU ESTILO|YOUR STYLE|VOTRE STYLE
+¿Cómo construyes un punto?|How do you build a point?|Comment construisez-vous un point ?
+Elige la frase que más se parece a ti en la cancha.|Choose the sentence that sounds most like you on court.|Choisissez la phrase qui vous ressemble le plus sur le court.
+Busco dominar el punto con mi derecha o mi revés.|I look to dominate the point with my forehand or backhand.|Je cherche à dominer le point avec mon coup droit ou mon revers.
+Defiendo, recupero terreno y aprovecho la oportunidad.|I defend, regain ground and take the opportunity.|Je défends, je regagne du terrain et je saisis l’occasion.
+Subo a la red para cerrar con una volea.|I move up to the net to finish with a volley.|Je monte au filet pour conclure par une volée.
+Adapto mi plan a la superficie y al rival.|I adapt my plan to the surface and the opponent.|J’adapte mon plan à la surface et à l’adversaire.
+Quiero definir mi estilo con mi coach.|I want to define my style with my coach.|Je veux définir mon style avec mon coach.
+TU RAQUETA|YOUR RACKET|VOTRE RAQUETTE
+Tu compañera de cancha.|Your court partner.|Votre partenaire sur le court.
+Cuéntanos con qué juegas.|Tell us what you play with.|Dites-nous avec quoi vous jouez.
+Tu raqueta|Your racket|Votre raquette
+TU OBJETIVO|YOUR GOAL|VOTRE OBJECTIF
+¿Cuál es tu próximo paso?|What is your next step?|Quelle est votre prochaine étape ?
+Escribe una meta concreta. Será tu 100 % en «Análisis del coach».|Write a specific goal. It will be your 100% in “Coach analysis”.|Écrivez un objectif concret. Ce sera votre 100 % dans « Analyse du coach ».
+Una buena meta dice tres cosas:|A good goal says three things:|Un bon objectif dit trois choses :
+Qué|What|Quoi
+Cuánto|How much|Combien
+: un número que se pueda medir|: a number you can measure|: un chiffre mesurable
+Para cuándo|By when|Pour quand
+: una fecha o un torneo|: a date or a tournament|: une date ou un tournoi
+Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal in the charts. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif dans les graphiques. Vous pourrez le modifier plus tard dans « Mon profil ».
+TU FOTO|YOUR PHOTO|VOTRE PHOTO
+Ponle cara a tu juego.|Put a face to your game.|Donnez un visage à votre jeu.
+Una foto para que tu coach te reconozca. Tú decides.|A photo so your coach recognizes you. It is up to you.|Une photo pour que votre coach vous reconnaisse. C’est vous qui décidez.
+Elegir una foto|Choose a photo|Choisir une photo
+JPG o PNG · Máximo 2 MB|JPG or PNG · Max 2 MB|JPG ou PNG · 2 Mo maximum
+Tu espacio de coach|Your coach space|Votre espace coach
+Tu nombre|Your name|Votre nom
+Tu espacio familiar|Your family space|Votre espace famille
+Cuando confirmes tu correo y entres, aquí verás la invitación del jugador que escribió tu correo como correo de su tutor, para aceptarla.|When you confirm your email and sign in, you will see here the invitation from the player who entered your email as their guardian’s email, so you can accept it.|Quand vous aurez confirmé votre e-mail et vous serez connecté, vous verrez ici l’invitation du joueur qui a saisi votre e-mail comme e-mail de son tuteur, pour l’accepter.
+Revisa tu correo y confirma tu cuenta. Después inicia sesión: ahí verás la invitación de tu jugador para aceptarla y administrar su perfil.|Check your email and confirm your account. Then sign in: you will see your player’s invitation to accept it and manage their profile.|Consultez votre e-mail et confirmez votre compte. Connectez-vous ensuite : vous y verrez l’invitation de votre joueur pour l’accepter et gérer son profil.
+Tu academia te dio el código de acceso, así que tu cuenta ya está aprobada. Para ver a tu jugador, él debe haber escrito tu correo como correo de su tutor, o tu código debe venir ligado a él.|Your academy gave you the access code, so your account is already approved. To see your player, they must have entered your email as their guardian’s email, or your code must be linked to them.|Votre académie vous a donné le code d’accès : votre compte est donc déjà approuvé. Pour voir votre joueur, il doit avoir saisi votre e-mail comme e-mail de son tuteur, ou votre code doit lui être lié.
+Ir a iniciar sesión|Go to sign in|Aller à la connexion
+Perfil de Coach|Coach profile|Profil Coach
+Perfil de Tutor|Guardian profile|Profil Tuteur
+Cuenta creada|Account created|Compte créé
+Entrar al portal|Enter the portal|Entrer dans le portail
+Crear mi cuenta|Create my account|Créer mon compte
+Aceptar y entrar|Accept and enter|Accepter et entrer
+Vincula a tu jugador|Link your player|Liez votre joueur
+← Perfiles|← Profiles|← Profils`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -1574,6 +1879,17 @@ const dashboardViews={diario:['daily','quotidienne'],semanal:['weekly','hebdomad
 const dashboardMoods={'sin energía':['no energy','sans énergie'],'con cansancio':['tired','fatigué'],normal:['normal','normal'],bien:['good','bien'],excelente:['excellent','excellent']};
 const dashboardS=(n,one,many)=>Number(n)===1?one:many;
 const dashboardPatterns=[
+  [/^Tu meta: «([\s\S]*)»\. 100 % = la lograste\.$/,(m,i)=>i?`Votre objectif : «${m[1]}». 100 % = vous l’avez atteint.`:`Your goal: “${m[1]}”. 100% = you achieved it.`],
+  [/^Su meta: «([\s\S]*)»\. 100 % = la logró\.$/,(m,i)=>i?`Son objectif : «${m[1]}». 100 % = atteint.`:`Their goal: “${m[1]}”. 100% = achieved.`],
+  [/^(Inicio|Fin) (\S+)$/,(m,i)=>{const day=dashboardLabels.get(m[2])?.[i]||m[2];return i?`${m[1]==='Inicio'?'Début':'Fin'} ${day}`:`${m[1]==='Inicio'?'Start':'End'} ${day}`}],
+  [/^lo usó (.+)$/,(m,i)=>i?`utilisé par ${m[1]}`:`used by ${m[1]}`],
+  [/^([\s\S]*)\. Mándaselo por un medio privado: lo puede usar una sola vez\.$/,(m,i)=>i?`${m[1]}. Envoyez-le par un canal privé : il ne peut servir qu’une fois.`:`${m[1]}. Send it through a private channel: it can only be used once.`],
+  [/^Comprobante enviado a (.+)$/,(m,i)=>i?`Justificatif envoyé à ${m[1]}`:`Receipt sent to ${m[1]}`],
+  [/^Comprobante recibido para (.+)$/,(m,i)=>i?`Justificatif reçu pour ${m[1]}`:`Receipt received for ${m[1]}`],
+  [/^Revisa el horario del (.+)$/,(m,i)=>i?`Vérifiez l’horaire du ${m[1]}`:`Check the schedule for ${m[1]}`],
+  [/^Respaldo descargado: (\d+) perfiles? y (\d+) datos?\.$/,(m,i)=>i?`Sauvegarde téléchargée : ${m[1]} profil${dashboardS(m[1],'','s')} et ${m[2]} donnée${dashboardS(m[2],'','s')}.`:`Backup downloaded: ${m[1]} profile${dashboardS(m[1],'','s')} and ${m[2]} data item${dashboardS(m[2],'','s')}.`],
+  [/^PASO (\d) DE (\d)$/,(m,i)=>i?`ÉTAPE ${m[1]} SUR ${m[2]}`:`STEP ${m[1]} OF ${m[2]}`],
+  [/^¿Dónde juegas, (.+)\?$/,(m,i)=>i?`Où jouez-vous, ${m[1]} ?`:`Where do you play, ${m[1]}?`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
@@ -1615,21 +1931,47 @@ function dashboardText(text,mine=new Set()){
   const exact=dashboardLabels.get(text.trim());
   return exact?text.replace(text.trim(),exact[index]):text.split(/( · | \/ )/).map(label).join('');
 }
-function translateDashboard(){
-  if(coverLanguage==='es')return;
-  const shell=document.querySelector('.shell');
-  const mine=memberTexts();
-  const walk=document.createTreeWalker(shell,NodeFilter.SHOW_TEXT);
-  while(walk.nextNode()){
-    const node=walk.currentNode;
-    if(node.parentElement.closest('select,textarea,footer,svg'))continue;
+// Translates the text inside one element: text nodes, a few attributes and the labels of <option>.
+// Member-entered texts (see memberTexts) and the legal documents are left alone.
+// An <option> without a value attribute submits its own text, so the Spanish text is kept as its value before translating.
+function translateElement(root){
+  if(coverLanguage==='es'||!root)return;
+  const mine=memberTexts(),nodes=[],walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+  while(walk.nextNode())nodes.push(walk.currentNode);
+  for(const node of nodes){
+    const el=node.parentElement;
+    if(!el||el.closest('textarea,footer:not(.wizard-foot),svg,script,style,#legal-dialog'))continue;
     const next=dashboardText(node.data,mine);
-    if(next!==node.data)node.data=next;
+    if(next===node.data)continue;
+    if(el.tagName==='OPTION'&&!el.hasAttribute('value'))el.value=node.data.trim();
+    node.data=next;
   }
-  shell.querySelectorAll('[aria-label]').forEach(el=>{
-    const original=el.getAttribute('aria-label');
-    const next=dashboardText(original,mine);if(next!==original)el.setAttribute('aria-label',next);
+  root.querySelectorAll('[aria-label],[placeholder],[title]').forEach(el=>{
+    if(el.closest('#legal-dialog'))return;
+    for(const attribute of ['aria-label','placeholder','title']){
+      const original=el.getAttribute(attribute);
+      if(!original)continue;
+      const next=dashboardText(original,mine);
+      if(next!==original)el.setAttribute(attribute,next);
+    }
   });
+}
+function translateDashboard(){
+  translateElement(document.querySelector('.shell'));
+}
+// Pop-up forms, notices (#toast) and whole screens are drawn after the page, so they are translated as they appear.
+if(typeof MutationObserver!=='undefined'){
+  const watch=()=>new MutationObserver(records=>{
+    if(typeof coverLanguage==='undefined'||coverLanguage==='es')return;
+    const roots=new Set();
+    for(const record of records)for(const added of record.addedNodes){
+      const el=added.nodeType===1?added:added.parentElement;
+      const root=el?.closest?.('dialog,#toast,#app');
+      if(root&&root.id!=='legal-dialog')roots.add(root);
+    }
+    roots.forEach(translateElement);
+  }).observe(document.body,{childList:true,subtree:true});
+  if(document.body)watch();else document.addEventListener('DOMContentLoaded',watch);
 }
 ````
 
@@ -1741,7 +2083,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109f"><link rel="stylesheet" href="style.css?v=20261109f"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109f"><link rel="stylesheet" href="styles/ace.css?v=20261109f"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109f"></script><script src="resenas.js?v=20261109f"></script><script src="portada.js?v=20261109f"></script><script src="community.js?v=20261109f"></script><script src="session-guide.js?v=20261109f"></script><script src="annual-progress.js?v=20261109f"></script><script src="progress-hub.js?v=20261109f"></script><script src="meetings.js?v=20261109f"></script><script src="monthly-fees.js?v=20261109f"></script><script src="portal.js?v=20261109f"></script><script src="private-payments.js?v=20261109f"></script><script src="roles.js?v=20261109f"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109f"></script><script src="legal.js?v=20261109f"></script><script src="auth.js?v=20261109f"></script><script src="sync.js?v=20261109f"></script><script src="guardian.js?v=20261109f"></script><script src="access.js?v=20261109f"></script><script src="backup.js?v=20261109f"></script><script src="videos.js?v=20261109f"></script><script src="physical.js?v=20261109f"></script><script src="calendar.js?v=20261109f"></script><script src="sobre-corda.js?v=20261109f"></script><script src="app.js?v=20261109f"></script><script src="ace.js?v=20261109f"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109l"><link rel="stylesheet" href="style.css?v=20261109l"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109l"><link rel="stylesheet" href="styles/ace.css?v=20261109l"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109l"></script><script src="resenas.js?v=20261109l"></script><script src="portada.js?v=20261109l"></script><script src="community.js?v=20261109l"></script><script src="session-guide.js?v=20261109l"></script><script src="annual-progress.js?v=20261109l"></script><script src="progress-hub.js?v=20261109l"></script><script src="meetings.js?v=20261109l"></script><script src="monthly-fees.js?v=20261109l"></script><script src="portal.js?v=20261109l"></script><script src="private-payments.js?v=20261109l"></script><script src="roles.js?v=20261109l"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109l"></script><script src="legal.js?v=20261109l"></script><script src="auth.js?v=20261109l"></script><script src="sync.js?v=20261109l"></script><script src="guardian.js?v=20261109l"></script><script src="access.js?v=20261109l"></script><script src="backup.js?v=20261109l"></script><script src="videos.js?v=20261109l"></script><script src="physical.js?v=20261109l"></script><script src="calendar.js?v=20261109l"></script><script src="sobre-corda.js?v=20261109l"></script><script src="app.js?v=20261109l"></script><script src="ace.js?v=20261109l"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
