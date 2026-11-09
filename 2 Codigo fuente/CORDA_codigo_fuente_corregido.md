@@ -42,6 +42,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 Códigos de acceso de un solo uso (access.js, SQL 10): la academia y el rol salen del código al registrarse.
 
+Respaldo de la academia para el coach (backup.js) y respuestas de Ace al día.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -55,6 +57,7 @@ Es un prototipo con almacenamiento local en el navegador; este código no incluy
 - `dist/annual-progress.js`
 - `dist/app.js`
 - `dist/auth.js`
+- `dist/backup.js`
 - `dist/calendar.js`
 - `dist/community.js`
 - `dist/dashboard-language.js`
@@ -208,9 +211,9 @@ const toAbout=()=>{openSobreCorda('mision',entry);close()};
 // La respuesta es texto o una función que devuelve {text, actions}.
 const INTENTS=[
   {keys:['hola','buenas','buen dia','que tal','hey'],answer:()=>({text:`Hola${inApp()&&state.profile.firstName?', '+esc(state.profile.firstName):''}. ¿En qué te ayudo?`,actions:[]})},
-  {keys:['olvide mi contrasena','olvide','recuperar','no recuerdo','restablecer','perdi mi contrasena'],answer:()=>({text:'Por ahora tu cuenta vive solo en este navegador, así que no hay correo de recuperación. '+CONTACT})},
+  {keys:['olvide mi contrasena','olvide','recuperar','no recuerdo','restablecer','perdi mi contrasena'],answer:()=>({text:'En la pantalla de inicio de sesión toca «¿Olvidaste tu contraseña?» y sigue el enlace que te llega al correo. Si no llega, revisa spam o escríbenos. '+CONTACT,actions:inApp()?[]:[['Iniciar sesión',toSignIn]]})},
   {keys:['iniciar sesion','entrar','login','acceder','contrasena','correo y contrasena'],answer:()=>inApp()?{text:'Ya iniciaste sesión. Para salir, usa «Cerrar sesión» al final de cualquier pantalla.'}:{text:'Toca «Iniciar sesión» y escribe tu correo y contraseña. Si marcas «Recordarme», no tendrás que escribirla otra vez en esta computadora.',actions:[['Iniciar sesión',toSignIn]]}},
-  {keys:['registr','crear cuenta','cuenta nueva','darme de alta','inscrib'],answer:()=>inApp()?{text:'Ya tienes una cuenta abierta. Si quieres otra, cierra sesión y elige «Registrarme».'}:{text:'Elige «Registrarme», escoge tu perfil y crea tu acceso con correo y contraseña. Después son 8 pasos cortos.',actions:[['Registrarme',toRegister]]}},
+  {keys:['registr','crear cuenta','cuenta nueva','darme de alta','inscrib'],answer:()=>inApp()?{text:'Ya tienes una cuenta abierta. Si quieres otra, cierra sesión y elige «Registrarme».'}:{text:'Elige «Registrarme», escoge tu perfil y crea tu acceso con correo, contraseña y el código de acceso que te da tu academia (si entrenas por tu cuenta, el jugador puede dejarlo vacío). Después son unos pasos cortos para completar tu perfil.',actions:[['Registrarme',toRegister]]}},
   {keys:['que perfil','jugador o','tutor','papa','mama','familia','padre','madre','coach o'],answer:()=>({text:'Elige <b>Jugador</b> si entrenas, <b>Coach</b> si planeas sesiones y das seguimiento, y <b>Tutor</b> si acompañas a un jugador menor de edad.'})},
   {keys:['confirmar','asistencia','voy a ir','confirmo'],answer:()=>isPlayerSide()?{text:'En Inicio, en la tarjeta de tu próxima sesión, toca «Confirmar asistencia». Puedes deshacerlo con el mismo botón.',actions:[['Ir a Inicio',go('home')]]}:{text:'Cuando inicies sesión, la tarjeta de tu próxima sesión tiene el botón «Confirmar asistencia».'}},
   {keys:['llevar','llevo','material','raqueta','que necesito'],answer:()=>{
@@ -893,6 +896,70 @@ function signOut(){
 }
 ````
 
+## Archivo: `dist/backup.js`
+
+````javascript
+// Respaldo de la academia (lado del coach).
+// El plan gratuito de Supabase no hace copias de seguridad automáticas, así que un coach aprobado puede descargar un archivo
+// .json con los datos de su academia desde su perfil. No usa claves especiales: lee con la sesión del coach, y las reglas de la base
+// de datos (RLS) deciden qué ve (no incluye los datos privados de otros coaches). No incluye fotos ni comprobantes ni contraseñas.
+// El archivo trae correos y datos personales: se guarda en un lugar seguro. Se guarda en este dispositivo la fecha del último respaldo.
+const BACKUP_PAGE=1000;
+async function backupFetchAll(table,columns,orders){
+  const rows=[];
+  for(let from=0;;from+=BACKUP_PAGE){
+    let query=cloud.from(table).select(columns);
+    for(const column of orders)query=query.order(column);
+    const {data,error}=await query.range(from,from+BACKUP_PAGE-1);
+    if(error)throw error;
+    rows.push(...data);
+    if(data.length<BACKUP_PAGE)break;
+  }
+  return rows;
+}
+function backupStamp(){
+  if(!state.backupAt)return 'Todavía no has descargado ningún respaldo en este dispositivo.';
+  return 'Último respaldo en este dispositivo: '+new Date(state.backupAt).toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'})+'.';
+}
+async function downloadBackup(){
+  if(role!=='Coach'||!cloud||(typeof phoneDemo!=='undefined'&&phoneDemo))return;
+  const button=$('#backup-download');
+  if(button)button.disabled=true;
+  try{
+    const {data:session}=await cloud.auth.getSession();
+    if(!session.session){toast('Inicia sesión con tu cuenta de coach para descargar el respaldo.');return}
+    const [profiles,items]=await Promise.all([
+      backupFetchAll('profiles','id,email,name,role,approved,details,created_at',['created_at','id']),
+      backupFetchAll('items','academy_id,member_id,kind,key,data,author,updated_by,updated_at',['member_id','kind','key'])
+    ]);
+    // Un coach sin aprobar no ve ni su academia: el archivo saldría casi vacío.
+    if(profiles.length<2&&!items.length){toast('No hay datos que respaldar. Revisa que tu cuenta de coach esté aprobada.');return}
+    const academy=actor()?.academy||state.profile?.academy||'academia';
+    const now=new Date(),day=now.toISOString().slice(0,10);
+    const file={
+      app:'CORDA',tipo:'respaldo de academia',formato:1,fecha:now.toISOString(),academia:academy,
+      conteo:{perfiles:profiles.length,datos:items.length},
+      nota:'Incluye los perfiles (con correo) y los datos de la academia que esta cuenta de coach puede ver. No incluye fotos, comprobantes ni contraseñas, ni los datos privados de otros coaches. Contiene datos personales: guárdalo en un lugar seguro.',
+      perfiles:profiles,datos:items
+    };
+    const slug=academy.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'academia';
+    const link=document.createElement('a');
+    link.href=URL.createObjectURL(new Blob([JSON.stringify(file,null,2)],{type:'application/json'}));
+    link.download='CORDA-respaldo-'+slug+'-'+day+'.json';
+    document.body.appendChild(link);link.click();link.remove();
+    setTimeout(()=>URL.revokeObjectURL(link.href),60000);
+    state.backupAt=Date.now();save();
+    toast('Respaldo descargado: '+profiles.length+' perfiles y '+items.length+' datos.');
+    const hint=$('#backup-stamp');if(hint)hint.textContent=backupStamp();
+  }catch{
+    toast('No se pudo descargar el respaldo. Revisa tu conexión e inténtalo de nuevo.');
+  }finally{
+    if(button)button.disabled=false;
+  }
+}
+document.addEventListener('click',event=>{if(event.target.closest?.('#backup-download'))downloadBackup()});
+````
+
 ## Archivo: `dist/calendar.js`
 
 ````javascript
@@ -1540,7 +1607,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109d"><link rel="stylesheet" href="style.css?v=20261109d"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109d"><link rel="stylesheet" href="styles/ace.css?v=20261109d"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109d"></script><script src="resenas.js?v=20261109d"></script><script src="portada.js?v=20261109d"></script><script src="community.js?v=20261109d"></script><script src="session-guide.js?v=20261109d"></script><script src="annual-progress.js?v=20261109d"></script><script src="progress-hub.js?v=20261109d"></script><script src="meetings.js?v=20261109d"></script><script src="monthly-fees.js?v=20261109d"></script><script src="portal.js?v=20261109d"></script><script src="private-payments.js?v=20261109d"></script><script src="roles.js?v=20261109d"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109d"></script><script src="legal.js?v=20261109d"></script><script src="auth.js?v=20261109d"></script><script src="sync.js?v=20261109d"></script><script src="guardian.js?v=20261109d"></script><script src="access.js?v=20261109d"></script><script src="videos.js?v=20261109d"></script><script src="physical.js?v=20261109d"></script><script src="calendar.js?v=20261109d"></script><script src="sobre-corda.js?v=20261109d"></script><script src="app.js?v=20261109d"></script><script src="ace.js?v=20261109d"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109e"><link rel="stylesheet" href="style.css?v=20261109e"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109e"><link rel="stylesheet" href="styles/ace.css?v=20261109e"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109e"></script><script src="resenas.js?v=20261109e"></script><script src="portada.js?v=20261109e"></script><script src="community.js?v=20261109e"></script><script src="session-guide.js?v=20261109e"></script><script src="annual-progress.js?v=20261109e"></script><script src="progress-hub.js?v=20261109e"></script><script src="meetings.js?v=20261109e"></script><script src="monthly-fees.js?v=20261109e"></script><script src="portal.js?v=20261109e"></script><script src="private-payments.js?v=20261109e"></script><script src="roles.js?v=20261109e"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109e"></script><script src="legal.js?v=20261109e"></script><script src="auth.js?v=20261109e"></script><script src="sync.js?v=20261109e"></script><script src="guardian.js?v=20261109e"></script><script src="access.js?v=20261109e"></script><script src="backup.js?v=20261109e"></script><script src="videos.js?v=20261109e"></script><script src="physical.js?v=20261109e"></script><script src="calendar.js?v=20261109e"></script><script src="sobre-corda.js?v=20261109e"></script><script src="app.js?v=20261109e"></script><script src="ace.js?v=20261109e"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -3085,7 +3152,7 @@ function familyHome(){
 }
 function adultProfile(){
   const a=actor();
-  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button>':''}<button class="link" id="account-setup">Editar datos</button></section>`;
+  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button> <button class="btn light small" id="backup-download">Descargar respaldo de la academia</button><p class="hint" id="backup-stamp">'+backupStamp()+'</p>':''}<button class="link" id="account-setup">Editar datos</button></section>`;
 }
 function bindRoleActions(){
   bindPrivatePayments();

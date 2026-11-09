@@ -157,7 +157,7 @@ function familyHome(){
 }
 function adultProfile(){
   const a=actor();
-  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button>':''}<button class="link" id="account-setup">Editar datos</button></section>`;
+  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button> <button class="btn light small" id="backup-download">Descargar respaldo de la academia</button><p class="hint" id="backup-stamp">'+backupStamp()+'</p>':''}<button class="link" id="account-setup">Editar datos</button></section>`;
 }
 function bindRoleActions(){
   bindPrivatePayments();
