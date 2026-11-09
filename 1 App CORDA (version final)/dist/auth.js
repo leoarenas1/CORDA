@@ -128,6 +128,7 @@ function signInScreen(prefill=''){
   <p>${accessLink('auth-forgot',t('¿Olvidaste tu contraseña?','Forgot your password?','Mot de passe oublié ?'))}</p>
   <p>${t('¿Aún no tienes cuenta?','No account yet?','Pas encore de compte ?')} ${accessLink('auth-register',t('Regístrate','Register','Inscrivez-vous'))}</p>
   ${legacy?`<p class="hint">${t('¿Ya usabas CORDA antes de las cuentas?','Used CORDA before accounts?','Vous utilisiez CORDA avant les comptes ?')} ${accessLink('auth-legacy',t('Entra a tu perfil y crea tu acceso','Open your profile and create your login','Ouvrez votre profil et créez votre accès'))}</p>`:''}
+  ${legalLinks()}
   </section>`);
   bindCoverLanguage(()=>signInScreen($('#signin-form [name=email]')?.value||prefill));
   bindPasswordToggles();
@@ -241,6 +242,7 @@ function createAccessScreen(selectedRole,mode='register'){
     ${passwordInput('password',t('Contraseña (mínimo 8 caracteres)','Password (at least 8 characters)','Mot de passe (8 caractères minimum)'),'new-password')}
     ${passwordInput('confirm',t('Repite la contraseña','Repeat the password','Répétez le mot de passe'),'new-password')}
     ${rememberInput()}
+    ${consentFields(selectedRole)}
     <p class="auth-error" id="auth-error" role="alert" hidden></p>
     <div class="formactions">${accessLink('auth-roles','← '+t('Perfiles','Profiles','Profils'))}<button class="btn lime" id="register-submit">${t('Continuar','Continue','Continuer')}</button></div>
   </form>
@@ -261,7 +263,9 @@ function createAccessScreen(selectedRole,mode='register'){
     if(d.password.length<8)return fail(t('La contraseña debe tener al menos 8 caracteres.','The password must have at least 8 characters.','Le mot de passe doit contenir au moins 8 caractères.'));
     if(d.password!==d.confirm)return fail(t('Las contraseñas no coinciden.','The passwords do not match.','Les mots de passe ne correspondent pas.'));
     // La contraseña solo vive en memoria hasta crear la cuenta en Supabase; nunca se guarda.
-    pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password};
+    const consent=readConsent(selectedRole,d);
+    if(!consent)return fail(t('Marca las casillas de aceptación para continuar.','Tick the acceptance boxes to continue.','Cochez les cases d’acceptation pour continuer.'));
+    pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password,consent};
     chooseRole(selectedRole,mode);
   };
 }
@@ -272,7 +276,7 @@ function cloudSnapshot(){
   if(!p?.memberId)return null;
   // Sin foto (llega en la fase C) ni evaluaciones mensuales (viven en items, las escribe el coach).
   const {photo,monthlyReviews,...profile}=p;
-  return {name:String(p.name||'').trim(),academy:String(p.academy||'').trim(),details:{memberId:p.memberId,profile}};
+  return {name:String(p.name||'').trim(),academy:String(p.academy||'').trim(),details:{memberId:p.memberId,profile,consent:state.consent||null}};
 }
 
 // Se llama cuando el perfil ya está listo (fin del registro de jugador o de coach/tutor).
@@ -280,7 +284,8 @@ function linkPendingAccount(){
   if(!pendingAccount)return;
   const profile=role==='Jugador'?state.profile:actor();
   if(!profile?.memberId||role!==pendingAccount.role)return;
-  const {remember,password,cloudUser,...account}=pendingAccount;
+  const {remember,password,cloudUser,consent,...account}=pendingAccount;
+  if(consent)state.consent=consent;
   account.memberId=profile.memberId;account.created=Date.now();
   if(role!=='Jugador')account.profile={...profile};
   pendingAccount=null;
