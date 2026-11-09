@@ -34,6 +34,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Biblioteca de video (8 nov 2026):** los coaches comparten videos de YouTube con categoría y nota; el jugador los ve dentro de la app y marca «Ya lo vi» (`supabase/08_videos_vistos.sql`).
 
+> **Calendario del celular (8 nov 2026):** `dist/calendar.js` genera un archivo .ics con los entrenamientos de las próximas 4 semanas (recordatorio 1 h antes, se actualiza sin duplicar) y un aviso diario en Inicio cuando hay algo nuevo.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -46,6 +48,7 @@ Es un prototipo con almacenamiento local en el navegador; este código no incluy
 - `dist/annual-progress.js`
 - `dist/app.js`
 - `dist/auth.js`
+- `dist/calendar.js`
 - `dist/community.js`
 - `dist/dashboard-language.js`
 - `dist/index.html`
@@ -754,6 +757,144 @@ function signOut(){
 }
 ````
 
+## Archivo: `dist/calendar.js`
+
+````javascript
+// Calendario del celular: los entrenamientos de CORDA se llevan a Apple Calendar o Google Calendar.
+// Se genera un archivo .ics (estándar) con las sesiones de las próximas 4 semanas:
+//   · iPhone/iPad: se abre en la app Calendario ("Agregar todo").
+//   · Android: se abre en Google Calendar. Computadora: Google Calendar → Configuración → Importar.
+// Cada sesión lleva un identificador fijo (UID): si el plan cambia y se vuelve a agregar, el calendario
+// ACTUALIZA los eventos en vez de duplicarlos. Las sesiones canceladas se marcan como canceladas.
+// Cada evento trae un recordatorio 1 hora antes. El aviso diario de Inicio avisa cuando hay algo nuevo.
+// Estado local de este dispositivo: state.calendarSync = {sigs:{uid:firma}} y state.calendarPrompt = {day}|{off:true}.
+const CAL_WINDOW_DAYS=28;
+const CAL_REMINDER_MIN=60;
+
+const calUid=s=>'corda-s-'+String(s.id).replace(/[^\w-]/g,'')+'@corda.app';
+function calSessionsInWindow(){
+  const today=localDay(),last=dateAfter(today,CAL_WINDOW_DAYS);
+  return (state.sessions||[]).filter(s=>s.date&&s.time&&String(s.date)>=today&&String(s.date)<=last)
+    .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+}
+const calSig=s=>JSON.stringify([s.date,s.time,s.duration,s.place,s.title,s.type,!!s.cancelled,s.coach||'']);
+// Sesiones nuevas, cambiadas o canceladas desde la última vez que se agregaron al calendario.
+function calPending(){
+  const sigs=state.calendarSync?.sigs||{};
+  return calSessionsInWindow().filter(s=>sigs[calUid(s)]!==calSig(s)&&!(s.cancelled&&!sigs[calUid(s)]));
+}
+
+// ---------- Archivo .ics ----------
+const icsEscape=text=>String(text??'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\r?\n/g,'\\n');
+function icsStamp(date){return date.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'')}
+// Líneas de máximo 75 bytes (UTF-8), como pide el estándar; las siguientes empiezan con un espacio.
+function icsFold(line){
+  const encoder=new TextEncoder(),parts=[];let current='',bytes=0,limit=75;
+  for(const char of line){
+    const size=encoder.encode(char).length;
+    if(bytes+size>limit){parts.push(current);current=' ';bytes=1;limit=75}
+    current+=char;bytes+=size;
+  }
+  parts.push(current);
+  return parts.join('\r\n');
+}
+function icsEvent(s,stamp,sequence){
+  // La fecha y hora de la sesión son las de la academia; se convierten a UTC con la zona de este dispositivo.
+  const start=new Date(s.date+'T'+s.time),end=new Date(start.getTime()+(Number(s.duration)||60)*60000);
+  const demo=!!s.demo,academy=state.profile?.academy||'';
+  const title=(s.type?s.type+' · ':'')+s.title+(demo?' (ejemplo)':'');
+  const coach=typeof sessionCoach==='function'?sessionCoach(s):(s.coach||'');
+  const lines=[
+    s.goal?'Objetivo: '+s.goal:'',
+    s.summary?'Enfoque: '+s.summary:'',
+    typeof sessionGear==='function'?'Lleva: '+sessionGear(s):'',
+    coach&&coach!=='Por confirmar'?'Coach: '+coach:'',
+    s.cancelled?(s.cancelReason||'Sesión cancelada'):'',
+    'Abre CORDA para ver la guía completa de la sesión.'
+  ].filter(Boolean);
+  return [
+    'BEGIN:VEVENT',
+    'UID:'+calUid(s),
+    'DTSTAMP:'+stamp,
+    'SEQUENCE:'+sequence,
+    'DTSTART:'+icsStamp(start),
+    'DTEND:'+icsStamp(end),
+    'SUMMARY:'+icsEscape(title),
+    'LOCATION:'+icsEscape([s.place,academy].filter(Boolean).join(' · ')),
+    'DESCRIPTION:'+icsEscape(lines.join('\n')),
+    'STATUS:'+(s.cancelled?'CANCELLED':'CONFIRMED'),
+    'TRANSP:OPAQUE',
+    'CATEGORIES:CORDA',
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'DESCRIPTION:'+icsEscape(title),
+    'TRIGGER:-PT'+CAL_REMINDER_MIN+'M',
+    'END:VALARM',
+    'END:VEVENT'
+  ].map(icsFold).join('\r\n');
+}
+function buildIcs(sessions=calSessionsInWindow()){
+  const now=new Date(),stamp=icsStamp(now);
+  // SEQUENCE sube con el tiempo (minutos desde 2026-01-01): así el calendario acepta cada versión como una actualización.
+  const sequence=Math.max(1,Math.floor((now.getTime()-Date.UTC(2026,0,1))/60000));
+  const head=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//CORDA//Entrenamientos//ES','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+    'X-WR-CALNAME:CORDA · Entrenamientos','X-WR-CALDESC:'+icsEscape('Entrenamientos de tu academia en CORDA')].map(icsFold);
+  return head.concat(sessions.map(s=>icsEvent(s,stamp,sequence)),'END:VCALENDAR').join('\r\n')+'\r\n';
+}
+
+// ---------- Descargar y marcar como agregado ----------
+function addToCalendar(){
+  const sessions=calSessionsInWindow();
+  if(!sessions.length){toast('Todavía no hay entrenamientos en las próximas semanas.');return}
+  const blob=new Blob([buildIcs(sessions)],{type:'text/calendar;charset=utf-8'});
+  const url=URL.createObjectURL(blob),link=document.createElement('a');
+  link.href=url;link.download='CORDA-entrenamientos.ics';document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  state.calendarSync={sigs:Object.fromEntries(sessions.map(s=>[calUid(s),calSig(s)])),at:Date.now()};
+  state.calendarPrompt={day:localDay()};
+  try{if(!phoneDemo)localStorage.setItem('corda-v1',JSON.stringify(state))}catch{}
+  toast(coverText('Listo: abre el archivo para agregar '+sessions.length+' entrenamientos a tu calendario.','Done: open the file to add '+sessions.length+' sessions to your calendar.','C’est fait : ouvrez le fichier pour ajouter '+sessions.length+' séances à votre calendrier.'));
+  if(typeof render==='function'&&page==='home')render();
+}
+
+// ---------- Aviso diario en Inicio ----------
+function calendarBannerDue(){
+  if(entry!=='app'||phoneDemo)return false;
+  const prompt=state.calendarPrompt||{};
+  if(prompt.off||prompt.day===localDay())return false;
+  return calPending().length>0;
+}
+function calendarBanner(){
+  if(!calendarBannerDue())return '';
+  const pending=calPending(),total=calSessionsInWindow().length,first=!state.calendarSync;
+  const demo=pending.every(s=>s.demo);
+  const t=coverText;
+  const title=first?t('Lleva tus entrenamientos a tu celular','Take your sessions to your phone','Emportez vos séances sur votre téléphone')
+    :t('Tu plan cambió','Your plan changed','Votre programme a changé');
+  const body=first
+    ?t('Agrega '+total+' entrenamientos de las próximas semanas a tu calendario de Apple o Google, con un recordatorio 1 hora antes.','Add '+total+' upcoming sessions to your Apple or Google calendar, with a reminder 1 hour before.','Ajoutez '+total+' séances à votre calendrier Apple ou Google, avec un rappel 1 heure avant.')
+    :t(pending.length+(pending.length===1?' entrenamiento nuevo o cambiado.':' entrenamientos nuevos o cambiados.')+' Actualiza tu calendario para tenerlo al día.',pending.length+' new or changed sessions. Update your calendar to stay current.',pending.length+' séances nouvelles ou modifiées. Mettez à jour votre calendrier.');
+  return `<section class="card checkin-banner calendar-banner"><div><small class="eyebrow">${t('Tu calendario','Your calendar','Votre calendrier')}${demo?' · '+t('Ejemplo','Sample','Exemple'):''}</small><h2>${title}</h2><p class="hint">${body}</p>
+    <p class="hint calendar-help">${t('En iPhone se abre en Calendario; en Android, en Google Calendar.','On iPhone it opens in Calendar; on Android, in Google Calendar.','Sur iPhone, il s’ouvre dans Calendrier ; sur Android, dans Google Agenda.')}</p></div>
+    <div class="calendar-actions"><button class="btn lime" data-calendar-add>${first?t('Agregar a mi calendario','Add to my calendar','Ajouter à mon calendrier'):t('Actualizar mi calendario','Update my calendar','Mettre à jour mon calendrier')}</button>
+    <button class="link" data-calendar-later>${t('Ahora no','Not now','Pas maintenant')}</button>
+    <button class="link calendar-off" data-calendar-off>${t('No volver a preguntar','Don’t ask again','Ne plus demander')}</button></div></section>`;
+}
+// Botón fijo en Mi plan (siempre disponible, aunque se haya desactivado el aviso).
+function calendarButton(){
+  return `<button class="btn light" id="calendar-add">${coverText('Agregar a mi calendario','Add to my calendar','Ajouter à mon calendrier')}</button>`;
+}
+document.addEventListener('click',event=>{
+  const t=event.target;
+  if(t.closest?.('[data-calendar-add],#calendar-add')){addToCalendar();return}
+  if(t.closest?.('[data-calendar-later]')){state.calendarPrompt={day:localDay()};save();render();return}
+  if(t.closest?.('[data-calendar-off]')){
+    state.calendarPrompt={off:true};save();render();
+    toast(coverText('Listo. Puedes agregar tus entrenamientos cuando quieras desde Mi plan.','Done. You can add your sessions anytime from My plan.','C’est noté. Vous pouvez ajouter vos séances depuis Mon programme.'));
+  }
+});
+````
+
 ## Archivo: `dist/community.js`
 
 ````javascript
@@ -1158,7 +1299,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108u"><link rel="stylesheet" href="style.css?v=20261108u"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108u"><link rel="stylesheet" href="styles/ace.css?v=20261108u"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108u"></script><script src="resenas.js?v=20261108u"></script><script src="portada.js?v=20261108u"></script><script src="community.js?v=20261108u"></script><script src="session-guide.js?v=20261108u"></script><script src="annual-progress.js?v=20261108u"></script><script src="progress-hub.js?v=20261108u"></script><script src="meetings.js?v=20261108u"></script><script src="monthly-fees.js?v=20261108u"></script><script src="portal.js?v=20261108u"></script><script src="private-payments.js?v=20261108u"></script><script src="roles.js?v=20261108u"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108u"></script><script src="auth.js?v=20261108u"></script><script src="sync.js?v=20261108u"></script><script src="videos.js?v=20261108u"></script><script src="physical.js?v=20261108u"></script><script src="sobre-corda.js?v=20261108u"></script><script src="app.js?v=20261108u"></script><script src="ace.js?v=20261108u"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108x"><link rel="stylesheet" href="style.css?v=20261108x"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108x"><link rel="stylesheet" href="styles/ace.css?v=20261108x"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108x"></script><script src="resenas.js?v=20261108x"></script><script src="portada.js?v=20261108x"></script><script src="community.js?v=20261108x"></script><script src="session-guide.js?v=20261108x"></script><script src="annual-progress.js?v=20261108x"></script><script src="progress-hub.js?v=20261108x"></script><script src="meetings.js?v=20261108x"></script><script src="monthly-fees.js?v=20261108x"></script><script src="portal.js?v=20261108x"></script><script src="private-payments.js?v=20261108x"></script><script src="roles.js?v=20261108x"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108x"></script><script src="auth.js?v=20261108x"></script><script src="sync.js?v=20261108x"></script><script src="videos.js?v=20261108x"></script><script src="physical.js?v=20261108x"></script><script src="calendar.js?v=20261108x"></script><script src="sobre-corda.js?v=20261108x"></script><script src="app.js?v=20261108x"></script><script src="ace.js?v=20261108x"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1387,7 +1528,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108u"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108x"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -1674,7 +1815,7 @@ function playerHome(){
   const payment=`<section class="card"><small class="eyebrow">Mensualidad · ${dateLabel(today,{month:'long'})}</small><h2>${esc(feeStatus(feeLedger(),today.slice(0,7)))}</h2><button data-page="payments" class="link">Ver mensualidad ↗</button></section>`;
   const side=role==='Tutor'?payment:competing?tournamentCard():notices;
   return heading(role==='Coach'?'Plan de entrenamiento':role==='Tutor'?'Agenda del jugador':'Mi entrenamiento',dateLabel(today,{weekday:'long',day:'numeric',month:'long'})+' · '+esc(state.profile.academy),`<div class="heading-actions">${role==='Coach'?'<button id="newsession" class="btn">+ Crear sesión</button>':''}${headingAvatar()}</div>`)+
-    (role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
+    calendarBanner()+(role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
     '<div class="flow-week">'+(role==='Tutor'?notices:competing?payment+notices:payment)+meetingCard()+'</div>'+playerBanner();
 }
 function planTabs(){
@@ -1710,7 +1851,7 @@ function bindPortal() {
 function calendarPage() {
   const events=sessionsFor(agendaDate);
   const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date))),upcoming=tournaments.filter(c=>String(c.date)>=localDay());
-  return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+
+  return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),'<div class="heading-actions">'+calendarButton()+(role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+'</div>')+
     '<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-head"><h3>'+esc(c.name)+'</h3><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
 }
@@ -2421,13 +2562,13 @@ function staffProgress(){
 }
 function coachHome(){
   const academy=actor().academy,members=academyPlayers(academy),today=localDay();
-  return heading('Panel del coach',esc(academy),'<button class="btn lime" id="newsession">+ Crear sesión</button>')+
+  return heading('Panel del coach',esc(academy),'<button class="btn lime" id="newsession">+ Crear sesión</button>')+calendarBanner()+
     `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section><section class="card"><small class="eyebrow">Seguimiento</small><h2>Mis jugadores · ${members.length}</h2><p class="hint">Abre una ficha para revisar el objetivo y escribir una corrección individual.</p><button class="btn small" data-page="goals">Revisar jugadores</button></section></div>`+coachCheckinCard()+meetingCard();
 }
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
   const note=latestPlayerNote(athleteFor(member));
-  return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy))+
+  return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy))+calendarBanner()+
     '<div class="portal-grid">'+nextSessionCard()+'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section></div>'+
     '<div class="flow-week"><section class="card"><small class="eyebrow">Seguimiento de '+esc(member.name)+'</small><h2>Último avance</h2><p>'+esc(note.good||'Aún no hay evaluación del coach.')+'</p><p>'+esc(note.focus||'')+'</p><button class="link" data-page="goals">Ver avances ↗</button></section>'+meetingCard()+'</div>'+rainNotice();
 }
@@ -3482,6 +3623,17 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .shell main .coach-month>div.monthly-gain{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
 .shell main .coach-month .monthly-gain b,.shell main .coach-month .monthly-gain p{color:var(--marfil)}
 .coach-month .monthly-gain .gain-check{background:var(--verde-noche);color:var(--lima)}
+
+/* ---------- Aviso del calendario ---------- */
+.calendar-banner{align-items:flex-start}
+.calendar-banner .calendar-help{margin-top:var(--space-1);font-size:var(--small-size)}
+.calendar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3) var(--space-4)}
+.calendar-off{font-size:var(--small-size);color:var(--ink-muted)}
+@media(max-width:680px){.calendar-actions{width:100%}.calendar-actions .btn{flex:1 1 100%}}
+@media(min-width:681px){
+  /* La foto de perfil ocupa un poco más que el título: el aviso baja para no chocar con ella */
+  .heading:has(.heading-avatar)+.calendar-banner{margin-top:calc(var(--space-8) + var(--space-6))}
+}
 ````
 
 ## Archivo: `dist/styles/ace.css`

@@ -781,3 +781,14 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .shell main .coach-month>div.monthly-gain{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
 .shell main .coach-month .monthly-gain b,.shell main .coach-month .monthly-gain p{color:var(--marfil)}
 .coach-month .monthly-gain .gain-check{background:var(--verde-noche);color:var(--lima)}
+
+/* ---------- Aviso del calendario ---------- */
+.calendar-banner{align-items:flex-start}
+.calendar-banner .calendar-help{margin-top:var(--space-1);font-size:var(--small-size)}
+.calendar-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-3) var(--space-4)}
+.calendar-off{font-size:var(--small-size);color:var(--ink-muted)}
+@media(max-width:680px){.calendar-actions{width:100%}.calendar-actions .btn{flex:1 1 100%}}
+@media(min-width:681px){
+  /* La foto de perfil ocupa un poco más que el título: el aviso baja para no chocar con ella */
+  .heading:has(.heading-avatar)+.calendar-banner{margin-top:calc(var(--space-8) + var(--space-6))}
+}
