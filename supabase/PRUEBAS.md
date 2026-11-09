@@ -19,10 +19,12 @@ el mensaje rojo «ERROR» con el reporte es lo esperado y no deja ningún dato.
 
 | Fecha | Ajustes aplicados | Resultado |
 |---|---|---|
-| 2026-11-09 | 01 a 11 | **69 pruebas bien, 0 fallaron** |
+| 2026-11-09 | 01 a 11 | Datos, códigos y registro: **69 bien, 0 fallaron** |
+| 2026-11-09 | 01 a 11 | Archivos (Storage): 41 bien, 1 falló (un archivo privado llamado `avatar.jpg` lo veía toda la academia) |
+| 2026-11-09 | 01 a 12 | Archivos (Storage), tras el ajuste 12: **42 bien, 0 fallaron** |
 
 ## Alcance y límites
 
 - Prueba las reglas de la base de datos (RLS, funciones y el registro). No recorre la app con cuentas reales de punta a punta.
-- No cubre los archivos de fotos y comprobantes (Storage, bucket `media`), que tienen reglas propias.
+- Los archivos (Storage, bucket `media`) se prueban con el segundo script. Las pruebas se hacen con datos de la base, no subiendo archivos reales por la API de Storage.
 - Volver a correrla después de cada ajuste que toque reglas o permisos, y agregar una fila a la tabla de resultados.
