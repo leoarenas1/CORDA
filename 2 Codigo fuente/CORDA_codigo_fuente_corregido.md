@@ -1158,7 +1158,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108q"><link rel="stylesheet" href="style.css?v=20261108q"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108q"><link rel="stylesheet" href="styles/ace.css?v=20261108q"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108q"></script><script src="resenas.js?v=20261108q"></script><script src="portada.js?v=20261108q"></script><script src="community.js?v=20261108q"></script><script src="session-guide.js?v=20261108q"></script><script src="annual-progress.js?v=20261108q"></script><script src="progress-hub.js?v=20261108q"></script><script src="meetings.js?v=20261108q"></script><script src="monthly-fees.js?v=20261108q"></script><script src="portal.js?v=20261108q"></script><script src="private-payments.js?v=20261108q"></script><script src="roles.js?v=20261108q"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108q"></script><script src="auth.js?v=20261108q"></script><script src="sync.js?v=20261108q"></script><script src="videos.js?v=20261108q"></script><script src="physical.js?v=20261108q"></script><script src="sobre-corda.js?v=20261108q"></script><script src="app.js?v=20261108q"></script><script src="ace.js?v=20261108q"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108s"><link rel="stylesheet" href="style.css?v=20261108s"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108s"><link rel="stylesheet" href="styles/ace.css?v=20261108s"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108s"></script><script src="resenas.js?v=20261108s"></script><script src="portada.js?v=20261108s"></script><script src="community.js?v=20261108s"></script><script src="session-guide.js?v=20261108s"></script><script src="annual-progress.js?v=20261108s"></script><script src="progress-hub.js?v=20261108s"></script><script src="meetings.js?v=20261108s"></script><script src="monthly-fees.js?v=20261108s"></script><script src="portal.js?v=20261108s"></script><script src="private-payments.js?v=20261108s"></script><script src="roles.js?v=20261108s"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108s"></script><script src="auth.js?v=20261108s"></script><script src="sync.js?v=20261108s"></script><script src="videos.js?v=20261108s"></script><script src="physical.js?v=20261108s"></script><script src="sobre-corda.js?v=20261108s"></script><script src="app.js?v=20261108s"></script><script src="ace.js?v=20261108s"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1387,7 +1387,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108q"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108s"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -3462,6 +3462,17 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .shell main .tournament p{font-size:var(--small-size);line-height:var(--small-line)}
 .shell main .tournament .countdown{margin:var(--space-4) 0;font-size:36px;line-height:40px}
 @media(max-width:680px){.heading-avatar .avatar{width:84px;height:84px}}
+
+/* Foto de perfil alineada arriba con «Mi entrenamiento» sin empujar las tarjetas */
+@media(min-width:681px){
+  .heading:has(.heading-avatar){position:relative;align-items:flex-start;padding-right:150px;min-height:0}
+  .heading:has(.heading-avatar) .heading-actions{position:absolute;top:0;right:0}
+  .shell main .tournament h2{font-size:20px;line-height:26px}
+}
+@media(min-width:681px){
+  /* La foto baja un poco más que el título: solo la tarjeta del torneo deja ese espacio */
+  .main:has(.heading-avatar) .portal-grid>.tournament{margin-top:var(--space-6)}
+}
 ````
 
 ## Archivo: `dist/styles/ace.css`
