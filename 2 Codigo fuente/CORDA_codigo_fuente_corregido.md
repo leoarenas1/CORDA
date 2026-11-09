@@ -52,6 +52,7 @@ Es un prototipo con almacenamiento local en el navegador; este código no incluy
 - `dist/meetings.js`
 - `dist/monthly-fees.js`
 - `dist/movil.html`
+- `dist/physical.js`
 - `dist/portada.js`
 - `dist/portal.js`
 - `dist/private-payments.js`
@@ -250,7 +251,7 @@ if(page==='home')return role==='Coach'?coachHome():role==='Tutor'?familyHome():p
 if(page==='calendar')return planTabs()+calendarPage();
 if(page==='goals')return progressPage();
 if(page==='training')return planTabs()+heading('Dentro de la cancha.','Cada sesión, conectada con lo que quieres mejorar.',role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+`<section class="card">${tennisSessions().map(session).join('')||'<p class="empty">Sin sesiones de tenis esta semana.</p>'}</section>${videoLibrary()}`;
-if(page==='gym')return planTabs()+heading('La base de tu juego.','Preparación física planificada por tu coach.',role==='Coach'?'<button class="btn lime" id="exercise">+ Añadir ejercicio</button>':'')+`<div class="columns"><section class="card"><div class="sectiontitle"><h2>Mi rutina</h2><span class="badge clay">Preparación física</span></div>${state.exercises.length?state.exercises.map((e,i)=>`<div class="exercise"><span class="number">${String(i+1).padStart(2,'0')}</span><div><h3>${esc(e.title)}</h3><p class="muted">${esc(e.sets)} · ${esc(e.notes)}</p></div><button class="check ${e.done?'done':''}" data-exercise="${e.id}" aria-label="${e.done?'Desmarcar':'Completar'} ${esc(e.title)}">${e.done?'✓':''}</button></div>`).join(''):'<div class="empty">Tu rutina empieza con tu preparador físico.<br>Cambia a la vista Coach para añadir ejercicios.</div>'}</section><section class="card"><span class="eyebrow">Plan antes que improvisación</span><h2>Un espacio para tu preparación.</h2><p class="muted">Series, repeticiones, indicaciones y seguimiento. La rutina debe ser definida y revisada por el responsable de preparación física.</p></section></div>`;
+if(page==='gym')return planTabs()+heading('La base de tu juego.','Preparación física planificada por tu coach.')+`<section class="card">${physicalSessions().map(session).join('')||'<p class="empty">Sin sesiones de físico esta semana.</p>'}</section>${seasonExercises()}${videoLibrary('Físico')}`;
 if(page==='payments')return feePage();
 if(page==='profile')return heading('Tu juego tiene identidad.','Información que ayuda a tu coach a conocerte mejor.','<button class="btn light" id="editprofile">Editar perfil</button>')+`<div class="columns"><section class="card"><div class="profileheader">${avatar()}<div><span class="badge">Jugador · High Performance</span><h2>${esc(p.name)}</h2><p class="muted">${esc(p.academy)}</p></div></div><div class="formgrid">${[['Estilo de juego',p.style],['Mano dominante',p.hand],['Raqueta',p.racket||'Por añadir'],['Fecha de nacimiento',p.birthDate?dateLabel(p.birthDate,{day:'numeric',month:'long',year:'numeric'}):p.birthMonth||'Por añadir'],['UTR individual',p.utr||'Sin indicar'],['Nivel',p.level],['Disponibilidad',p.availability]].map(([k,v])=>`<div><small>${k}</small><h3>${esc(v)}</h3></div>`).join('')}</div><hr class="divider"><small>OBJETIVO PERSONAL</small><p>${esc(p.goal)}</p><hr class="divider"><small>PREFERENCIAS</small><p>${esc(p.preferences||'Sin preferencias añadidas.')}</p></section><section class="card"><h2>Tu espacio de prueba</h2><p class="hint">Puedes recorrer las vistas Jugador y Coach desde arriba. Son vistas de demostración, no roles con permisos reales.</p><p class="hint">Tus datos solo viven en este navegador. Para el piloto entre dispositivos hará falta conectar cuentas, permisos y almacenamiento compartido.</p><button class="btn light" id="export">Exportar mis datos</button><hr class="divider"><button class="link" id="restart">Volver al registro inicial</button></section></div>`;return '';}
 function onboarding(){
@@ -282,7 +283,7 @@ async function readImage(f){if(!['image/png','image/jpeg'].includes(f.type)||f.s
 function readFile(f){return new Promise((resolve,reject)=>{let reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(Error('No se pudo leer el archivo'));reader.readAsDataURL(f)})}
 function modal(title,body,submit,button='Guardar'){const m=$('#modal');m.innerHTML=`<div class="row"><h2>${title}</h2><button id="close" aria-label="Cerrar">✕</button></div><form id="modalform"><div class="formgrid">${body}</div>${submit?`<div class="formactions"><button type="button" id="cancel" class="link">Cancelar</button><button class="btn lime">${button}</button></div>`:''}</form>`;m.showModal();$('#close').onclick=()=>m.close();if($('#cancel'))$('#cancel').onclick=()=>m.close();$('#modalform').onsubmit=e=>{e.preventDefault();if(submit){if(submit(Object.fromEntries(new FormData(e.target)))===false)return;save();m.close();render();toast('Cambios guardados')}}}
 function bind(){bindRoleActions();bindPortal();bindCommunity();document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{page=b.dataset.page;render();window.scrollTo(0,0)});document.querySelectorAll('[data-day]').forEach(b=>b.onclick=()=>{selectedDay=+b.dataset.day;render()});document.querySelectorAll('[data-session]').forEach(b=>b.onclick=()=>openSession(+b.dataset.session));document.querySelectorAll('[data-progress]').forEach(b=>b.onclick=()=>{const g=state.goals.find(g=>g.id===+b.dataset.progress);modal('Actualizar avance',field('Avance evaluado (0–100)','progress',g.progress,'number'),d=>{let n=Number(d.progress);if(n<0||n>100){toast('El avance debe estar entre 0 y 100.');return false}g.progress=n})});document.querySelectorAll('[data-exercise]').forEach(b=>b.onclick=()=>{let e=state.exercises.find(e=>e.id===+b.dataset.exercise);e.done=!e.done;save();render()});
-const on=(id,fn)=>{if($(id))$(id).onclick=fn};on('#signout',signOut);on('#newgoal',()=>modal('Un nuevo objetivo',field('Objetivo','title')+'<label class="full">¿Cómo sabrás que lo lograste?<textarea name="detail" required maxlength="400"></textarea></label>',d=>state.goals.push({...d,id:Date.now(),progress:0})));on('#newsession',()=>modal('Planificar una sesión',field('Nombre de la sesión','title')+select('Disciplina','type',['Tenis','Físico'])+field('Fecha','date',agendaDate,'date')+field('Hora','time','07:00','time')+field('Duración en minutos','duration','60','number')+field('Cancha o gimnasio','place','Cancha 1')+field('Coach responsable','coach')+field('Material recomendado','gear','','text',false)+'<label class="full">Guía rápida (un paso por línea)<textarea name="guide" maxlength="750"></textarea></label>'+field('Drills o enfoque físico','summary','','text')+select('Objetivo relacionado','goal',state.goals.map(g=>g.title).concat('Preparación física'))+'<label class="full">Plan detallado · ejercicios, series, duración o carga indicada por el coach<textarea name="notes" required maxlength="1200"></textarea></label>',d=>{if(+d.duration<=0||+d.duration>600){toast('Elige una duración entre 1 y 600 minutos.');return false}state.sessions.push({...d,day:(new Date(d.date+'T12:00:00').getDay()+6)%7,id:Date.now(),done:false})}));on('#exercise',()=>modal('Añadir ejercicio',field('Ejercicio','title')+field('Series y repeticiones','sets','')+'<label class="full">Indicaciones del preparador<textarea name="notes" maxlength="500" required></textarea></label>',d=>state.exercises.push({...d,id:Date.now(),done:false})));on('#competition',()=>openTournament());on('#editnote',()=>modal('Nota del coach',`<label class="full">Mensaje<textarea name="note" maxlength="500" required>${esc(state.coachNote)}</textarea></label>`,d=>state.coachNote=d.note));on('#editprofile',()=>modal('Editar mi perfil',field('Nombre','firstName',state.profile.firstName||state.profile.name.split(' ')[0])+field('Apellido','lastName',state.profile.lastName||state.profile.name.split(' ').slice(1).join(' '),'text',false)+academySelect('academy',state.profile.academy,{independent:true})+select('Estilo','style',activeOptions(identities,state.profile.style),state.profile.style)+select('Mano dominante','hand',['Diestro','Zurdo','Ambidiestro'],state.profile.hand)+select('Etapa','level',activeOptions(pathways,state.profile.level),state.profile.level)+utrInput(state.profile.utr)+field('Raqueta','racket',state.profile.racket||'','text',false)+select('Disponibilidad','availability',['Mañanas','Tardes','Mañanas y tardes','Fines de semana'],state.profile.availability)+`<label class="full">Objetivo<textarea name="goal" maxlength="400" required>${esc(state.profile.goal)}</textarea></label><label class="full">Preferencias<textarea name="preferences" maxlength="400">${esc(state.profile.preferences)}</textarea></label>`,d=>Object.assign(state.profile,{...d,name:[d.firstName,d.lastName].filter(Boolean).join(' '),utr:d.utr?Number(d.utr).toFixed(2):''})));on('#export',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='corda-mi-perfil.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});on('#restart',()=>{modal('Volver al registro','<p class="full muted">Recrearás tu perfil. Tus sesiones y objetivos se conservarán en este navegador.</p>',()=>{draft={...state.profile};entry='register';step=0},'Volver al registro')});bindFees();}
+const on=(id,fn)=>{if($(id))$(id).onclick=fn};on('#signout',signOut);on('#newgoal',()=>modal('Un nuevo objetivo',field('Objetivo','title')+'<label class="full">¿Cómo sabrás que lo lograste?<textarea name="detail" required maxlength="400"></textarea></label>',d=>state.goals.push({...d,id:Date.now(),progress:0})));on('#newsession',()=>modal('Planificar una sesión',field('Nombre de la sesión','title')+select('Disciplina','type',['Tenis','Físico'])+field('Fecha','date',agendaDate,'date')+field('Hora','time','07:00','time')+field('Duración en minutos','duration','60','number')+field('Cancha o gimnasio','place','Cancha 1')+field('Coach responsable','coach')+field('Material recomendado','gear','','text',false)+'<label class="full">Guía rápida (un paso por línea)<textarea name="guide" maxlength="750"></textarea></label>'+field('Drills o enfoque físico','summary','','text')+select('Objetivo relacionado','goal',state.goals.map(g=>g.title).concat('Preparación física'))+'<label class="full">Plan detallado · ejercicios, series, duración o carga indicada por el coach<textarea name="notes" required maxlength="1200"></textarea></label>',d=>{if(+d.duration<=0||+d.duration>600){toast('Elige una duración entre 1 y 600 minutos.');return false}state.sessions.push({...d,day:(new Date(d.date+'T12:00:00').getDay()+6)%7,id:Date.now(),done:false})}));on('#exercise',()=>openExerciseForm());on('#competition',()=>openTournament());on('#editnote',()=>modal('Nota del coach',`<label class="full">Mensaje<textarea name="note" maxlength="500" required>${esc(state.coachNote)}</textarea></label>`,d=>state.coachNote=d.note));on('#editprofile',()=>modal('Editar mi perfil',field('Nombre','firstName',state.profile.firstName||state.profile.name.split(' ')[0])+field('Apellido','lastName',state.profile.lastName||state.profile.name.split(' ').slice(1).join(' '),'text',false)+academySelect('academy',state.profile.academy,{independent:true})+select('Estilo','style',activeOptions(identities,state.profile.style),state.profile.style)+select('Mano dominante','hand',['Diestro','Zurdo','Ambidiestro'],state.profile.hand)+select('Etapa','level',activeOptions(pathways,state.profile.level),state.profile.level)+utrInput(state.profile.utr)+field('Raqueta','racket',state.profile.racket||'','text',false)+select('Disponibilidad','availability',['Mañanas','Tardes','Mañanas y tardes','Fines de semana'],state.profile.availability)+`<label class="full">Objetivo<textarea name="goal" maxlength="400" required>${esc(state.profile.goal)}</textarea></label><label class="full">Preferencias<textarea name="preferences" maxlength="400">${esc(state.profile.preferences)}</textarea></label>`,d=>Object.assign(state.profile,{...d,name:[d.firstName,d.lastName].filter(Boolean).join(' '),utr:d.utr?Number(d.utr).toFixed(2):''})));on('#export',()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));a.download='corda-mi-perfil.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});on('#restart',()=>{modal('Volver al registro','<p class="full muted">Recrearás tu perfil. Tus sesiones y objetivos se conservarán en este navegador.</p>',()=>{draft={...state.profile};entry='register';step=0},'Volver al registro')});bindFees();}
 
 function openSession(id){const s=state.sessions.find(s=>s.id===id);modal(esc(s.title),`<div class="full"><span class="badge">${esc(s.type)} · ${esc(s.duration)} MIN</span><p>${esc(s.time)} · ${esc(s.place)} · ${esc(state.profile.academy)}<br>Con ${esc(sessionCoach(s))}</p><hr class="divider"><small>OBJETIVO DE LA SESIÓN</small><h3>${esc(s.goal)}</h3><p>${esc(s.notes)}</p>${s.cancelled?`<p class="hint">${esc(sessionStatus(s))}</p>`:''}<hr class="divider"><h3>Conversación de la sesión</h3>${sessionGuide(s)}<p class="hint">Mensajes locales de demostración. No se envían a otras personas.</p>${state.comments.filter(c=>c.session===id).map(c=>`<div class="note"><small>${esc(c.role)}</small><p>${esc(c.text)}</p></div>`).join('')}<label class="utr-field">Añadir comentario<textarea name="text" required maxlength="600" placeholder="¿Cómo te sentiste en la sesión?"></textarea></label></div>`,d=>state.comments.push({session:id,role,text:d.text}),'Guardar comentario');startSessionGuide($('#modal'));}
 initAgenda();
@@ -1157,7 +1158,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108o"><link rel="stylesheet" href="style.css?v=20261108o"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108o"><link rel="stylesheet" href="styles/ace.css?v=20261108o"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108o"></script><script src="resenas.js?v=20261108o"></script><script src="portada.js?v=20261108o"></script><script src="community.js?v=20261108o"></script><script src="session-guide.js?v=20261108o"></script><script src="annual-progress.js?v=20261108o"></script><script src="progress-hub.js?v=20261108o"></script><script src="meetings.js?v=20261108o"></script><script src="monthly-fees.js?v=20261108o"></script><script src="portal.js?v=20261108o"></script><script src="private-payments.js?v=20261108o"></script><script src="roles.js?v=20261108o"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108o"></script><script src="auth.js?v=20261108o"></script><script src="sync.js?v=20261108o"></script><script src="videos.js?v=20261108o"></script><script src="sobre-corda.js?v=20261108o"></script><script src="app.js?v=20261108o"></script><script src="ace.js?v=20261108o"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108p"><link rel="stylesheet" href="style.css?v=20261108p"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108p"><link rel="stylesheet" href="styles/ace.css?v=20261108p"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108p"></script><script src="resenas.js?v=20261108p"></script><script src="portada.js?v=20261108p"></script><script src="community.js?v=20261108p"></script><script src="session-guide.js?v=20261108p"></script><script src="annual-progress.js?v=20261108p"></script><script src="progress-hub.js?v=20261108p"></script><script src="meetings.js?v=20261108p"></script><script src="monthly-fees.js?v=20261108p"></script><script src="portal.js?v=20261108p"></script><script src="private-payments.js?v=20261108p"></script><script src="roles.js?v=20261108p"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108p"></script><script src="auth.js?v=20261108p"></script><script src="sync.js?v=20261108p"></script><script src="videos.js?v=20261108p"></script><script src="physical.js?v=20261108p"></script><script src="sobre-corda.js?v=20261108p"></script><script src="app.js?v=20261108p"></script><script src="ace.js?v=20261108p"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1386,7 +1387,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108o"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108p"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -1407,6 +1408,76 @@ button[aria-pressed=true]{background:var(--verde-medio);border-color:var(--verde
 </style></head><body><main class="preview"><section class="intro"><div class="wordmark">CORDA<span>.</span></div><h1>Portal del jugador en móvil</h1><p>Prueba la agenda con el pulgar. Abre tu próxima sesión y revisa qué necesitas llevar.</p><div class="sizes" aria-label="Ancho de pantalla"><button data-width="360" aria-pressed="false">360 px</button><button data-width="390" aria-pressed="true">390 px</button><button data-width="430" aria-pressed="false">430 px</button></div><a class="full" href="./?vista=jugador-movil">Abrir a pantalla completa ↗</a><p class="note">Perfil de ejemplo. Los cambios de esta vista se reinician al recargar.</p></section><div class="device"><iframe title="Portal móvil interactivo de CORDA" src="./?vista=jugador-movil"></iframe></div></main><script>
 document.querySelectorAll('[data-width]').forEach(button=>button.onclick=()=>{document.querySelector('.device').style.width=(Number(button.dataset.width)+16)+'px';document.querySelectorAll('[data-width]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)))});
 </script></body></html>
+````
+
+## Archivo: `dist/physical.js`
+
+````javascript
+// Pestaña Físico: sesiones de físico, ejercicios de la temporada y biblioteca de video de físico.
+// Los ejercicios los define el coach o preparador físico (state.exercises, item "exercise" en Supabase).
+// Mientras no haya ninguno, se muestran ejercicios de ejemplo (no se guardan ni se suben).
+const EXERCISE_TYPES=['Fuerza','Pliometría','Agilidad','Cardio','Core','Movilidad','Prevención de lesiones'];
+const DEMO_EXERCISES=[
+  {category:'Fuerza',title:'Sentadilla goblet',sets:'4 × 8',notes:'Espalda neutra; baja hasta que la cadera pase la rodilla.'},
+  {category:'Fuerza',title:'Peso muerto rumano con mancuernas',sets:'3 × 10',notes:'Cadera atrás, rodillas apenas flexionadas.'},
+  {category:'Fuerza',title:'Remo con mancuerna',sets:'3 × 10 por lado',notes:'Codo pegado al cuerpo, sin girar el tronco.'},
+  {category:'Pliometría',title:'Saltos al cajón',sets:'4 × 5',notes:'Aterriza suave y baja caminando.'},
+  {category:'Pliometría',title:'Saltos laterales sobre la línea',sets:'3 × 20 s',notes:'Rápido y con poco contacto con el piso.'},
+  {category:'Agilidad',title:'Escalera de coordinación',sets:'6 patrones × 2',notes:'Pasos cortos, siempre de puntas.'},
+  {category:'Agilidad',title:'Desplazamiento lateral entre conos',sets:'6 × 20 s',notes:'Como en la línea de fondo: split step y empuje.'},
+  {category:'Cardio',title:'Intervalos 30/60',sets:'8 rondas',notes:'30 s rápido + 60 s suave.'},
+  {category:'Core',title:'Plancha frontal',sets:'4 × 40 s',notes:'Glúteos apretados, sin hundir la cadera.'},
+  {category:'Core',title:'Pallof press con liga',sets:'3 × 10 por lado',notes:'Resiste el giro; el tronco no se mueve.'},
+  {category:'Movilidad',title:'Movilidad de cadera 90/90',sets:'2 × 8 por lado',notes:'Lento y controlado.'},
+  {category:'Prevención de lesiones',title:'Rotación externa de hombro con liga',sets:'3 × 15',notes:'Cuida el hombro del saque.'}
+];
+
+// Sesiones de físico de esta semana en adelante, en orden.
+function physicalSessions(){
+  const today=localDay(),monday=dateAfter(today,-((new Date(today+'T12:00:00').getDay()+6)%7));
+  return state.sessions.filter(s=>s.type==='Físico'&&String(s.date)>=monday).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+}
+function exerciseRow(e,demo){
+  const link=e.video?`<a class="link" href="${esc(e.video)}" target="_blank" rel="noopener noreferrer">Ver video ↗</a>`:'';
+  const actions=demo?'':role==='Coach'?`<button type="button" class="link" data-exercise-edit="${e.id}">Editar</button>`
+    :`<button class="check ${e.done?'done':''}" data-exercise="${e.id}" aria-label="${e.done?'Desmarcar':'Completar'} ${esc(e.title)}">${e.done?'✓':''}</button>`;
+  return `<div class="exercise"><div><h3>${esc(e.title)}</h3><p class="muted">${esc(e.sets||'')}${e.sets&&e.notes?' · ':''}${esc(e.notes||'')}</p>${link}</div>${actions}</div>`;
+}
+function seasonExercises(){
+  const real=state.exercises||[],demo=!real.length,list=demo?DEMO_EXERCISES:real;
+  const groups=EXERCISE_TYPES.concat('Otros').map(type=>[type,list.filter(e=>(EXERCISE_TYPES.includes(e.category)?e.category:'Otros')===type)]).filter(([,items])=>items.length);
+  return `<section class="card season-exercises"><div class="sectiontitle"><div><small class="eyebrow">Plan de la temporada${demo?' · Ejemplo':''}</small><h2>Ejercicios de la temporada</h2></div>${role==='Coach'?'<button class="btn small" id="exercise-add">+ Añadir ejercicio</button>':''}</div>
+    ${demo?`<p class="hint">${role==='Coach'?'Así se verán los ejercicios que asignes. Desaparecen en cuanto añades el primero.':'Ejemplo de cómo se verán los ejercicios que tu coach asigne para la temporada.'}</p>`:''}
+    <div class="exercise-groups">${groups.map(([type,items])=>`<div class="exercise-group"><span class="badge clay">${esc(type)}</span>${items.map(e=>exerciseRow(e,demo)).join('')}</div>`).join('')}</div></section>`;
+}
+function openExerciseForm(id){
+  if(role!=='Coach')return;
+  const existing=id?state.exercises.find(e=>String(e.id)===String(id)):null,e=existing||{};
+  modal(existing?'Editar ejercicio':'Añadir ejercicio',
+    field('Ejercicio','title',e.title||'')+
+    `<label>Tipo<select name="category">${EXERCISE_TYPES.map(t=>`<option ${t===e.category?'selected':''}>${t}</option>`).join('')}</select></label>`+
+    field('Series y repeticiones','sets',e.sets||'','text',false)+
+    `<label class="full">Indicaciones del preparador<textarea name="notes" maxlength="500" required>${esc(e.notes||'')}</textarea></label>`+
+    field('Video de referencia (opcional)','video',e.video||'','url',false)+
+    (existing?'<p class="full"><button type="button" class="link danger" id="exercise-remove">Quitar este ejercicio</button></p>':''),
+    d=>{
+      if(d.video){try{if(new URL(d.video).protocol!=='https:')throw Error()}catch{toast('El video debe ser un enlace HTTPS.');return false}}
+      const data={title:d.title.trim(),category:d.category,sets:d.sets.trim(),notes:d.notes.trim(),video:d.video.trim()};
+      if(!data.title){toast('Escribe el nombre del ejercicio.');return false}
+      if(existing)Object.assign(existing,data);else state.exercises.push({...data,id:Date.now(),done:false});
+    },existing?'Guardar cambios':'Añadir ejercicio');
+  const remove=$('#exercise-remove');
+  if(remove)remove.onclick=()=>{
+    if(!remove.dataset.sure){remove.dataset.sure='1';remove.textContent='¿Seguro? Toca otra vez para quitarlo';return}
+    state.exercises.splice(state.exercises.indexOf(existing),1);
+    save();$('#modal').close();render();toast('Ejercicio quitado.');
+  };
+}
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('#exercise-add')){openExerciseForm();return}
+  const edit=event.target.closest?.('[data-exercise-edit]');
+  if(edit)openExerciseForm(edit.dataset.exerciseEdit);
+});
 ````
 
 ## Archivo: `dist/portada.js`
@@ -3374,6 +3445,15 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .video-seen-by{margin:0;font-size:var(--small-size);color:var(--accent-text)}
 .video-frame{position:relative;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;background:#000}
 .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ---------- Físico: ejercicios de la temporada ---------- */
+.season-exercises,.video-library{margin-top:var(--space-6)}
+.exercise-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-6);margin-top:var(--space-4)}
+.exercise-group{display:grid;gap:var(--space-2);align-content:start}
+.exercise-group .badge{justify-self:start}
+.exercise-group .exercise{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;border-top:1px solid var(--line)}
+.exercise-group .exercise h3{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
+.exercise-group .exercise p{margin:var(--space-1) 0 0}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -4124,8 +4204,13 @@ document.addEventListener('click',async event=>{
 // - Los videos de YouTube se ven dentro de la app (youtube-nocookie.com).
 // - El jugador marca "Ya lo vi"; el coach ve quién lo vio. Se guarda en state.videoSeen[jugador][video].
 // En Supabase: cada video es un item "video" de la academia y cada visto un item "video_seen" del jugador.
-const VIDEO_CATEGORIES=['Saque','Derecha','Revés','Volea y red','Devolución','Táctica','Físico','Mental','Partidos'];
-let videoFilter='';
+const VIDEO_AREAS={
+  Tenis:['Saque','Derecha','Revés','Volea y red','Devolución','Táctica','Mental','Partidos'],
+  'Físico':['Fuerza','Pliometría','Agilidad','Cardio','Core','Movilidad','Prevención de lesiones']
+};
+const videoFilters={};
+// Videos guardados antes de separar por área: los de categoría "Físico" van a Físico.
+const videoArea=v=>v.area||(v.category==='Físico'||VIDEO_AREAS['Físico'].includes(v.category)?'Físico':'Tenis');
 
 function youtubeId(url){
   try{
@@ -4166,26 +4251,29 @@ function videoCard(v){
     ${role==='Coach'?`<button type="button" class="link" data-video-edit="${esc(key)}">Editar</button>`:''}
   </div></article>`;
 }
-function videoLibrary(){
-  const all=(state.videos||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0));
-  const used=VIDEO_CATEGORIES.filter(c=>all.some(v=>v.category===c));
-  if(videoFilter&&!used.includes(videoFilter))videoFilter='';
-  const list=videoFilter?all.filter(v=>v.category===videoFilter):all;
-  const chips=used.length>1?`<div class="video-filters">${['',...used].map(c=>`<button type="button" data-video-filter="${esc(c)}" aria-pressed="${c===videoFilter}">${c||'Todos'}</button>`).join('')}</div>`:'';
-  const empty=role==='Coach'?'Agrega videos de YouTube para que tus jugadores los vean y los analicen.':'Aquí aparecerán los videos que tu coach comparta para que los veas y los analices.';
-  return `<section class="card video-library"><div class="sectiontitle"><h2>Biblioteca de video</h2>${role==='Coach'?'<button class="btn lime small" id="newvideo">+ Agregar video</button>':''}</div>
+function videoLibrary(area='Tenis'){
+  const all=(state.videos||[]).filter(v=>videoArea(v)===area).sort((a,b)=>(b.at||0)-(a.at||0));
+  const used=VIDEO_AREAS[area].filter(c=>all.some(v=>v.category===c));
+  let filter=videoFilters[area]||'';
+  if(filter&&!used.includes(filter))filter=videoFilters[area]='';
+  const list=filter?all.filter(v=>v.category===filter):all;
+  const chips=used.length>1?`<div class="video-filters">${['',...used].map(c=>`<button type="button" data-video-filter="${esc(c)}" data-video-area="${esc(area)}" aria-pressed="${c===filter}">${c||'Todos'}</button>`).join('')}</div>`:'';
+  const what=area==='Físico'?'ejercicios y técnica de preparación física':'técnica y táctica';
+  const empty=role==='Coach'?`Agrega videos de YouTube de ${what} para que tus jugadores los vean y los analicen.`:`Aquí aparecerán los videos de ${what} que tu coach comparta.`;
+  return `<section class="card video-library"><div class="sectiontitle"><h2>Biblioteca de video${area==='Físico'?' · Físico':''}</h2>${role==='Coach'?`<button class="btn lime small" data-new-video="${esc(area)}">+ Agregar video</button>`:''}</div>
     ${chips}${list.length?`<div class="video-grid">${list.map(videoCard).join('')}</div>`:`<p class="muted">${empty}</p>`}</section>`;
 }
-function openVideoForm(key){
+function openVideoForm(key,area='Tenis'){
   const existing=key?(state.videos||[]).find(v=>videoKey(v)===key):null,v=existing||{};
+  if(existing)area=videoArea(existing);
   modal(existing?'Editar video':'Agregar video',
     field('Título','title',v.title||'')+field('Enlace de YouTube','url',v.url||'','url')+
-    `<label>Categoría<select name="category"><option value="">Sin categoría</option>${VIDEO_CATEGORIES.map(c=>`<option ${c===v.category?'selected':''}>${c}</option>`).join('')}</select></label>`+
+    `<label>Categoría<select name="category"><option value="">Sin categoría</option>${VIDEO_AREAS[area].map(c=>`<option ${c===v.category?'selected':''}>${c}</option>`).join('')}</select></label>`+
     `<label class="full">Nota para tus jugadores (opcional)<textarea name="note" maxlength="400" placeholder="Ej. Fíjate en la posición de los pies antes del impacto.">${esc(v.note||'')}</textarea></label>`+
     (existing?'<p class="full"><button type="button" class="link danger" id="video-remove">Quitar este video</button></p>':''),
     d=>{
       try{const u=new URL(d.url);if(u.protocol!=='https:')throw Error()}catch{toast('Pega un enlace HTTPS válido (por ejemplo, de YouTube).');return false}
-      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,note:d.note.trim()};
+      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,note:d.note.trim(),area};
       if(!data.title){toast('Escribe un título.');return false}
       if(existing)Object.assign(existing,data);
       else (state.videos??=[]).push({...data,id:newMemberId(),by:actor()?.name||'Coach',at:Date.now()});
@@ -4204,10 +4292,10 @@ function playVideo(key){
 }
 document.addEventListener('click',event=>{
   const t=event.target;
-  if(t.closest?.('#newvideo')){if(role==='Coach')openVideoForm();return}
+  const add=t.closest?.('[data-new-video]');if(add){if(role==='Coach')openVideoForm('',add.dataset.newVideo);return}
   const play=t.closest?.('[data-video-play]');if(play){playVideo(play.dataset.videoPlay);return}
   const edit=t.closest?.('[data-video-edit]');if(edit&&role==='Coach'){openVideoForm(edit.dataset.videoEdit);return}
-  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilter=filter.dataset.videoFilter;render();return}
+  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilters[filter.dataset.videoArea]=filter.dataset.videoFilter;render();return}
   const seen=t.closest?.('[data-video-seen]');
   if(seen&&role==='Jugador'&&state.profile?.memberId){
     const store=videoSeenStore(state.profile.memberId),key=seen.dataset.videoSeen;

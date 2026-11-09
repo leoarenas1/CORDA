@@ -744,3 +744,12 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .video-seen-by{margin:0;font-size:var(--small-size);color:var(--accent-text)}
 .video-frame{position:relative;aspect-ratio:16/9;border-radius:var(--radius-md);overflow:hidden;background:#000}
 .video-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ---------- Físico: ejercicios de la temporada ---------- */
+.season-exercises,.video-library{margin-top:var(--space-6)}
+.exercise-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:var(--space-6);margin-top:var(--space-4)}
+.exercise-group{display:grid;gap:var(--space-2);align-content:start}
+.exercise-group .badge{justify-self:start}
+.exercise-group .exercise{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;border-top:1px solid var(--line)}
+.exercise-group .exercise h3{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
+.exercise-group .exercise p{margin:var(--space-1) 0 0}

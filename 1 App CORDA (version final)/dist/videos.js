@@ -3,8 +3,13 @@
 // - Los videos de YouTube se ven dentro de la app (youtube-nocookie.com).
 // - El jugador marca "Ya lo vi"; el coach ve quién lo vio. Se guarda en state.videoSeen[jugador][video].
 // En Supabase: cada video es un item "video" de la academia y cada visto un item "video_seen" del jugador.
-const VIDEO_CATEGORIES=['Saque','Derecha','Revés','Volea y red','Devolución','Táctica','Físico','Mental','Partidos'];
-let videoFilter='';
+const VIDEO_AREAS={
+  Tenis:['Saque','Derecha','Revés','Volea y red','Devolución','Táctica','Mental','Partidos'],
+  'Físico':['Fuerza','Pliometría','Agilidad','Cardio','Core','Movilidad','Prevención de lesiones']
+};
+const videoFilters={};
+// Videos guardados antes de separar por área: los de categoría "Físico" van a Físico.
+const videoArea=v=>v.area||(v.category==='Físico'||VIDEO_AREAS['Físico'].includes(v.category)?'Físico':'Tenis');
 
 function youtubeId(url){
   try{
@@ -45,26 +50,29 @@ function videoCard(v){
     ${role==='Coach'?`<button type="button" class="link" data-video-edit="${esc(key)}">Editar</button>`:''}
   </div></article>`;
 }
-function videoLibrary(){
-  const all=(state.videos||[]).slice().sort((a,b)=>(b.at||0)-(a.at||0));
-  const used=VIDEO_CATEGORIES.filter(c=>all.some(v=>v.category===c));
-  if(videoFilter&&!used.includes(videoFilter))videoFilter='';
-  const list=videoFilter?all.filter(v=>v.category===videoFilter):all;
-  const chips=used.length>1?`<div class="video-filters">${['',...used].map(c=>`<button type="button" data-video-filter="${esc(c)}" aria-pressed="${c===videoFilter}">${c||'Todos'}</button>`).join('')}</div>`:'';
-  const empty=role==='Coach'?'Agrega videos de YouTube para que tus jugadores los vean y los analicen.':'Aquí aparecerán los videos que tu coach comparta para que los veas y los analices.';
-  return `<section class="card video-library"><div class="sectiontitle"><h2>Biblioteca de video</h2>${role==='Coach'?'<button class="btn lime small" id="newvideo">+ Agregar video</button>':''}</div>
+function videoLibrary(area='Tenis'){
+  const all=(state.videos||[]).filter(v=>videoArea(v)===area).sort((a,b)=>(b.at||0)-(a.at||0));
+  const used=VIDEO_AREAS[area].filter(c=>all.some(v=>v.category===c));
+  let filter=videoFilters[area]||'';
+  if(filter&&!used.includes(filter))filter=videoFilters[area]='';
+  const list=filter?all.filter(v=>v.category===filter):all;
+  const chips=used.length>1?`<div class="video-filters">${['',...used].map(c=>`<button type="button" data-video-filter="${esc(c)}" data-video-area="${esc(area)}" aria-pressed="${c===filter}">${c||'Todos'}</button>`).join('')}</div>`:'';
+  const what=area==='Físico'?'ejercicios y técnica de preparación física':'técnica y táctica';
+  const empty=role==='Coach'?`Agrega videos de YouTube de ${what} para que tus jugadores los vean y los analicen.`:`Aquí aparecerán los videos de ${what} que tu coach comparta.`;
+  return `<section class="card video-library"><div class="sectiontitle"><h2>Biblioteca de video${area==='Físico'?' · Físico':''}</h2>${role==='Coach'?`<button class="btn lime small" data-new-video="${esc(area)}">+ Agregar video</button>`:''}</div>
     ${chips}${list.length?`<div class="video-grid">${list.map(videoCard).join('')}</div>`:`<p class="muted">${empty}</p>`}</section>`;
 }
-function openVideoForm(key){
+function openVideoForm(key,area='Tenis'){
   const existing=key?(state.videos||[]).find(v=>videoKey(v)===key):null,v=existing||{};
+  if(existing)area=videoArea(existing);
   modal(existing?'Editar video':'Agregar video',
     field('Título','title',v.title||'')+field('Enlace de YouTube','url',v.url||'','url')+
-    `<label>Categoría<select name="category"><option value="">Sin categoría</option>${VIDEO_CATEGORIES.map(c=>`<option ${c===v.category?'selected':''}>${c}</option>`).join('')}</select></label>`+
+    `<label>Categoría<select name="category"><option value="">Sin categoría</option>${VIDEO_AREAS[area].map(c=>`<option ${c===v.category?'selected':''}>${c}</option>`).join('')}</select></label>`+
     `<label class="full">Nota para tus jugadores (opcional)<textarea name="note" maxlength="400" placeholder="Ej. Fíjate en la posición de los pies antes del impacto.">${esc(v.note||'')}</textarea></label>`+
     (existing?'<p class="full"><button type="button" class="link danger" id="video-remove">Quitar este video</button></p>':''),
     d=>{
       try{const u=new URL(d.url);if(u.protocol!=='https:')throw Error()}catch{toast('Pega un enlace HTTPS válido (por ejemplo, de YouTube).');return false}
-      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,note:d.note.trim()};
+      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,note:d.note.trim(),area};
       if(!data.title){toast('Escribe un título.');return false}
       if(existing)Object.assign(existing,data);
       else (state.videos??=[]).push({...data,id:newMemberId(),by:actor()?.name||'Coach',at:Date.now()});
@@ -83,10 +91,10 @@ function playVideo(key){
 }
 document.addEventListener('click',event=>{
   const t=event.target;
-  if(t.closest?.('#newvideo')){if(role==='Coach')openVideoForm();return}
+  const add=t.closest?.('[data-new-video]');if(add){if(role==='Coach')openVideoForm('',add.dataset.newVideo);return}
   const play=t.closest?.('[data-video-play]');if(play){playVideo(play.dataset.videoPlay);return}
   const edit=t.closest?.('[data-video-edit]');if(edit&&role==='Coach'){openVideoForm(edit.dataset.videoEdit);return}
-  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilter=filter.dataset.videoFilter;render();return}
+  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilters[filter.dataset.videoArea]=filter.dataset.videoFilter;render();return}
   const seen=t.closest?.('[data-video-seen]');
   if(seen&&role==='Jugador'&&state.profile?.memberId){
     const store=videoSeenStore(state.profile.memberId),key=seen.dataset.videoSeen;
