@@ -717,3 +717,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   .heading:has(.heading-avatar){flex-direction:row;align-items:center}
   .heading-avatar .avatar{width:56px;height:56px}
 }
+
+/* ---------- Torneos: editar ---------- */
+.comp-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+.comp-edit{flex:none;font-size:var(--small-size)}
+.link.danger{color:#A33A2B}

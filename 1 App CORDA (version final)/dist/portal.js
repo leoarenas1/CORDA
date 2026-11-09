@@ -114,12 +114,12 @@ function tournamentCard() {
   const listed=state.competition.filter(c=>c.date>=today).sort((a,b)=>a.date.localeCompare(b.date));
   const demo=!state.competition.length;
   const c=listed[0]||(demo&&state.exampleTournament.date>=today?state.exampleTournament:null);
-  if(!c)return '<section class="card"><h2>Próximo torneo</h2><p class="hint">Elige tu siguiente competencia para empezar la cuenta regresiva.</p><button class="btn small" id="competition">Añadir torneo</button></section>';
+  if(!c)return '<section class="card"><h2>Próximo torneo</h2><p class="hint">Elige tu siguiente torneo para empezar la cuenta regresiva.</p><button class="btn small" id="competition">Añadir torneo</button></section>';
   const days=Math.round((Date.parse(c.date)-Date.parse(today))/86400000);
   const start=c.start||today;
-  const phases=[['Preparación',start],['Afinar el juego',dateAfter(c.date,-7)<start?start:dateAfter(c.date,-7)],['Últimos ajustes',dateAfter(c.date,-2)<start?start:dateAfter(c.date,-2)],['Competencia',c.date]];
+  const phases=[['Preparación',start],['Afinar el juego',dateAfter(c.date,-7)<start?start:dateAfter(c.date,-7)],['Últimos ajustes',dateAfter(c.date,-2)<start?start:dateAfter(c.date,-2)],['Día del torneo',c.date]];
   const current=phases.reduce((result,[,date],i)=>date<=today?i:result,0);
-  return '<section class="card tournament"><div class="row"><small class="eyebrow">Próximo torneo'+(demo?' · Ejemplo':'')+'</small><button id="competition" class="link">Añadir torneo +</button></div><h2>'+esc(c.name)+'</h2><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long'})+'</p><div class="countdown">'+(days?days+' <small>días para competir</small>':'Hoy compites')+'</div><ol class="tourney-road">'+phases.map(([name,date],i)=>'<li class="'+(i<=current?'reached ':'')+(i===current?'current':'')+'"><i></i><b>'+name+'</b><small>'+dateLabel(date,{day:'numeric',month:'short'})+'</small></li>').join('')+'</ol></section>';
+  return '<section class="card tournament"><div class="row"><small class="eyebrow">Próximo torneo'+(demo?' · Ejemplo':'')+'</small><button id="competition" class="link">Añadir torneo +</button></div><h2>'+esc(c.name)+'</h2><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long'})+tournamentDetails(c)+'</p><div class="countdown">'+(days?days+' <small>días para competir</small>':'Hoy compites')+'</div><ol class="tourney-road">'+phases.map(([name,date],i)=>'<li class="'+(i<=current?'reached ':'')+(i===current?'current':'')+'"><i></i><b>'+name+'</b><small>'+dateLabel(date,{day:'numeric',month:'short'})+'</small></li>').join('')+'</ol></section>';
 }
 let agendaDate=localDay();
 function nearestSession(now = new Date()){
@@ -186,7 +186,7 @@ function calendarPage() {
   const events=sessionsFor(agendaDate);
   const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date))),upcoming=tournaments.filter(c=>String(c.date)>=localDay());
   return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+
-    '<section class="card plan-competitions"><div class="sectiontitle"><h2>Competencias</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<h3>'+esc(c.name)+'</h3><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
+    '<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-head"><h3>'+esc(c.name)+'</h3><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
 }
 
@@ -195,3 +195,39 @@ function headingAvatar(){
   const me=actor()||state.profile;
   return `<button type="button" class="heading-avatar" data-page="profile" aria-label="Mi perfil" title="Mi perfil">${avatar(me)}</button>`;
 }
+
+// ---------- Torneos: añadir, editar y quitar ----------
+const TOURNAMENT_MODES=['Singles','Dobles','Singles y dobles'];
+const TOURNAMENT_SURFACES=['Arcilla','Dura (concreto)','Pasto','Sintética'];
+const tournamentKey=c=>String(c.id??(c._k??=newMemberId()));
+function tournamentDetails(c){
+  const extra=[c.mode,c.surface].filter(Boolean).map(esc).join(' · ');
+  return extra?' · '+extra:'';
+}
+function openTournament(key){
+  const existing=key?state.competition.find(c=>tournamentKey(c)===key):null;
+  const t=existing||{};
+  const choice=(label,name,options,value)=>`<label>${label}<select name="${name}"><option value="">Sin definir</option>${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+  modal(existing?'Editar torneo':'Nuevo torneo',
+    field('Nombre del torneo','name',t.name||'')+field('Fecha','date',t.date||dateAfter(localDay(),14),'date')+field('Sede','place',t.place||'')+
+    choice('Modalidad','mode',TOURNAMENT_MODES,t.mode)+choice('Superficie','surface',TOURNAMENT_SURFACES,t.surface)+
+    (existing?'<p class="full"><button type="button" class="link danger" id="tournament-remove">Quitar este torneo</button></p>':''),
+    d=>{
+      if(!existing&&d.date<localDay()){toast('Elige hoy o una fecha futura.');return false}
+      const data={name:d.name.trim(),date:d.date,place:d.place.trim(),mode:d.mode,surface:d.surface};
+      if(!data.name||!data.place){toast('Escribe el nombre y la sede.');return false}
+      if(existing)Object.assign(existing,data);
+      else state.competition.push({...data,start:localDay(),_k:newMemberId()});
+    },existing?'Guardar cambios':'Añadir torneo');
+  const remove=$('#tournament-remove');
+  if(remove)remove.onclick=()=>{
+    // Pide una segunda confirmación antes de quitarlo.
+    if(!remove.dataset.sure){remove.dataset.sure='1';remove.textContent='¿Seguro? Toca otra vez para quitarlo';return}
+    state.competition.splice(state.competition.indexOf(existing),1);
+    save();$('#modal').close();render();toast('Torneo quitado.');
+  };
+}
+document.addEventListener('click',event=>{
+  const edit=event.target.closest?.('[data-tournament]');
+  if(edit)openTournament(edit.dataset.tournament);
+});

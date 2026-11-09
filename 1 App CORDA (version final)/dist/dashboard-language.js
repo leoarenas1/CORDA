@@ -106,6 +106,8 @@ Preparación|Preparation|Préparation
 Afinar el juego|Fine-tune your game|Affiner le jeu
 Últimos ajustes|Final adjustments|Derniers ajustements
 Competencia|Competition|Compétition
+Torneos|Tournaments|Tournois
+Día del torneo|Tournament day|Jour du tournoi
 Añadir torneo +|Add tournament +|Ajouter un tournoi +
 días para competir|days until competition|jours avant la compétition
 Cambiar perfil|Switch profile|Changer de profil
