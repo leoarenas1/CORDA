@@ -181,3 +181,33 @@ function editClub(group){
     }catch(error){toast(error.message);return false}
   });
 }
+
+// ---------- Saludo del día (recuadro de abajo a la izquierda) ----------
+// Usa el nombre de quien inició sesión y cambia de frase cada día. Las frases no usan
+// "bienvenido/a" para no suponer el género de nadie.
+const DAILY_LINES={
+  Jugador:{
+    es:['¡A romperla hoy!','Cada pelota cuenta. ¡A seguir mejorando!','Hoy es un buen día para subir de nivel.','Un entrenamiento más cerca de tu meta.','Constancia hoy, resultados mañana.','Juega con intención. ¡Tú puedes!','Lo que entrenas hoy se nota en el próximo torneo.'],
+    en:['Go crush it today!','Every ball counts. Keep improving!','Today is a good day to level up.','One more session closer to your goal.','Consistency today, results tomorrow.','Play with intention. You’ve got this!','What you train today shows in your next tournament.'],
+    fr:['À fond aujourd’hui !','Chaque balle compte. Continue de progresser !','Aujourd’hui est un bon jour pour passer un cap.','Une séance de plus vers ton objectif.','La régularité aujourd’hui, les résultats demain.','Joue avec intention. Tu peux le faire !','Ce que tu travailles aujourd’hui se verra au prochain tournoi.']
+  },
+  Coach:{
+    es:['Tus jugadores cuentan contigo hoy.','Un buen plan hoy, mejores partidos mañana.','Cada evaluación les marca el camino.','Hoy toca sacar lo mejor de tu equipo.','Gracias por tu dedicación. ¡A darle!'],
+    en:['Your players are counting on you today.','A good plan today, better matches tomorrow.','Every review shows them the way.','Time to bring out the best in your team.','Thanks for your dedication. Let’s go!'],
+    fr:['Tes joueurs comptent sur toi aujourd’hui.','Un bon plan aujourd’hui, de meilleurs matchs demain.','Chaque évaluation leur montre le chemin.','Aujourd’hui, fais ressortir le meilleur de ton équipe.','Merci pour ton engagement. Allez !']
+  },
+  Tutor:{
+    es:['Gracias por acompañar su camino en el tenis.','Tu apoyo también juega cada partido.','Aquí ves cómo avanza, paso a paso.','Cada semana suma. ¡Gracias por estar!'],
+    en:['Thanks for supporting their tennis journey.','Your support plays every match too.','See their progress here, step by step.','Every week adds up. Thanks for being there!'],
+    fr:['Merci d’accompagner son parcours au tennis.','Ton soutien joue aussi chaque match.','Suis ici sa progression, pas à pas.','Chaque semaine compte. Merci d’être là !']
+  }
+};
+function dailyGreeting(){
+  const person=actor()||state.profile||{};
+  const first=String(person.firstName||person.name||'').trim().split(/\s+/)[0];
+  const lines=(DAILY_LINES[role]||DAILY_LINES.Jugador)[coverLanguage]||DAILY_LINES.Jugador.es;
+  const today=localDay(),day=Math.floor(Date.parse(today+'T12:00:00')/864e5);
+  const line=lines[(day+first.length)%lines.length];
+  const hello=coverText('Hola','Hi','Bonjour');
+  return `<div class="demo greeting"><b>${esc(first?hello+', '+first:hello)} 👋</b><span>${esc(line)}</span></div>`;
+}

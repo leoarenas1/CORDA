@@ -702,3 +702,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .private-sent .private-receipt small,.private-inbox .private-receipt small{display:block;color:var(--ink-muted)}
 .private-sent .private-receipt>div:last-child,.private-inbox .private-receipt>div:last-child{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .private-inbox{margin-bottom:var(--space-4)}
+
+/* ---------- Saludo del día ---------- */
+.demo.greeting{display:grid;gap:var(--space-1)}
+.demo.greeting b{color:var(--ink);font-size:var(--body-size);line-height:var(--body-line)}

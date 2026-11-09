@@ -30,6 +30,8 @@ Ajustes del 4 de noviembre de 2026 (segunda ronda): el recuadro del video quedó
 
 > **Fase C y clases particulares (8 nov 2026):** fotos y comprobantes en Supabase Storage (`supabase/06_fotos_y_comprobantes.sql`); el jugador sube el comprobante de una clase particular y solo lo ve el coach elegido (`supabase/07_clases_particulares.sql`).
 
+> **Saludo del día (8 nov 2026):** el recuadro de abajo a la izquierda saluda por nombre con una frase distinta cada día según el rol.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -230,7 +232,7 @@ function toast(t){$('#toast').textContent=t;$('#toast').style.display='block';se
 function avatar(p=state.profile){return p?.photo?`<img class="avatar" alt="Foto de perfil" src="${p.photo}">`:`<span class="avatar">${esc((p?.name||'Tú').slice(0,2).toUpperCase())}</span>`}
 const field=(label,name,value='',type='text',required=true)=>`<label>${label}<input name="${name}" type="${type}" value="${esc(value)}" ${required?'required':''} maxlength="180"></label>`;
 const select=(label,name,options,value)=>`<label>${label}<select name="${name}">${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
-function render(){document.documentElement.lang='es';if(entry==='welcome'){welcome();return}if(entry==='access'){signInScreen();return}if(entry==='about'){sobreCorda();return}if(entry==='register'||!state.profile){onboarding();return}prepareCommunity();const nav=roleNav();const parent=['training','gym'].includes(page)?'calendar':page;$('#app').innerHTML=`<div class="shell"><aside class="sidebar" data-theme="cancha"><div class="brand">CORDA<span>.</span></div><div class="workspace"><small class="eyebrow">Tu academia</small><strong>${esc(state.profile.academy)}</strong><span class="badge">High Performance · Demo</span></div><nav class="nav">${nav.map(([id,i,t])=>`<button data-page="${id}" class="${parent===id?'active':''}">${icon(i)}${t}</button>`).join('')}</nav><div class="sidebarfooter"><div class="demo">CUENTA EN LA NUBE<br>Tu acceso ya es real. Tus entrenamientos, por ahora, se guardan en este navegador.</div><p class="hint">Tu juego, con dirección.</p></div></aside><div><header class="topbar"><span class="muted">Academia / <strong>${nav.find(n=>n[0]===parent)?.[2]||'Mi perfil'}</strong></span><span class="brand mobilebrand">CORDA<span>.</span></span><div class="row portal-tools">${coverSelector()}</div></header><main class="main">${content()}${contactFooter(coverLanguage)}<div class="account-links"><button class="link account-link" data-page="profile">${coverText('Mi perfil','My profile','Mon profil')}</button><button class="link account-link" id="signout">${coverText('Cerrar sesión','Sign out','Se déconnecter')}</button></div></main></div></div>`;translateDashboard();bindCoverLanguage(render);bind();}
+function render(){document.documentElement.lang='es';if(entry==='welcome'){welcome();return}if(entry==='access'){signInScreen();return}if(entry==='about'){sobreCorda();return}if(entry==='register'||!state.profile){onboarding();return}prepareCommunity();const nav=roleNav();const parent=['training','gym'].includes(page)?'calendar':page;$('#app').innerHTML=`<div class="shell"><aside class="sidebar" data-theme="cancha"><div class="brand">CORDA<span>.</span></div><div class="workspace"><small class="eyebrow">Tu academia</small><strong>${esc(state.profile.academy)}</strong><span class="badge">High Performance · Demo</span></div><nav class="nav">${nav.map(([id,i,t])=>`<button data-page="${id}" class="${parent===id?'active':''}">${icon(i)}${t}</button>`).join('')}</nav><div class="sidebarfooter">${dailyGreeting()}<p class="hint">Tu juego, con dirección.</p></div></aside><div><header class="topbar"><span class="muted">Academia / <strong>${nav.find(n=>n[0]===parent)?.[2]||'Mi perfil'}</strong></span><span class="brand mobilebrand">CORDA<span>.</span></span><div class="row portal-tools">${coverSelector()}</div></header><main class="main">${content()}${contactFooter(coverLanguage)}<div class="account-links"><button class="link account-link" data-page="profile">${coverText('Mi perfil','My profile','Mon profil')}</button><button class="link account-link" id="signout">${coverText('Cerrar sesión','Sign out','Se déconnecter')}</button></div></main></div></div>`;translateDashboard();bindCoverLanguage(render);bind();}
 function heading(title,sub,action=''){return `<div class="heading"><div><h1>${title}</h1><p class="muted">${sub}</p></div>${action}</div>`}
 function session(s){return `<div class="session"><div class="time">${esc(s.time)}<small>${esc(s.duration)} min</small></div><div class="sessioninfo"><span class="badge ${s.type==='Físico'?'clay':''}">${esc(s.type)}</span><h3>${sessionTitle(s)}</h3><p>${esc(s.place)} · ${esc(sessionStatus(s))}</p></div><button class="btn light small" data-session="${s.id}">${s.done?'Ver resumen':'Ver sesión'} ${icon('arrow')}</button></div>`}
 function goal(g){return `<div class="goal"><div class="row"><span class="badge gray">Objetivo técnico</span><small>${g.progress}%</small></div><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><div class="progress"><i style="width:${g.progress}%"></i></div>${role==='Coach'?`<button class="link" data-progress="${g.id}">Actualizar avance</button>`:''}</div>`}
@@ -934,6 +936,36 @@ function editClub(group){
     }catch(error){toast(error.message);return false}
   });
 }
+
+// ---------- Saludo del día (recuadro de abajo a la izquierda) ----------
+// Usa el nombre de quien inició sesión y cambia de frase cada día. Las frases no usan
+// "bienvenido/a" para no suponer el género de nadie.
+const DAILY_LINES={
+  Jugador:{
+    es:['¡A romperla hoy!','Cada pelota cuenta. ¡A seguir mejorando!','Hoy es un buen día para subir de nivel.','Un entrenamiento más cerca de tu meta.','Constancia hoy, resultados mañana.','Juega con intención. ¡Tú puedes!','Lo que entrenas hoy se nota en el próximo torneo.'],
+    en:['Go crush it today!','Every ball counts. Keep improving!','Today is a good day to level up.','One more session closer to your goal.','Consistency today, results tomorrow.','Play with intention. You’ve got this!','What you train today shows in your next tournament.'],
+    fr:['À fond aujourd’hui !','Chaque balle compte. Continue de progresser !','Aujourd’hui est un bon jour pour passer un cap.','Une séance de plus vers ton objectif.','La régularité aujourd’hui, les résultats demain.','Joue avec intention. Tu peux le faire !','Ce que tu travailles aujourd’hui se verra au prochain tournoi.']
+  },
+  Coach:{
+    es:['Tus jugadores cuentan contigo hoy.','Un buen plan hoy, mejores partidos mañana.','Cada evaluación les marca el camino.','Hoy toca sacar lo mejor de tu equipo.','Gracias por tu dedicación. ¡A darle!'],
+    en:['Your players are counting on you today.','A good plan today, better matches tomorrow.','Every review shows them the way.','Time to bring out the best in your team.','Thanks for your dedication. Let’s go!'],
+    fr:['Tes joueurs comptent sur toi aujourd’hui.','Un bon plan aujourd’hui, de meilleurs matchs demain.','Chaque évaluation leur montre le chemin.','Aujourd’hui, fais ressortir le meilleur de ton équipe.','Merci pour ton engagement. Allez !']
+  },
+  Tutor:{
+    es:['Gracias por acompañar su camino en el tenis.','Tu apoyo también juega cada partido.','Aquí ves cómo avanza, paso a paso.','Cada semana suma. ¡Gracias por estar!'],
+    en:['Thanks for supporting their tennis journey.','Your support plays every match too.','See their progress here, step by step.','Every week adds up. Thanks for being there!'],
+    fr:['Merci d’accompagner son parcours au tennis.','Ton soutien joue aussi chaque match.','Suis ici sa progression, pas à pas.','Chaque semaine compte. Merci d’être là !']
+  }
+};
+function dailyGreeting(){
+  const person=actor()||state.profile||{};
+  const first=String(person.firstName||person.name||'').trim().split(/\s+/)[0];
+  const lines=(DAILY_LINES[role]||DAILY_LINES.Jugador)[coverLanguage]||DAILY_LINES.Jugador.es;
+  const today=localDay(),day=Math.floor(Date.parse(today+'T12:00:00')/864e5);
+  const line=lines[(day+first.length)%lines.length];
+  const hello=coverText('Hola','Hi','Bonjour');
+  return `<div class="demo greeting"><b>${esc(first?hello+', '+first:hello)} 👋</b><span>${esc(line)}</span></div>`;
+}
 ````
 
 ## Archivo: `dist/dashboard-language.js`
@@ -1120,7 +1152,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108f"><link rel="stylesheet" href="style.css?v=20261108f"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108f"><link rel="stylesheet" href="styles/ace.css?v=20261108f"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108f"></script><script src="resenas.js?v=20261108f"></script><script src="portada.js?v=20261108f"></script><script src="community.js?v=20261108f"></script><script src="session-guide.js?v=20261108f"></script><script src="annual-progress.js?v=20261108f"></script><script src="progress-hub.js?v=20261108f"></script><script src="meetings.js?v=20261108f"></script><script src="monthly-fees.js?v=20261108f"></script><script src="portal.js?v=20261108f"></script><script src="private-payments.js?v=20261108f"></script><script src="roles.js?v=20261108f"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108f"></script><script src="auth.js?v=20261108f"></script><script src="sync.js?v=20261108f"></script><script src="sobre-corda.js?v=20261108f"></script><script src="app.js?v=20261108f"></script><script src="ace.js?v=20261108f"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108g"><link rel="stylesheet" href="style.css?v=20261108g"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108g"><link rel="stylesheet" href="styles/ace.css?v=20261108g"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108g"></script><script src="resenas.js?v=20261108g"></script><script src="portada.js?v=20261108g"></script><script src="community.js?v=20261108g"></script><script src="session-guide.js?v=20261108g"></script><script src="annual-progress.js?v=20261108g"></script><script src="progress-hub.js?v=20261108g"></script><script src="meetings.js?v=20261108g"></script><script src="monthly-fees.js?v=20261108g"></script><script src="portal.js?v=20261108g"></script><script src="private-payments.js?v=20261108g"></script><script src="roles.js?v=20261108g"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108g"></script><script src="auth.js?v=20261108g"></script><script src="sync.js?v=20261108g"></script><script src="sobre-corda.js?v=20261108g"></script><script src="app.js?v=20261108g"></script><script src="ace.js?v=20261108g"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1349,7 +1381,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108f"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108g"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -3212,6 +3244,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .private-sent .private-receipt small,.private-inbox .private-receipt small{display:block;color:var(--ink-muted)}
 .private-sent .private-receipt>div:last-child,.private-inbox .private-receipt>div:last-child{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .private-inbox{margin-bottom:var(--space-4)}
+
+/* ---------- Saludo del día ---------- */
+.demo.greeting{display:grid;gap:var(--space-1)}
+.demo.greeting b{color:var(--ink);font-size:var(--body-size);line-height:var(--body-line)}
 ````
 
 ## Archivo: `dist/styles/ace.css`
