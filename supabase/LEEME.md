@@ -54,3 +54,4 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `10_codigos_de_acceso.sql` | Códigos de acceso de un solo uso: la academia, el rol y la aprobación salen del código; Coach y Tutor no se registran sin él. |
 | `11_codigo_del_dueno.sql` | Cómo entra el primer coach (dueño): su código se crea en el SQL Editor con `create_owner_code`, no desde la app. |
 | `pruebas_seguridad.sql` | No es un ajuste: pruebas de seguridad con usuarios inventados (se deshacen solas). Correr después de cada cambio de reglas. |
+| `pruebas_seguridad_storage.sql` | Pruebas de seguridad de los archivos (fotos y comprobantes, Storage), también con datos inventados. |

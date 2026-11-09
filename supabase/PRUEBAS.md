@@ -1,6 +1,6 @@
 # Pruebas de seguridad de las reglas de Supabase
 
-Script: [`pruebas_seguridad.sql`](pruebas_seguridad.sql). Se corre en Supabase → SQL Editor → New query → Run.
+Scripts: [`pruebas_seguridad.sql`](pruebas_seguridad.sql) (datos, códigos y registro) y [`pruebas_seguridad_storage.sql`](pruebas_seguridad_storage.sql) (fotos y comprobantes). Se corre en Supabase → SQL Editor → New query → Run.
 Usa personas inventadas (jugadores, tutores y coaches de dos academias de mentira) y se deshace solo al terminar:
 el mensaje rojo «ERROR» con el reporte es lo esperado y no deja ningún dato.
 
