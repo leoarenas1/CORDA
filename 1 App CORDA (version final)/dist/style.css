@@ -722,3 +722,6 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .comp-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
 .comp-edit{flex:none;font-size:var(--small-size)}
 .link.danger{color:#A33A2B}
+
+/* Espacio entre las sesiones de tenis y la biblioteca de video */
+.video-library{margin-top:var(--space-6)}
