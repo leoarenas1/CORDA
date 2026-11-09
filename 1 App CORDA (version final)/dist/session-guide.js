@@ -88,10 +88,10 @@ function refreshDemoWeek(today){
   const monday=dateAfter(today,-((new Date(today+'T12:00:00').getDay()+6)%7));
   const real=state.sessions.some(s=>!(typeof s.id==='number'&&s.id<1e6));
   if(real)return; // la academia ya tiene su plan: no se mezclan ejemplos
-  if(state.demoWeek===monday&&state.sessions.some(s=>s.demo))return;
+  if(state.demoWeek===monday+'#2'&&state.sessions.some(s=>s.demo))return; // '#2' = versión de dos semanas
   // Semana actual y la siguiente: así el domingo también se ve lo que viene.
   const weeks=[monday,dateAfter(monday,7)];
   state.sessions.splice(0,state.sessions.length,...weeks.flatMap((start,w)=>DEMO_WEEK.map((session,i)=>({...session,id:201+w*DEMO_WEEK.length+i,date:dateAfter(start,session.day),coach:'Coach Alex (ejemplo)',demo:true,done:false}))));
-  state.demoWeek=monday;
+  state.demoWeek=monday+'#2';
   delete state.rainExample;
 }

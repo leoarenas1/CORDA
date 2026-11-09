@@ -753,3 +753,11 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .exercise-group .exercise{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;border-top:1px solid var(--line)}
 .exercise-group .exercise h3{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
 .exercise-group .exercise p{margin:var(--space-1) 0 0}
+
+/* ---------- Inicio: perfil más grande, tarjeta de torneo más compacta ---------- */
+.heading-avatar .avatar{width:120px;height:120px;border-width:3px;box-shadow:0 6px 20px rgb(0 0 0 / .28)}
+.shell main .tournament{padding:var(--space-6)}
+.shell main .tournament h2{margin:var(--space-3) 0 var(--space-1);font-size:22px;line-height:28px}
+.shell main .tournament p{font-size:var(--small-size);line-height:var(--small-line)}
+.shell main .tournament .countdown{margin:var(--space-4) 0;font-size:36px;line-height:40px}
+@media(max-width:680px){.heading-avatar .avatar{width:84px;height:84px}}

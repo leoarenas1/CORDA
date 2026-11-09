@@ -1158,7 +1158,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108p"><link rel="stylesheet" href="style.css?v=20261108p"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108p"><link rel="stylesheet" href="styles/ace.css?v=20261108p"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108p"></script><script src="resenas.js?v=20261108p"></script><script src="portada.js?v=20261108p"></script><script src="community.js?v=20261108p"></script><script src="session-guide.js?v=20261108p"></script><script src="annual-progress.js?v=20261108p"></script><script src="progress-hub.js?v=20261108p"></script><script src="meetings.js?v=20261108p"></script><script src="monthly-fees.js?v=20261108p"></script><script src="portal.js?v=20261108p"></script><script src="private-payments.js?v=20261108p"></script><script src="roles.js?v=20261108p"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108p"></script><script src="auth.js?v=20261108p"></script><script src="sync.js?v=20261108p"></script><script src="videos.js?v=20261108p"></script><script src="physical.js?v=20261108p"></script><script src="sobre-corda.js?v=20261108p"></script><script src="app.js?v=20261108p"></script><script src="ace.js?v=20261108p"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108q"><link rel="stylesheet" href="style.css?v=20261108q"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108q"><link rel="stylesheet" href="styles/ace.css?v=20261108q"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108q"></script><script src="resenas.js?v=20261108q"></script><script src="portada.js?v=20261108q"></script><script src="community.js?v=20261108q"></script><script src="session-guide.js?v=20261108q"></script><script src="annual-progress.js?v=20261108q"></script><script src="progress-hub.js?v=20261108q"></script><script src="meetings.js?v=20261108q"></script><script src="monthly-fees.js?v=20261108q"></script><script src="portal.js?v=20261108q"></script><script src="private-payments.js?v=20261108q"></script><script src="roles.js?v=20261108q"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108q"></script><script src="auth.js?v=20261108q"></script><script src="sync.js?v=20261108q"></script><script src="videos.js?v=20261108q"></script><script src="physical.js?v=20261108q"></script><script src="sobre-corda.js?v=20261108q"></script><script src="app.js?v=20261108q"></script><script src="ace.js?v=20261108q"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1387,7 +1387,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108p"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108q"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
@@ -2613,11 +2613,11 @@ function refreshDemoWeek(today){
   const monday=dateAfter(today,-((new Date(today+'T12:00:00').getDay()+6)%7));
   const real=state.sessions.some(s=>!(typeof s.id==='number'&&s.id<1e6));
   if(real)return; // la academia ya tiene su plan: no se mezclan ejemplos
-  if(state.demoWeek===monday&&state.sessions.some(s=>s.demo))return;
+  if(state.demoWeek===monday+'#2'&&state.sessions.some(s=>s.demo))return; // '#2' = versión de dos semanas
   // Semana actual y la siguiente: así el domingo también se ve lo que viene.
   const weeks=[monday,dateAfter(monday,7)];
   state.sessions.splice(0,state.sessions.length,...weeks.flatMap((start,w)=>DEMO_WEEK.map((session,i)=>({...session,id:201+w*DEMO_WEEK.length+i,date:dateAfter(start,session.day),coach:'Coach Alex (ejemplo)',demo:true,done:false}))));
-  state.demoWeek=monday;
+  state.demoWeek=monday+'#2';
   delete state.rainExample;
 }
 ````
@@ -3454,6 +3454,14 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .exercise-group .exercise{display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);padding:var(--space-2) 0;border-top:1px solid var(--line)}
 .exercise-group .exercise h3{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
 .exercise-group .exercise p{margin:var(--space-1) 0 0}
+
+/* ---------- Inicio: perfil más grande, tarjeta de torneo más compacta ---------- */
+.heading-avatar .avatar{width:120px;height:120px;border-width:3px;box-shadow:0 6px 20px rgb(0 0 0 / .28)}
+.shell main .tournament{padding:var(--space-6)}
+.shell main .tournament h2{margin:var(--space-3) 0 var(--space-1);font-size:22px;line-height:28px}
+.shell main .tournament p{font-size:var(--small-size);line-height:var(--small-line)}
+.shell main .tournament .countdown{margin:var(--space-4) 0;font-size:36px;line-height:40px}
+@media(max-width:680px){.heading-avatar .avatar{width:84px;height:84px}}
 ````
 
 ## Archivo: `dist/styles/ace.css`
