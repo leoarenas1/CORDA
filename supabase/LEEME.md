@@ -55,3 +55,4 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `11_codigo_del_dueno.sql` | Cómo entra el primer coach (dueño): su código se crea en el SQL Editor con `create_owner_code`, no desde la app. |
 | `pruebas_seguridad.sql` | No es un ajuste: pruebas de seguridad con usuarios inventados (se deshacen solas). Correr después de cada cambio de reglas. |
 | `pruebas_seguridad_storage.sql` | Pruebas de seguridad de los archivos (fotos y comprobantes, Storage), también con datos inventados. |
+| `12_avatar_solo_foto.sql` | Solo la foto de perfil real (`<academia>/<integrante>/avatar.jpg`) es visible para toda la academia; un archivo privado llamado avatar.jpg ya no. |
