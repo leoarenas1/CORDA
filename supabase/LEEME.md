@@ -51,3 +51,4 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `07_clases_particulares.sql` | Comprobantes de clases particulares, visibles solo para el coach elegido. |
 | `08_videos_vistos.sql` | El jugador marca «Ya lo vi» en la biblioteca de video. |
 | `09_tutor_autorizado.sql` | El tutor de un menor solo se vincula si el menor escribió su correo; invitaciones y estado del tutor. |
+| `10_codigos_de_acceso.sql` | Códigos de acceso de un solo uso: la academia, el rol y la aprobación salen del código; Coach y Tutor no se registran sin él. |

@@ -34,17 +34,25 @@ let academyList=['Mouratoglou Tennis Center Guadalajara'];
 (async()=>{
   try{const {data,error}=await cloud.from('academies').select('name').order('name');if(!error&&data?.length)academyList=data.map(a=>a.name)}catch{}
 })();
-function academySelect(name,value,{independent=false,label='Academia'}={}){
-  const options=[...academyList];
-  if(independent)options.push(INDEPENDENT_ACADEMY);
-  if(value&&!options.includes(value))options.push(value);
-  return `<label>${label}<select name="${name}" required><option value="">Elige tu academia</option>${options.map(o=>`<option ${o===value?'selected':''}>${esc(o)}</option>`).join('')}</select></label>`;
+// La academia no se elige: la fija el código de acceso que da la academia (o es «independiente» si no hay código).
+function academySelect(name,value,{label='Academia'}={}){
+  const fixed=pendingAccount?(pendingAccount.codeInfo?.academy||pendingAccount.lockAcademy||INDEPENDENT_ACADEMY):(value||INDEPENDENT_ACADEMY);
+  const hint=fixed===INDEPENDENT_ACADEMY
+    ?coverText('Sin código de una academia, entrenas de forma independiente. Para unirte a una academia, pídele su código de acceso.','Without an academy code you train independently. To join an academy, ask for its access code.','Sans code d’académie, vous vous entraînez en indépendant. Demandez le code de votre académie.')
+    :coverText('Tu academia la define tu código de acceso.','Your academy comes from your access code.','Votre académie dépend de votre code d’accès.');
+  return `<label>${label}<select name="${name}" required><option selected>${esc(fixed)}</option></select></label><p class="full hint">${hint}</p>`;
+}
+// Revisa un código de acceso antes de crear la cuenta: devuelve {role,academy,label,child_member}, null si no sirve o false si no hubo conexión.
+const normalCode=value=>String(value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+async function checkAccessCode(code){
+  try{const {data,error}=await cloud.rpc('check_access_code',{p_code:code});return error?false:(data||null)}catch{return false}
 }
 function cloudError(error){
   const t=coverText,code=error?.code||'',message=String(error?.message||'');
   if(code==='invalid_credentials'||/invalid login/i.test(message))return t('Correo o contraseña incorrectos.','Incorrect email or password.','E-mail ou mot de passe incorrect.');
   if(code==='email_not_confirmed'||/not confirmed/i.test(message))return t('Primero confirma tu correo: abre el enlace que te enviamos.','Confirm your email first: open the link we sent you.','Confirmez d’abord votre e-mail : ouvrez le lien envoyé.');
   if(/rate limit|too many/i.test(code+message)||error?.status===429)return t('Demasiados intentos. Espera unos minutos y vuelve a probar.','Too many attempts. Wait a few minutes and try again.','Trop de tentatives. Attendez quelques minutes.');
+  if(/access_code|Database error saving/i.test(code+message))return t('El código de acceso ya no es válido. Pide uno nuevo a tu academia.','The access code is no longer valid. Ask your academy for a new one.','Le code d’accès n’est plus valide. Demandez-en un nouveau à votre académie.');
   if(code==='same_password')return t('Esa ya es tu contraseña. Elige una diferente.','That is already your password. Choose a different one.','C’est déjà votre mot de passe. Choisissez-en un autre.');
   if(code==='weak_password'||/password should/i.test(message))return t('Esa contraseña es muy débil. Usa una más larga o con números y símbolos.','That password is too weak. Use a longer one with numbers and symbols.','Mot de passe trop faible. Utilisez-en un plus long.');
   if(!error?.status||/fetch|network/i.test(message))return t('No hay conexión con el servidor. Revisa tu internet.','Could not reach the server. Check your connection.','Impossible de joindre le serveur. Vérifiez votre connexion.');
@@ -242,6 +250,10 @@ function createAccessScreen(selectedRole,mode='register'){
     ${passwordInput('password',t('Contraseña (mínimo 8 caracteres)','Password (at least 8 characters)','Mot de passe (8 caractères minimum)'),'new-password')}
     ${passwordInput('confirm',t('Repite la contraseña','Repeat the password','Répétez le mot de passe'),'new-password')}
     ${rememberInput()}
+    <label>${t('Código de acceso','Access code','Code d’accès')}${selectedRole==='Jugador'?'':' *'}<input name="code" ${selectedRole==='Jugador'?'':'required'} maxlength="14" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX"></label>
+    <p class="hint">${selectedRole==='Jugador'?t('Te lo da tu academia. Si entrenas de forma independiente, déjalo vacío.','Your academy gives it to you. Leave it empty if you train independently.','Votre académie vous le donne. Laissez vide si vous vous entraînez en indépendant.')
+      :selectedRole==='Coach'?t('Te lo da el dueño de tu academia.','The academy owner gives it to you.','Le propriétaire de l’académie vous le donne.')
+      :t('Te lo da la academia de tu jugador.','Your player’s academy gives it to you.','L’académie de votre joueur vous le donne.')}</p>
     ${consentFields(selectedRole)}
     <p class="auth-error" id="auth-error" role="alert" hidden></p>
     <div class="formactions">${accessLink('auth-roles','← '+t('Perfiles','Profiles','Profils'))}<button class="btn lime" id="register-submit">${t('Continuar','Continue','Continuer')}</button></div>
@@ -253,7 +265,7 @@ function createAccessScreen(selectedRole,mode='register'){
   $('#auth-roles').onclick=()=>pickRole(mode);
   $('#auth-signin').onclick=()=>signInScreen();
   const form=$('#register-form');
-  form.onsubmit=e=>{
+  form.onsubmit=async e=>{
     e.preventDefault();
     const d=Object.fromEntries(new FormData(form)),error=$('#auth-error');
     const fail=text=>{error.textContent=text;error.hidden=false};
@@ -266,7 +278,18 @@ function createAccessScreen(selectedRole,mode='register'){
     // La contraseña solo vive en memoria hasta crear la cuenta en Supabase; nunca se guarda.
     const consent=readConsent(selectedRole,d,email);
     if(consent.error)return fail(consent.error);
-    pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password,consent};
+    // Código de acceso: la academia y el rol salen de él. Jugador sin código = independiente; Coach y Tutor lo necesitan.
+    const code=normalCode(d.code);let codeInfo=null;
+    if(code){
+      const button=$('#register-submit');button.disabled=true;
+      const info=await checkAccessCode(code);
+      button.disabled=false;
+      if(info===false)return fail(offlineMessage());
+      if(!info)return fail(t('Ese código no es válido, ya se usó o venció. Pídele uno nuevo a tu academia.','That code is not valid, was already used or expired. Ask your academy for a new one.','Ce code n’est pas valide, a déjà servi ou a expiré. Demandez-en un nouveau.'));
+      if(info.role!==selectedRole)return fail(t('Ese código es para el perfil '+info.role+'. Vuelve a Perfiles y elige ese perfil.','That code is for the '+info.role+' profile. Go back to Profiles and choose it.','Ce code est pour le profil '+info.role+'. Retournez aux profils.'));
+      codeInfo=info;
+    }else if(selectedRole!=='Jugador')return fail(t('Escribe el código de acceso que te dio tu academia.','Enter the access code your academy gave you.','Saisissez le code d’accès de votre académie.'));
+    pendingAccount={email,role:selectedRole,remember:!!d.remember,password:d.password,consent,code,codeInfo};
     chooseRole(selectedRole,mode);
   };
 }
@@ -285,7 +308,7 @@ function linkPendingAccount(){
   if(!pendingAccount)return;
   const profile=role==='Jugador'?state.profile:actor();
   if(!profile?.memberId||role!==pendingAccount.role)return;
-  const {remember,password,cloudUser,consent,...account}=pendingAccount;
+  const {remember,password,cloudUser,consent,code,codeInfo,lockAcademy,...account}=pendingAccount;
   if(consent){
     const {tutorEmail,...record}=consent;
     state.consent=record;
@@ -296,16 +319,16 @@ function linkPendingAccount(){
   pendingAccount=null;
   if(cacheAccount(account)){currentAccount=account;rememberSession(account.email,remember)}
   if(cloudUser){pushProfile();cloud?.auth.getUser().then(({data})=>startSync(data.user)).catch(()=>{})}
-  else if(password)cloudSignUp(account.email,password,remember);
+  else if(password)cloudSignUp(account.email,password,remember,false,code);
 }
 
-async function cloudSignUp(email,password,remember,migrating=false){
+async function cloudSignUp(email,password,remember,migrating=false,code=''){
   if(!cloud)return;
   const t=coverText,snapshot=cloudSnapshot();
   setRemember(remember);
   const {data,error}=await cloud.auth.signUp({email,password,options:{
     emailRedirectTo:location.origin+location.pathname,
-    data:{name:snapshot?.name||'',role,academy:snapshot?.academy||'',details:snapshot?.details||{}}
+    data:{name:snapshot?.name||'',role,academy:snapshot?.academy||'',details:snapshot?.details||{},code}
   }});
   if(error){toast(cloudError(error));return}
   // Con "Confirm email", Supabase no avisa si el correo ya existía: lo delata identities vacío.
@@ -338,8 +361,8 @@ async function openCloudAccount(user,remember){
     return true;
   }
   // Cuenta sin perfil terminado: se completa ahora y se guarda en Supabase al final.
-  pendingAccount={email,role:row.role,remember,cloudUser:true};
   const academy=row.academies?.name||'';
+  pendingAccount={email,role:row.role,remember,cloudUser:true,lockAcademy:academy};
   rememberPlayer();role=row.role;page='home';rosterDetail='';
   if(row.role==='Jugador'){
     const [firstName,...rest]=String(row.name||'').split(' ');

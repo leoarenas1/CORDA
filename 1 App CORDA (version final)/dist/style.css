@@ -823,3 +823,17 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .consent-tutor{display:grid;gap:var(--space-2);font-size:var(--small-size);font-weight:400}
 .consent-tutor small{opacity:.75}
 .guardian-banner .calendar-actions .btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+
+/* Códigos de acceso (coach) */
+#access-dialog{max-width:640px;width:calc(100% - var(--space-6));max-height:min(88vh,860px);overflow:auto;padding:var(--space-6)}
+#access-dialog .row{align-items:flex-start;justify-content:space-between;gap:var(--space-3)}
+#access-dialog #access-close{border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;padding:var(--space-2)}
+.access-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}
+.access-code-big{font-size:var(--h2-size,1.6rem);font-weight:700;margin:var(--space-1) 0}
+.access-fresh{margin:var(--space-4) 0;padding:var(--space-4);border-radius:var(--radius-md,12px);border:2px solid var(--lima)}
+.access-fresh .access-code-big{color:var(--lima)}
+.access-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);align-items:center}
+.access-list{margin-top:var(--space-6)}
+.access-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) 0;border-top:1px solid var(--line)}
+.access-row[data-status="usado"],.access-row[data-status="revocado"],.access-row[data-status="vencido"]{opacity:.65}
+#access-form{margin-top:var(--space-4)}

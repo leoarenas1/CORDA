@@ -68,12 +68,12 @@ function enterAdult(account){
 }
 // Tutor recién registrado: todavía no hay jugador vinculado.
 function tutorWaiting(){
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de Tutor</small><h1>Cuenta creada</h1><p>Revisa tu correo y confirma tu cuenta. Después inicia sesión: ahí verás la invitación de tu jugador para aceptarla y administrar su perfil.</p><p class="hint">El jugador tiene que haber escrito tu correo como correo de su tutor. Tu cuenta de Tutor también necesita la aprobación del administrador de CORDA.</p><div class="formactions"><button class="btn lime" id="tutor-signin">Ir a iniciar sesión</button></div></section>`);
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de Tutor</small><h1>Cuenta creada</h1><p>Revisa tu correo y confirma tu cuenta. Después inicia sesión: ahí verás la invitación de tu jugador para aceptarla y administrar su perfil.</p><p class="hint">Tu academia te dio el código de acceso, así que tu cuenta ya está aprobada. Para ver a tu jugador, él debe haber escrito tu correo como correo de su tutor, o tu código debe venir ligado a él.</p><div class="formactions"><button class="btn lime" id="tutor-signin">Ir a iniciar sesión</button></div></section>`);
   $('#tutor-signin').onclick=()=>{currentAccount=null;signInScreen()};
 }
 function adultSetup(existing){
-  const academy=existing?.academy||state.profile?.academy||'Mouratoglou Tennis Center Guadalajara';
-  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':currentAccount?'Vincula a tu jugador':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">${role==='Tutor'?(currentAccount?'Aceptar y entrar':'Crear mi cuenta'):'Entrar al portal'}</button></div></form></section>`);
+  const academy=existing?.academy||pendingAccount?.codeInfo?.academy||pendingAccount?.lockAcademy||state.profile?.academy||'';
+  accessScene('access-screen',`<section class="access-panel"><small class="eyebrow">Perfil de ${role}</small><h1>${role==='Coach'?'Tu espacio de coach':currentAccount?'Vincula a tu jugador':'Tu espacio familiar'}</h1><form id="adult-form">${field('Tu nombre','name',existing?.name||pendingAccount?.codeInfo?.label||'')}${academySelect('academy',academy)}<div id="linked-player"></div><div class="formactions"><button type="button" class="access-back">← Perfiles</button><button class="btn lime">${role==='Tutor'?(currentAccount?'Aceptar y entrar':'Crear mi cuenta'):'Entrar al portal'}</button></div></form></section>`);
   const form=$('#adult-form');
   // Tutor: el menor lo nombra con su correo; aquí se ven las invitaciones y se acepta (necesita sesión iniciada).
   let invites=[];
@@ -81,7 +81,9 @@ function adultSetup(existing){
     if(role!=='Tutor')return;
     const box=$('#linked-player');
     if(!currentAccount){
-      box.innerHTML='<p class="hint">Crea tu cuenta con el mismo correo que el jugador escribió como correo de su tutor. Cuando confirmes tu correo y entres, aquí verás la invitación para aceptarla.</p>';
+      box.innerHTML=pendingAccount?.codeInfo?.child_member
+        ?'<p class="hint">Tu academia ya te ligó a tu jugador con tu código. Cuando confirmes tu correo y entres, aquí verás su invitación para aceptarla.</p>'
+        :'<p class="hint">Cuando confirmes tu correo y entres, aquí verás la invitación del jugador que escribió tu correo como correo de su tutor, para aceptarla.</p>';
       return;
     }
     box.innerHTML='<p class="hint">Buscando invitaciones…</p>';
@@ -119,7 +121,7 @@ function latestPlayerNote(record){
 }
 function playerList(){
   const members=academyPlayers(actor().academy);
-  return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn lime" id="roster-add">+ Jugador</button>')+
+  return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn lime" id="roster-add">+ Jugador</button>')+
     (members.length?`<div class="athlete-list">${members.map(m=>{
       const record=athleteFor(m),note=latestPlayerNote(record);
       return `<article class="card"><div class="row">${avatar(m)}<h2><button class="athlete-name" data-athlete="${esc(m.id)}">${esc(m.name)}</button></h2></div><small>Fortaleza observada</small><p>${esc(note.good||'Por evaluar')}</p><small>Siguiente ajuste</small><p>${esc(note.focus||'Por evaluar')}</p><button class="link" data-athlete="${esc(m.id)}">Ver seguimiento ↗</button></article>`;

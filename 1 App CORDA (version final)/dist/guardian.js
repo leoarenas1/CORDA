@@ -39,7 +39,7 @@ async function refreshGuardian(){
 function inviteTexts(){
   const first=String(state.profile?.name||'').split(' ')[0]||'tu jugador';
   const url=location.origin+location.pathname,email=state.profile.tutorEmail;
-  const text=`Hola, soy ${first}. Me registré en CORDA, la app de mi academia de tenis. Entra a ${url}, elige «Tutor» y crea tu cuenta con este correo (${email}). Así podrás ver mi avance y administrar mi cuenta.`;
+  const text=`Hola, soy ${first}. Me registré en CORDA, la app de mi academia de tenis. Entra a ${url}, elige «Tutor» y crea tu cuenta con este correo (${email}). Necesitas un código de acceso: pídelo en la academia. Así podrás ver mi avance y administrar mi cuenta.`;
   return {text,wa:'https://wa.me/?text='+encodeURIComponent(text),
     mail:'mailto:'+encodeURIComponent(email)+'?subject='+encodeURIComponent('Invitación a CORDA como tutor')+'&body='+encodeURIComponent(text)};
 }
@@ -54,8 +54,8 @@ function guardianBanner(){
       <div class="calendar-actions"><button class="btn lime" data-guardian-email>${t('Agregar correo','Add email','Ajouter l’e-mail')}</button></div></section>`;
   }
   const invite=inviteTexts(),status={
-    none:t('Esperando a tu tutor. Mándale la invitación: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation : il doit créer un compte Tuteur avec cet e-mail.'),
-    unknown:t('Esperando a tu tutor. Mándale la invitación: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation : il doit créer un compte Tuteur avec cet e-mail.'),
+    none:t('Esperando a tu tutor. Mándale la invitación y pídele a tu coach un código de acceso para él: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation and ask your coach for an access code for them: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation et demandez à votre coach un code d’accès pour lui.'),
+    unknown:t('Esperando a tu tutor. Mándale la invitación y pídele a tu coach un código de acceso para él: tiene que crear su cuenta de Tutor con este correo.','Waiting for your guardian. Send the invitation and ask your coach for an access code for them: they must create a Guardian account with this email.','En attente de votre tuteur. Envoyez l’invitation et demandez à votre coach un code d’accès pour lui.'),
     registered:t('Tu tutor ya creó su cuenta. Falta que entre y te acepte como su jugador.','Your guardian created an account. They still need to sign in and accept you.','Votre tuteur a créé son compte. Il doit se connecter et vous accepter.'),
     linked:t('Tu tutor ya te aceptó. Falta que el administrador de CORDA apruebe su cuenta.','Your guardian accepted you. CORDA’s administrator still has to approve their account.','Votre tuteur vous a accepté. L’administrateur de CORDA doit encore valider son compte.')
   }[guardianInfo.state]||'';
