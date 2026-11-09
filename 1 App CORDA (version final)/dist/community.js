@@ -183,8 +183,8 @@ function editClub(group){
 }
 
 // ---------- Saludo del día (recuadro de abajo a la izquierda) ----------
-// Usa el nombre de quien inició sesión y cambia de frase cada día. Las frases no usan
-// "bienvenido/a" para no suponer el género de nadie.
+// Usa el nombre de quien inició sesión y cambia de frase cada día. «Bienvenid@» sirve para
+// cualquier persona sin suponer su género.
 const DAILY_LINES={
   Jugador:{
     es:['¡A romperla hoy!','Cada pelota cuenta. ¡A seguir mejorando!','Hoy es un buen día para subir de nivel.','Un entrenamiento más cerca de tu meta.','Constancia hoy, resultados mañana.','Juega con intención. ¡Tú puedes!','Lo que entrenas hoy se nota en el próximo torneo.'],
@@ -208,6 +208,6 @@ function dailyGreeting(){
   const lines=(DAILY_LINES[role]||DAILY_LINES.Jugador)[coverLanguage]||DAILY_LINES.Jugador.es;
   const today=localDay(),day=Math.floor(Date.parse(today+'T12:00:00')/864e5);
   const line=lines[(day+first.length)%lines.length];
-  const hello=coverText('Hola','Hi','Bonjour');
+  const hello=coverText('Bienvenid@','Welcome','Bienvenue');
   return `<div class="demo greeting"><b>${esc(first?hello+', '+first:hello)} 👋</b><span>${esc(line)}</span></div>`;
 }

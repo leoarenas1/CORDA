@@ -938,8 +938,8 @@ function editClub(group){
 }
 
 // ---------- Saludo del día (recuadro de abajo a la izquierda) ----------
-// Usa el nombre de quien inició sesión y cambia de frase cada día. Las frases no usan
-// "bienvenido/a" para no suponer el género de nadie.
+// Usa el nombre de quien inició sesión y cambia de frase cada día. «Bienvenid@» sirve para
+// cualquier persona sin suponer su género.
 const DAILY_LINES={
   Jugador:{
     es:['¡A romperla hoy!','Cada pelota cuenta. ¡A seguir mejorando!','Hoy es un buen día para subir de nivel.','Un entrenamiento más cerca de tu meta.','Constancia hoy, resultados mañana.','Juega con intención. ¡Tú puedes!','Lo que entrenas hoy se nota en el próximo torneo.'],
@@ -963,7 +963,7 @@ function dailyGreeting(){
   const lines=(DAILY_LINES[role]||DAILY_LINES.Jugador)[coverLanguage]||DAILY_LINES.Jugador.es;
   const today=localDay(),day=Math.floor(Date.parse(today+'T12:00:00')/864e5);
   const line=lines[(day+first.length)%lines.length];
-  const hello=coverText('Hola','Hi','Bonjour');
+  const hello=coverText('Bienvenid@','Welcome','Bienvenue');
   return `<div class="demo greeting"><b>${esc(first?hello+', '+first:hello)} 👋</b><span>${esc(line)}</span></div>`;
 }
 ````
@@ -1152,7 +1152,7 @@ function translateDashboard(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108g"><link rel="stylesheet" href="style.css?v=20261108g"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108g"><link rel="stylesheet" href="styles/ace.css?v=20261108g"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108g"></script><script src="resenas.js?v=20261108g"></script><script src="portada.js?v=20261108g"></script><script src="community.js?v=20261108g"></script><script src="session-guide.js?v=20261108g"></script><script src="annual-progress.js?v=20261108g"></script><script src="progress-hub.js?v=20261108g"></script><script src="meetings.js?v=20261108g"></script><script src="monthly-fees.js?v=20261108g"></script><script src="portal.js?v=20261108g"></script><script src="private-payments.js?v=20261108g"></script><script src="roles.js?v=20261108g"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108g"></script><script src="auth.js?v=20261108g"></script><script src="sync.js?v=20261108g"></script><script src="sobre-corda.js?v=20261108g"></script><script src="app.js?v=20261108g"></script><script src="ace.js?v=20261108g"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261108h"><link rel="stylesheet" href="style.css?v=20261108h"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261108h"><link rel="stylesheet" href="styles/ace.css?v=20261108h"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261108h"></script><script src="resenas.js?v=20261108h"></script><script src="portada.js?v=20261108h"></script><script src="community.js?v=20261108h"></script><script src="session-guide.js?v=20261108h"></script><script src="annual-progress.js?v=20261108h"></script><script src="progress-hub.js?v=20261108h"></script><script src="meetings.js?v=20261108h"></script><script src="monthly-fees.js?v=20261108h"></script><script src="portal.js?v=20261108h"></script><script src="private-payments.js?v=20261108h"></script><script src="roles.js?v=20261108h"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261108h"></script><script src="auth.js?v=20261108h"></script><script src="sync.js?v=20261108h"></script><script src="sobre-corda.js?v=20261108h"></script><script src="app.js?v=20261108h"></script><script src="ace.js?v=20261108h"></script></body></html>
 ````
 
 ## Archivo: `dist/meetings.js`
@@ -1381,7 +1381,7 @@ function bindFees(){
 ## Archivo: `dist/movil.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108g"><style>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CORDA · Vista móvil</title><link rel="stylesheet" href="styles/tokens.css?v=20261108h"><style>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Grotesk:wght@600;700&display=swap");
 *{box-sizing:border-box}body{margin:0;background:var(--surface);color:var(--ink);font-family:var(--font-sans);font-size:var(--body-size);line-height:var(--body-line)}
 .preview{max-width:960px;margin:0 auto;padding:var(--space-8) var(--space-4);display:flex;gap:var(--space-12);align-items:flex-start;justify-content:center}
