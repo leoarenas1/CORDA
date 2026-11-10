@@ -58,6 +58,8 @@ Análisis del coach: se quita la tarjeta de comentarios y se separan las dos tar
 
 «Análisis del coach» ahora se llama «Mi estado» (menú, título, Ace, registro y traducciones).
 
+Mi estado: tarjeta corta de seguimiento del coach al final (mejoraste y siguiente ajuste).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1952,7 +1954,8 @@ Comentarios de tu coach|Comments from your coach|Commentaires de votre coach
 Lo último que anotó tu coach|The latest notes from your coach|Les dernières notes de votre coach
 Lo que mejoró|What improved|Ce qui s’est amélioré
 Siguiente ajuste|Next adjustment|Prochain ajustement
-Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.
+Mejoraste|You improved|Vous avez progressé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -2210,7 +2213,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109w"><link rel="stylesheet" href="style.css?v=20261109w"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109w"><link rel="stylesheet" href="styles/ace.css?v=20261109w"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109w"></script><script src="resenas.js?v=20261109w"></script><script src="portada.js?v=20261109w"></script><script src="community.js?v=20261109w"></script><script src="session-guide.js?v=20261109w"></script><script src="annual-progress.js?v=20261109w"></script><script src="progress-hub.js?v=20261109w"></script><script src="meetings.js?v=20261109w"></script><script src="monthly-fees.js?v=20261109w"></script><script src="portal.js?v=20261109w"></script><script src="private-payments.js?v=20261109w"></script><script src="roles.js?v=20261109w"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109w"></script><script src="legal.js?v=20261109w"></script><script src="auth.js?v=20261109w"></script><script src="sync.js?v=20261109w"></script><script src="guardian.js?v=20261109w"></script><script src="access.js?v=20261109w"></script><script src="backup.js?v=20261109w"></script><script src="wellness.js?v=20261109w"></script><script src="videos.js?v=20261109w"></script><script src="physical.js?v=20261109w"></script><script src="calendar.js?v=20261109w"></script><script src="sobre-corda.js?v=20261109w"></script><script src="app.js?v=20261109w"></script><script src="ace.js?v=20261109w"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109z"><link rel="stylesheet" href="style.css?v=20261109z"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109z"><link rel="stylesheet" href="styles/ace.css?v=20261109z"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109z"></script><script src="resenas.js?v=20261109z"></script><script src="portada.js?v=20261109z"></script><script src="community.js?v=20261109z"></script><script src="session-guide.js?v=20261109z"></script><script src="annual-progress.js?v=20261109z"></script><script src="progress-hub.js?v=20261109z"></script><script src="meetings.js?v=20261109z"></script><script src="monthly-fees.js?v=20261109z"></script><script src="portal.js?v=20261109z"></script><script src="private-payments.js?v=20261109z"></script><script src="roles.js?v=20261109z"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109z"></script><script src="legal.js?v=20261109z"></script><script src="auth.js?v=20261109z"></script><script src="sync.js?v=20261109z"></script><script src="guardian.js?v=20261109z"></script><script src="access.js?v=20261109z"></script><script src="backup.js?v=20261109z"></script><script src="wellness.js?v=20261109z"></script><script src="videos.js?v=20261109z"></script><script src="physical.js?v=20261109z"></script><script src="calendar.js?v=20261109z"></script><script src="sobre-corda.js?v=20261109z"></script><script src="app.js?v=20261109z"></script><script src="ace.js?v=20261109z"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -2985,7 +2988,7 @@ function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Mi estado',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
+  return heading('Mi estado',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name)+coachFollowCard(state.profile.memberId);
 }
 function bindPortal() {
   bindAnnual();
@@ -4925,6 +4928,20 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Espacio entre las tarjetas de Análisis del coach */
 .wellness,.well-trend{margin-bottom:var(--space-6)}
+
+/* Seguimiento del coach (tarjeta corta de Mi estado) */
+.coach-follow{margin-bottom:var(--space-6)}
+.follow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);margin-top:var(--space-3)}
+.follow-box{padding:var(--space-4);border-radius:var(--radius-md,12px);border:1px solid var(--line);display:grid;grid-template-columns:2rem 1fr;align-items:center;gap:var(--space-2) var(--space-3)}
+.follow-box p{grid-column:1/-1}
+.follow-box b{font-family:var(--font-display);font-size:1.1rem}
+.follow-box p{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
+.follow-icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:50%;font-weight:700}
+.follow-box.is-good{background:rgba(46,125,50,.12);border-color:rgba(46,125,50,.45)}
+.follow-box.is-good .follow-icon{background:#2E7D32;color:#fff}
+.follow-box.is-next{background:rgba(183,121,31,.12);border-color:rgba(183,121,31,.45)}
+.follow-box.is-next .follow-icon{background:#B7791F;color:#fff}
+.follow-by{display:block;margin-top:var(--space-3)}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -6035,6 +6052,41 @@ document.addEventListener('click',event=>{
   }
 });
 
+
+// ---------- Seguimiento del coach (tarjeta corta al final de «Mi estado») ----------
+// Lo último que anotó el coach, en dos ideas cortas: lo que mejoró y el siguiente ajuste.
+// Fuentes: evaluación diaria del coach, «Evaluar jugador» y evaluación mensual. Sin nada, se muestra el mismo ejemplo que Inicio.
+function coachLatest(id){
+  const list=[],athlete=state.athletes?.[id],today=localDay();
+  for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+  }
+  for(const [day,r] of Object.entries(athlete?.reviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
+    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''})}
+  }
+  return list.sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+}
+// Primera idea del texto (máximo ~70 caracteres): la primera oración si cabe; si no, la primera frase corta; si no, se corta en una palabra.
+function shortNote(text,max=70){
+  const clean=String(text||'').replace(/\s+/g,' ').trim();
+  if(clean.length<=max)return clean.replace(/[.,;:]$/,'');
+  const sentence=clean.match(/^.{12,}?[.!?](\s|$)/);
+  if(sentence&&sentence[0].trim().length<=max)return sentence[0].trim().replace(/[.]$/,'');
+  const clause=clean.match(/^.{12,}?[,;:](\s|$)/);
+  if(clause&&clause[0].trim().length<=max)return clause[0].trim().replace(/[,;:]$/,'');
+  return clean.slice(0,max).replace(/\s+\S*$/,'')+'…';
+}
+function coachFollowCard(id){
+  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:''};
+  return `<section class="card coach-follow"><small class="eyebrow">Seguimiento del coach${example?' · Ejemplo':item.label?' · '+esc(item.label):''}</small>
+    <div class="follow-grid">
+      <div class="follow-box is-good"><span class="follow-icon" aria-hidden="true">✓</span><b>Mejoraste</b><p>${esc(shortNote(item.good))||'—'}</p></div>
+      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p></div>
+    </div>${item.by?`<small class="muted follow-by">${esc(item.by)}</small>`:''}</section>`;
+}
 ````
 
 ## Archivo: `ASSET_CREDITS.md`

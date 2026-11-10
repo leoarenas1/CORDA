@@ -615,7 +615,8 @@ Comentarios de tu coach|Comments from your coach|Commentaires de votre coach
 Lo último que anotó tu coach|The latest notes from your coach|Les dernières notes de votre coach
 Lo que mejoró|What improved|Ce qui s’est amélioré
 Siguiente ajuste|Next adjustment|Prochain ajustement
-Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.
+Mejoraste|You improved|Vous avez progressé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){

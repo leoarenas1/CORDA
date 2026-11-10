@@ -897,3 +897,17 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Espacio entre las tarjetas de Análisis del coach */
 .wellness,.well-trend{margin-bottom:var(--space-6)}
+
+/* Seguimiento del coach (tarjeta corta de Mi estado) */
+.coach-follow{margin-bottom:var(--space-6)}
+.follow-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-3);margin-top:var(--space-3)}
+.follow-box{padding:var(--space-4);border-radius:var(--radius-md,12px);border:1px solid var(--line);display:grid;grid-template-columns:2rem 1fr;align-items:center;gap:var(--space-2) var(--space-3)}
+.follow-box p{grid-column:1/-1}
+.follow-box b{font-family:var(--font-display);font-size:1.1rem}
+.follow-box p{margin:0;font-size:var(--body-size);line-height:var(--body-line)}
+.follow-icon{display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2rem;border-radius:50%;font-weight:700}
+.follow-box.is-good{background:rgba(46,125,50,.12);border-color:rgba(46,125,50,.45)}
+.follow-box.is-good .follow-icon{background:#2E7D32;color:#fff}
+.follow-box.is-next{background:rgba(183,121,31,.12);border-color:rgba(183,121,31,.45)}
+.follow-box.is-next .follow-icon{background:#B7791F;color:#fff}
+.follow-by{display:block;margin-top:var(--space-3)}

@@ -254,3 +254,38 @@ document.addEventListener('click',event=>{
   }
 });
 
+
+// ---------- Seguimiento del coach (tarjeta corta al final de «Mi estado») ----------
+// Lo último que anotó el coach, en dos ideas cortas: lo que mejoró y el siguiente ajuste.
+// Fuentes: evaluación diaria del coach, «Evaluar jugador» y evaluación mensual. Sin nada, se muestra el mismo ejemplo que Inicio.
+function coachLatest(id){
+  const list=[],athlete=state.athletes?.[id],today=localDay();
+  for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+  }
+  for(const [day,r] of Object.entries(athlete?.reviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
+    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''})}
+  }
+  return list.sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
+}
+// Primera idea del texto (máximo ~70 caracteres): la primera oración si cabe; si no, la primera frase corta; si no, se corta en una palabra.
+function shortNote(text,max=70){
+  const clean=String(text||'').replace(/\s+/g,' ').trim();
+  if(clean.length<=max)return clean.replace(/[.,;:]$/,'');
+  const sentence=clean.match(/^.{12,}?[.!?](\s|$)/);
+  if(sentence&&sentence[0].trim().length<=max)return sentence[0].trim().replace(/[.]$/,'');
+  const clause=clean.match(/^.{12,}?[,;:](\s|$)/);
+  if(clause&&clause[0].trim().length<=max)return clause[0].trim().replace(/[,;:]$/,'');
+  return clean.slice(0,max).replace(/\s+\S*$/,'')+'…';
+}
+function coachFollowCard(id){
+  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:''};
+  return `<section class="card coach-follow"><small class="eyebrow">Seguimiento del coach${example?' · Ejemplo':item.label?' · '+esc(item.label):''}</small>
+    <div class="follow-grid">
+      <div class="follow-box is-good"><span class="follow-icon" aria-hidden="true">✓</span><b>Mejoraste</b><p>${esc(shortNote(item.good))||'—'}</p></div>
+      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p></div>
+    </div>${item.by?`<small class="muted follow-by">${esc(item.by)}</small>`:''}</section>`;
+}
