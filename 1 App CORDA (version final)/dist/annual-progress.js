@@ -6,7 +6,7 @@ function monthlyReviewCard(){
   const last=Object.entries(state.reviews).sort(([a],[b])=>b.localeCompare(a))[0];
   return `<section class="card coach-month"><small class="eyebrow">Seguimiento del coach</small><h2>Tu balance del mes</h2><small class="review-period">${assessment?dateLabel(key+'-01',{month:'long',year:'numeric'}):'Ejemplo · Leonardo · Octubre 2026'}</small><div class="monthly-gain"><b><span class="gain-check" aria-hidden="true">✓</span>Lo que mejoraste</b><p>${esc(note.good)}</p></div><div><b>Tu siguiente ajuste</b><p>${esc(note.focus)}</p></div>
   ${last?`<p class="hint">Última corrección · ${dateLabel(last[0],{day:'numeric',month:'short'})}<br>${esc(last[1].focus)}</p>`:''}
-  <button data-page="goals" class="link">Ver análisis del coach ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
+  <button data-page="goals" class="link">Ver mi estado ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
 }
 function bindAnnual(){
   const edit=document.querySelector('#edit-month');

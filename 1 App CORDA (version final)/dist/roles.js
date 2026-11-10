@@ -26,7 +26,7 @@ function useAthlete(member){
   state.profile=a.profile;state.reviews=a.reviews;state.goals=a.goals;
 }
 function roleNav(){
-  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Análisis del coach','Mi academia','Mensualidad'];
+  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Mi estado','Mi academia','Mensualidad'];
   return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'appointments':'payments',role==='Coach'?'calendar':'wallet']].map(([id,i],n)=>[id,i,labels[n]]).concat(role==='Coach'?[['private-payments','wallet','Pagos privados']]:[]).concat([['profile','profile','Mi perfil']]);
 }
 function pickRole(mode){

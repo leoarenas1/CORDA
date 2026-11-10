@@ -1,7 +1,7 @@
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
 Mi plan|My plan|Mon programme
-Análisis del coach|Coach analysis|Analyse du coach
+Mi estado|My condition|Mon état
 Mi academia|My academy|Mon académie
 Mensualidad|Monthly fees|Mensualité
 Tu academia|Your academy|Votre académie
@@ -61,7 +61,7 @@ Ejemplo|Example|Exemple
 Octubre 2026|October 2026|Octobre 2026
 Lo que mejoraste|What you improved|Vos progrès
 Tu siguiente ajuste|Your next adjustment|Votre prochain axe de travail
-Ver análisis del coach ↗|View coach analysis ↗|Voir l’analyse du coach ↗
+Ver mi estado ↗|View my condition ↗|Voir mon état ↗
 Pendiente|Pending|En attente
 Ver mensualidad ↗|View monthly fees ↗|Voir la mensualité ↗
 Comunicación|Communication|Communication
@@ -488,14 +488,14 @@ Cuéntanos con qué juegas.|Tell us what you play with.|Dites-nous avec quoi vou
 Tu raqueta|Your racket|Votre raquette
 TU OBJETIVO|YOUR GOAL|VOTRE OBJECTIF
 ¿Cuál es tu próximo paso?|What is your next step?|Quelle est votre prochaine étape ?
-Escribe una meta concreta. Será tu 100 % en «Análisis del coach».|Write a specific goal. It will be your 100% in “Coach analysis”.|Écrivez un objectif concret. Ce sera votre 100 % dans « Analyse du coach ».
+Escribe una meta concreta. Tu coach la verá en tu perfil y se usará para medir tu progreso.|Write a specific goal. Your coach will see it in your profile and it will be used to measure your progress.|Écrivez un objectif concret. Votre coach le verra dans votre profil et il servira à mesurer votre progression.
 Una buena meta dice tres cosas:|A good goal says three things:|Un bon objectif dit trois choses :
 Qué|What|Quoi
 Cuánto|How much|Combien
 : un número que se pueda medir|: a number you can measure|: un chiffre mesurable
 Para cuándo|By when|Pour quand
 : una fecha o un torneo|: a date or a tournament|: une date ou un tournoi
-Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal in the charts. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif dans les graphiques. Vous pourrez le modifier plus tard dans « Mon profil ».
+Tu coach y tú medirán tu avance contra esta meta. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif. Vous pourrez le modifier plus tard dans « Mon profil ».
 TU FOTO|YOUR PHOTO|VOTRE PHOTO
 Ponle cara a tu juego.|Put a face to your game.|Donnez un visage à votre jeu.
 Una foto para que tu coach te reconozca. Tú decides.|A photo so your coach recognizes you. It is up to you.|Une photo pour que votre coach vous reconnaisse. C’est vous qui décidez.

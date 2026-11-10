@@ -1,4 +1,4 @@
-// Estado físico del jugador, dentro de «Análisis del coach».
+// Estado físico del jugador, dentro de «Mi estado» (antes «Análisis del coach»).
 // Tres cosas que un jugador de competencia necesita y el coach necesita ver:
 //   1. Chequeo diario de 30 segundos (sueño, energía, ánimo, dolor muscular, estrés y molestias): state.checkins[jugador].wellness['AAAA-MM-DD'].
 //   2. Esfuerzo de cada sesión (1 a 10) en la encuesta de después del entrenamiento (progress-hub.js): carga = esfuerzo × minutos.

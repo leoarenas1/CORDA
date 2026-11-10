@@ -56,6 +56,8 @@ Análisis del coach: tarjeta con los últimos comentarios del coach para el juga
 
 Análisis del coach: se quita la tarjeta de comentarios y se separan las dos tarjetas.
 
+«Análisis del coach» ahora se llama «Mi estado» (menú, título, Ace, registro y traducciones).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -240,7 +242,8 @@ const INTENTS=[
     return {text:`Tu próxima sesión: <b>${esc(dateLabel(s.date,{weekday:'long',day:'numeric',month:'long'}))}</b> · ${esc(s.time)} · ${esc(s.place)} · ${esc(sessionCoach(s))}.`,actions:[['Ver la sesión',()=>{close();openSession(s.id)}],['Abrir mi plan',go('calendar')]]};
   }},
   {keys:['pago','pagar','mensualidad','comprobante','transferencia','clabe','cuota','colegiatura','matricula'],answer:()=>({text:'Abre «Mensualidad», elige el mes y transfiere con tu matrícula como concepto. Luego sube el comprobante a ese mes. Verás una palomita cuando la academia lo confirme.',actions:inApp()&&role!=='Coach'?[['Ir a Mensualidad',go('payments')]]:inApp()?[]:[['Iniciar sesión',toSignIn]]})},
-  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','grafica','porcentaje'],answer:()=>({text:'En «Análisis del coach» ves qué tan cerca vas de tu meta (la que escribiste al registrarte es el 100 %). Hay tres gráficas: cómo te sientes, cómo te ve tu coach y la comparación. Elige el periodo: diario, semanal, mensual, trimestral o anual.',actions:inApp()?[['Ir a Análisis del coach',go('goals')]]:[]})},
+  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','porcentaje'],answer:()=>({text:'El apartado de progreso, con números y porcentajes, todavía está en preparación. Por ahora, en Inicio ves el balance del mes de tu coach y, en «Mi estado», cómo te has sentido y qué falla.',actions:inApp()?[['Ir a Mi estado',go('goals')]]:[]})},
+  {keys:['mi estado','chequeo','amanezco','dormi','sueno','dolor','molestia','lesion','cansancio','cansado','estado fisico','como me siento','grafica'],answer:()=>({text:'En «Mi estado» haces tu chequeo de 30 segundos (sueño, energía, ánimo, dolor muscular y estrés), reportas una molestia y ves una gráfica de cómo te has sentido, diaria, semanal o mensual, con lo que falla y lo que va bien. Tu coach lo ve para ajustar la carga.',actions:inApp()?[['Ir a Mi estado',go('goals')]]:[]})},
   {keys:['encuesta','como me fue','como me senti','notificacion','aviso diario'],answer:()=>({text:'Después de cada entrenamiento, al abrir CORDA te llega la pregunta «¿Cómo te fue hoy?». Tu respuesta calcula tu porcentaje del día. Tu coach responde lo mismo sobre ti.',actions:isPlayerSide()?[['Responder ahora',()=>{close();openPlayerCheckin()}]]:[]})},
   {keys:['torneo','competencia','competir','partido'],answer:()=>({text:'En Inicio o en tu plan, toca «Añadir torneo». CORDA arma la cuenta regresiva y las etapas de preparación.',actions:isPlayerSide()?[['Abrir mi plan',go('calendar')]]:[]})},
   {keys:['agendar una cita','agendar cita','cita con','cita','junta','reunion','hablar con mi coach','director'],answer:()=>({text:'En Inicio, la tarjeta «Citas con la academia» te deja elegir con quién reunirte y ver los horarios libres.',actions:inApp()?[['Ir a Inicio',go('home')]]:[]})},
@@ -331,7 +334,7 @@ function monthlyReviewCard(){
   const last=Object.entries(state.reviews).sort(([a],[b])=>b.localeCompare(a))[0];
   return `<section class="card coach-month"><small class="eyebrow">Seguimiento del coach</small><h2>Tu balance del mes</h2><small class="review-period">${assessment?dateLabel(key+'-01',{month:'long',year:'numeric'}):'Ejemplo · Leonardo · Octubre 2026'}</small><div class="monthly-gain"><b><span class="gain-check" aria-hidden="true">✓</span>Lo que mejoraste</b><p>${esc(note.good)}</p></div><div><b>Tu siguiente ajuste</b><p>${esc(note.focus)}</p></div>
   ${last?`<p class="hint">Última corrección · ${dateLabel(last[0],{day:'numeric',month:'short'})}<br>${esc(last[1].focus)}</p>`:''}
-  <button data-page="goals" class="link">Ver análisis del coach ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
+  <button data-page="goals" class="link">Ver mi estado ↗</button>${role==='Coach'?'<button class="link" id="edit-month">Evaluar este mes</button><button class="link" id="review-today">Evaluar hoy</button>':''}</section>`;
 }
 function bindAnnual(){
   const edit=document.querySelector('#edit-month');
@@ -387,7 +390,7 @@ function onboarding(){
  {title:`¿Dónde juegas${first?', '+esc(first):''}?`,desc:'Tu academia será el punto de encuentro con tu coach.',body:`${academySelect('academy',draft.academy,{label:'Tu academia'})}<p class="wizard-helper">Tu academia te da un código de acceso al registrarte. Si no lo tienes, pídeselo a tu coach.</p>`},
  {title:'¿Cómo construyes un punto?',desc:'Elige la frase que más se parece a ti en la cancha.',body:choices('style',identities,draft.style)},
  {title:'Tu compañera de cancha.',desc:'Cuéntanos con qué juegas.',body:`<label>Tu raqueta <span class="optional">(opcional)</span><input name="racket" value="${esc(draft.racket||'')}" maxlength="120" placeholder="Ej. HEAD Speed MP" autocomplete="off"></label><label class="utr-field">Mano dominante</label>${choices('hand',[['Diestro','Mano derecha'],['Zurdo','Mano izquierda'],['Ambidiestro','Ambas manos']],draft.hand||'Diestro')}`},
- {title:'¿Cuál es tu próximo paso?',desc:'Escribe una meta concreta. Será tu 100 % en «Análisis del coach».',body:`<div class="goal-tips"><b>Una buena meta dice tres cosas:</b><ul><li><span>Qué</span> quieres lograr</li><li><span>Cuánto</span>: un número que se pueda medir</li><li><span>Para cuándo</span>: una fecha o un torneo</li></ul></div><label>Quiero…<textarea name="goal" required maxlength="400" placeholder="Ej. Meter 7 de cada 10 segundos saques en partido antes de marzo.">${esc(draft.goal||'')}</textarea></label><p class="wizard-helper">Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».</p>`},
+ {title:'¿Cuál es tu próximo paso?',desc:'Escribe una meta concreta. Tu coach la verá en tu perfil y se usará para medir tu progreso.',body:`<div class="goal-tips"><b>Una buena meta dice tres cosas:</b><ul><li><span>Qué</span> quieres lograr</li><li><span>Cuánto</span>: un número que se pueda medir</li><li><span>Para cuándo</span>: una fecha o un torneo</li></ul></div><label>Quiero…<textarea name="goal" required maxlength="400" placeholder="Ej. Meter 7 de cada 10 segundos saques en partido antes de marzo.">${esc(draft.goal||'')}</textarea></label><p class="wizard-helper">Tu coach y tú medirán tu avance contra esta meta. Podrás cambiarla después en «Mi perfil».</p>`},
  {title:'Ponle cara a tu juego.',desc:'Una foto para que tu coach te reconozca. Tú decides.',body:`<div class="wizard-photo"><div id="photo-preview">${avatar({...draft,name:first})}</div><label class="photo-picker">${draft.photo?'Cambiar foto':'Elegir una foto'}<input id="photo" type="file" accept="image/png,image/jpeg"></label><small>JPG o PNG · Máximo 2 MB</small>${draft.photo?'<button type="button" id="removephoto" class="link">Quitar foto</button>':''}</div>`}
  ];
  if(!$('#wizard-panel')){
@@ -1335,7 +1338,7 @@ function dailyGreeting(){
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
 Mi plan|My plan|Mon programme
-Análisis del coach|Coach analysis|Analyse du coach
+Mi estado|My condition|Mon état
 Mi academia|My academy|Mon académie
 Mensualidad|Monthly fees|Mensualité
 Tu academia|Your academy|Votre académie
@@ -1395,7 +1398,7 @@ Ejemplo|Example|Exemple
 Octubre 2026|October 2026|Octobre 2026
 Lo que mejoraste|What you improved|Vos progrès
 Tu siguiente ajuste|Your next adjustment|Votre prochain axe de travail
-Ver análisis del coach ↗|View coach analysis ↗|Voir l’analyse du coach ↗
+Ver mi estado ↗|View my condition ↗|Voir mon état ↗
 Pendiente|Pending|En attente
 Ver mensualidad ↗|View monthly fees ↗|Voir la mensualité ↗
 Comunicación|Communication|Communication
@@ -1822,14 +1825,14 @@ Cuéntanos con qué juegas.|Tell us what you play with.|Dites-nous avec quoi vou
 Tu raqueta|Your racket|Votre raquette
 TU OBJETIVO|YOUR GOAL|VOTRE OBJECTIF
 ¿Cuál es tu próximo paso?|What is your next step?|Quelle est votre prochaine étape ?
-Escribe una meta concreta. Será tu 100 % en «Análisis del coach».|Write a specific goal. It will be your 100% in “Coach analysis”.|Écrivez un objectif concret. Ce sera votre 100 % dans « Analyse du coach ».
+Escribe una meta concreta. Tu coach la verá en tu perfil y se usará para medir tu progreso.|Write a specific goal. Your coach will see it in your profile and it will be used to measure your progress.|Écrivez un objectif concret. Votre coach le verra dans votre profil et il servira à mesurer votre progression.
 Una buena meta dice tres cosas:|A good goal says three things:|Un bon objectif dit trois choses :
 Qué|What|Quoi
 Cuánto|How much|Combien
 : un número que se pueda medir|: a number you can measure|: un chiffre mesurable
 Para cuándo|By when|Pour quand
 : una fecha o un torneo|: a date or a tournament|: une date ou un tournoi
-Tu coach y tú medirán tu avance contra esta meta en las gráficas. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal in the charts. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif dans les graphiques. Vous pourrez le modifier plus tard dans « Mon profil ».
+Tu coach y tú medirán tu avance contra esta meta. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif. Vous pourrez le modifier plus tard dans « Mon profil ».
 TU FOTO|YOUR PHOTO|VOTRE PHOTO
 Ponle cara a tu juego.|Put a face to your game.|Donnez un visage à votre jeu.
 Una foto para que tu coach te reconozca. Tú decides.|A photo so your coach recognizes you. It is up to you.|Une photo pour que votre coach vous reconnaisse. C’est vous qui décidez.
@@ -2207,7 +2210,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109u"><link rel="stylesheet" href="style.css?v=20261109u"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109u"><link rel="stylesheet" href="styles/ace.css?v=20261109u"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109u"></script><script src="resenas.js?v=20261109u"></script><script src="portada.js?v=20261109u"></script><script src="community.js?v=20261109u"></script><script src="session-guide.js?v=20261109u"></script><script src="annual-progress.js?v=20261109u"></script><script src="progress-hub.js?v=20261109u"></script><script src="meetings.js?v=20261109u"></script><script src="monthly-fees.js?v=20261109u"></script><script src="portal.js?v=20261109u"></script><script src="private-payments.js?v=20261109u"></script><script src="roles.js?v=20261109u"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109u"></script><script src="legal.js?v=20261109u"></script><script src="auth.js?v=20261109u"></script><script src="sync.js?v=20261109u"></script><script src="guardian.js?v=20261109u"></script><script src="access.js?v=20261109u"></script><script src="backup.js?v=20261109u"></script><script src="wellness.js?v=20261109u"></script><script src="videos.js?v=20261109u"></script><script src="physical.js?v=20261109u"></script><script src="calendar.js?v=20261109u"></script><script src="sobre-corda.js?v=20261109u"></script><script src="app.js?v=20261109u"></script><script src="ace.js?v=20261109u"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109w"><link rel="stylesheet" href="style.css?v=20261109w"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109w"><link rel="stylesheet" href="styles/ace.css?v=20261109w"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109w"></script><script src="resenas.js?v=20261109w"></script><script src="portada.js?v=20261109w"></script><script src="community.js?v=20261109w"></script><script src="session-guide.js?v=20261109w"></script><script src="annual-progress.js?v=20261109w"></script><script src="progress-hub.js?v=20261109w"></script><script src="meetings.js?v=20261109w"></script><script src="monthly-fees.js?v=20261109w"></script><script src="portal.js?v=20261109w"></script><script src="private-payments.js?v=20261109w"></script><script src="roles.js?v=20261109w"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109w"></script><script src="legal.js?v=20261109w"></script><script src="auth.js?v=20261109w"></script><script src="sync.js?v=20261109w"></script><script src="guardian.js?v=20261109w"></script><script src="access.js?v=20261109w"></script><script src="backup.js?v=20261109w"></script><script src="wellness.js?v=20261109w"></script><script src="videos.js?v=20261109w"></script><script src="physical.js?v=20261109w"></script><script src="calendar.js?v=20261109w"></script><script src="sobre-corda.js?v=20261109w"></script><script src="app.js?v=20261109w"></script><script src="ace.js?v=20261109w"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -2982,7 +2985,7 @@ function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
+  return heading('Mi estado',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
 }
 function bindPortal() {
   bindAnnual();
@@ -3626,7 +3629,7 @@ function useAthlete(member){
   state.profile=a.profile;state.reviews=a.reviews;state.goals=a.goals;
 }
 function roleNav(){
-  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Análisis del coach','Mi academia','Mensualidad'];
+  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Mi estado','Mi academia','Mensualidad'];
   return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'appointments':'payments',role==='Coach'?'calendar':'wallet']].map(([id,i],n)=>[id,i,labels[n]]).concat(role==='Coach'?[['private-payments','wallet','Pagos privados']]:[]).concat([['profile','profile','Mi perfil']]);
 }
 function pickRole(mode){
@@ -5776,7 +5779,7 @@ document.addEventListener('click',event=>{
 ## Archivo: `dist/wellness.js`
 
 ````javascript
-// Estado físico del jugador, dentro de «Análisis del coach».
+// Estado físico del jugador, dentro de «Mi estado» (antes «Análisis del coach»).
 // Tres cosas que un jugador de competencia necesita y el coach necesita ver:
 //   1. Chequeo diario de 30 segundos (sueño, energía, ánimo, dolor muscular, estrés y molestias): state.checkins[jugador].wellness['AAAA-MM-DD'].
 //   2. Esfuerzo de cada sesión (1 a 10) en la encuesta de después del entrenamiento (progress-hub.js): carga = esfuerzo × minutos.
