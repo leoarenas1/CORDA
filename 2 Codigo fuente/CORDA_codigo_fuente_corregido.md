@@ -52,6 +52,8 @@ Estado físico del jugador en Análisis del coach (wellness.js, SQL 13): chequeo
 
 Análisis del coach: se quitan los porcentajes de meta y se agrega la gráfica de cómo se siente el jugador (diaria, semanal y mensual) con qué falla y qué va bien.
 
+Análisis del coach: tarjeta con los últimos comentarios del coach para el jugador.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1940,7 +1942,12 @@ Músculos|Muscles|Muscles
 Estrés|Stress|Stress
 Todavía no hay chequeos en este periodo.|There are no check-ins in this period yet.|Il n’y a pas encore de bilans sur cette période.
 Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.|Each bar goes from 0 (worst) to 100 (best). For Muscles and Stress, 100 means no muscle soreness and no stress.|Chaque barre va de 0 (le pire) à 100 (le meilleur). Pour Muscles et Stress, 100 signifie aucune courbature et aucun stress.
-Datos de ejemplo|Sample data|Données d’exemple`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Datos de ejemplo|Sample data|Données d’exemple
+Comentarios de tu coach|Comments from your coach|Commentaires de votre coach
+Lo último que anotó tu coach|The latest notes from your coach|Les dernières notes de votre coach
+Lo que mejoró|What improved|Ce qui s’est amélioré
+Siguiente ajuste|Next adjustment|Prochain ajustement
+Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -2198,7 +2205,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109r"><link rel="stylesheet" href="style.css?v=20261109r"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109r"><link rel="stylesheet" href="styles/ace.css?v=20261109r"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109r"></script><script src="resenas.js?v=20261109r"></script><script src="portada.js?v=20261109r"></script><script src="community.js?v=20261109r"></script><script src="session-guide.js?v=20261109r"></script><script src="annual-progress.js?v=20261109r"></script><script src="progress-hub.js?v=20261109r"></script><script src="meetings.js?v=20261109r"></script><script src="monthly-fees.js?v=20261109r"></script><script src="portal.js?v=20261109r"></script><script src="private-payments.js?v=20261109r"></script><script src="roles.js?v=20261109r"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109r"></script><script src="legal.js?v=20261109r"></script><script src="auth.js?v=20261109r"></script><script src="sync.js?v=20261109r"></script><script src="guardian.js?v=20261109r"></script><script src="access.js?v=20261109r"></script><script src="backup.js?v=20261109r"></script><script src="wellness.js?v=20261109r"></script><script src="videos.js?v=20261109r"></script><script src="physical.js?v=20261109r"></script><script src="calendar.js?v=20261109r"></script><script src="sobre-corda.js?v=20261109r"></script><script src="app.js?v=20261109r"></script><script src="ace.js?v=20261109r"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109t"><link rel="stylesheet" href="style.css?v=20261109t"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109t"><link rel="stylesheet" href="styles/ace.css?v=20261109t"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109t"></script><script src="resenas.js?v=20261109t"></script><script src="portada.js?v=20261109t"></script><script src="community.js?v=20261109t"></script><script src="session-guide.js?v=20261109t"></script><script src="annual-progress.js?v=20261109t"></script><script src="progress-hub.js?v=20261109t"></script><script src="meetings.js?v=20261109t"></script><script src="monthly-fees.js?v=20261109t"></script><script src="portal.js?v=20261109t"></script><script src="private-payments.js?v=20261109t"></script><script src="roles.js?v=20261109t"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109t"></script><script src="legal.js?v=20261109t"></script><script src="auth.js?v=20261109t"></script><script src="sync.js?v=20261109t"></script><script src="guardian.js?v=20261109t"></script><script src="access.js?v=20261109t"></script><script src="backup.js?v=20261109t"></script><script src="wellness.js?v=20261109t"></script><script src="videos.js?v=20261109t"></script><script src="physical.js?v=20261109t"></script><script src="calendar.js?v=20261109t"></script><script src="sobre-corda.js?v=20261109t"></script><script src="app.js?v=20261109t"></script><script src="ace.js?v=20261109t"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -2973,7 +2980,7 @@ function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
+  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+coachCommentsCard(state.profile.memberId)+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
 }
 function bindPortal() {
   bindAnnual();
@@ -6019,6 +6026,30 @@ document.addEventListener('click',event=>{
     save();render();toast('Listo. Se lo avisamos a tu coach.');
   }
 });
+
+// ---------- Comentarios del coach (lo último que anotó el coach sobre el jugador) ----------
+// Fuentes: la evaluación del coach de cada día (checkins.coach), «Evaluar jugador» (reviews) y la evaluación mensual (monthlyReviews).
+function coachComments(id,limit=3){
+  const list=[],athlete=state.athletes?.[id];
+  for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+  }
+  for(const [day,r] of Object.entries(athlete?.reviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:month+'-28'>localDay()?localDay():month+'-28',label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  // Un mismo día puede venir de dos fuentes: se queda la primera (la más reciente por fecha).
+  const seen=new Set();
+  return list.sort((a,b)=>b.date.localeCompare(a.date)).filter(c=>{const k=c.date+'|'+c.good+'|'+c.focus;if(seen.has(k))return false;seen.add(k);return true}).slice(0,limit);
+}
+function coachCommentsCard(id){
+  const items=coachComments(id);
+  return `<section class="card coach-comments"><small class="eyebrow">Comentarios de tu coach</small><h2>Lo último que anotó tu coach</h2>
+    ${items.length?items.map(c=>`<article class="progress-entry"><small>${esc(c.label)}${c.by?' · '+esc(c.by):''}</small>
+      ${c.good?`<b>Lo que mejoró</b><p>${esc(c.good)}</p>`:''}${c.focus?`<b>Siguiente ajuste</b><p>${esc(c.focus)}</p>`:''}</article>`).join(''):'<p class="hint">Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.</p>'}</section>`;
+}
 ````
 
 ## Archivo: `ASSET_CREDITS.md`

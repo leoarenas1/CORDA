@@ -610,7 +610,12 @@ Músculos|Muscles|Muscles
 Estrés|Stress|Stress
 Todavía no hay chequeos en este periodo.|There are no check-ins in this period yet.|Il n’y a pas encore de bilans sur cette période.
 Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.|Each bar goes from 0 (worst) to 100 (best). For Muscles and Stress, 100 means no muscle soreness and no stress.|Chaque barre va de 0 (le pire) à 100 (le meilleur). Pour Muscles et Stress, 100 signifie aucune courbature et aucun stress.
-Datos de ejemplo|Sample data|Données d’exemple`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Datos de ejemplo|Sample data|Données d’exemple
+Comentarios de tu coach|Comments from your coach|Commentaires de votre coach
+Lo último que anotó tu coach|The latest notes from your coach|Les dernières notes de votre coach
+Lo que mejoró|What improved|Ce qui s’est amélioré
+Siguiente ajuste|Next adjustment|Prochain ajustement
+Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){

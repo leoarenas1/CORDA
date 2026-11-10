@@ -253,3 +253,27 @@ document.addEventListener('click',event=>{
     save();render();toast('Listo. Se lo avisamos a tu coach.');
   }
 });
+
+// ---------- Comentarios del coach (lo último que anotó el coach sobre el jugador) ----------
+// Fuentes: la evaluación del coach de cada día (checkins.coach), «Evaluar jugador» (reviews) y la evaluación mensual (monthlyReviews).
+function coachComments(id,limit=3){
+  const list=[],athlete=state.athletes?.[id];
+  for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+  }
+  for(const [day,r] of Object.entries(athlete?.reviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
+    if(r&&(r.good||r.focus))list.push({date:month+'-28'>localDay()?localDay():month+'-28',label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''});
+  }
+  // Un mismo día puede venir de dos fuentes: se queda la primera (la más reciente por fecha).
+  const seen=new Set();
+  return list.sort((a,b)=>b.date.localeCompare(a.date)).filter(c=>{const k=c.date+'|'+c.good+'|'+c.focus;if(seen.has(k))return false;seen.add(k);return true}).slice(0,limit);
+}
+function coachCommentsCard(id){
+  const items=coachComments(id);
+  return `<section class="card coach-comments"><small class="eyebrow">Comentarios de tu coach</small><h2>Lo último que anotó tu coach</h2>
+    ${items.length?items.map(c=>`<article class="progress-entry"><small>${esc(c.label)}${c.by?' · '+esc(c.by):''}</small>
+      ${c.good?`<b>Lo que mejoró</b><p>${esc(c.good)}</p>`:''}${c.focus?`<b>Siguiente ajuste</b><p>${esc(c.focus)}</p>`:''}</article>`).join(''):'<p class="hint">Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.</p>'}</section>`;
+}

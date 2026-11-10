@@ -156,7 +156,7 @@ function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
+  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+coachCommentsCard(state.profile.memberId)+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
 }
 function bindPortal() {
   bindAnnual();
