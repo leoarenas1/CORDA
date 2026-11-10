@@ -894,3 +894,6 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .well-meter i.ok{background:#2E7D32}.well-meter i.mid{background:#B7791F}.well-meter i.low{background:#B42318}.well-meter i.none{background:transparent}
 .well-factor b{text-align:right;font-family:var(--font-display)}
 .well-summary{margin:var(--space-2) 0}
+
+/* Espacio entre las tarjetas de Análisis del coach */
+.wellness,.well-trend{margin-bottom:var(--space-6)}
