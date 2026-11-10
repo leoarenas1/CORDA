@@ -261,13 +261,13 @@ document.addEventListener('click',event=>{
 function coachLatest(id){
   const list=[],athlete=state.athletes?.[id],today=localDay();
   for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
-    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||'',video:c.video||''});
   }
   for(const [day,r] of Object.entries(athlete?.reviews||{})){
-    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:'',video:r.video||''});
   }
   for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
-    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''})}
+    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:'',video:r.video||''})}
   }
   return list.sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
 }
@@ -281,11 +281,70 @@ function shortNote(text,max=70){
   if(clause&&clause[0].trim().length<=max)return clause[0].trim().replace(/[,;:]$/,'');
   return clean.slice(0,max).replace(/\s+\S*$/,'')+'…';
 }
+// ---------- Videos que ayudan con el siguiente ajuste ----------
+// 1) Si el coach eligió un video al evaluar, se muestra ese. 2) Si no, la app busca palabras del ajuste (saque, revés, volea…)
+// y enlaza a esa categoría de la biblioteca de videos. Al tocar, lleva a la biblioteca ya filtrada.
+const FOLLOW_KEYWORDS=[
+  ['Tenis','Saque',['saque','servicio','servir','ace']],
+  ['Tenis','Derecha',['derecha','drive','forehand']],
+  ['Tenis','Revés',['reves','backhand']],
+  ['Tenis','Volea y red',['volea','en la red','a la red','aproximacion','remate','smash']],
+  ['Tenis','Devolución',['devolucion','resto','restar']],
+  ['Tenis','Táctica',['tactica','patron','estrategia','direccion','profundidad','bola corta']],
+  ['Tenis','Mental',['mental','concentracion','nervios','presion','confianza','actitud']],
+  ['Tenis','Partidos',['partido','competencia','torneo','marcador']],
+  ['Físico','Fuerza',['fuerza','pesas','potencia']],
+  ['Físico','Pliometría',['pliometria','salto','saltos','explosiv']],
+  ['Físico','Agilidad',['agilidad','desplazamiento','pies','footwork','primer paso','velocidad']],
+  ['Físico','Cardio',['cardio','resistencia','aguante','fondo fisico']],
+  ['Físico','Core',['core','abdomen','abdominal','estabilidad']],
+  ['Físico','Movilidad',['movilidad','flexibilidad','estiramiento']],
+  ['Físico','Prevención de lesiones',['lesion','prevencion','hombro','rodilla','espalda']]
+];
+const followNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function followSuggestions(text){
+  const t=followNorm(text),found=[];
+  for(const [area,category,words] of FOLLOW_KEYWORDS){
+    let first=-1;
+    for(const word of words){
+      const at=t.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
+      if(at>=0&&(first<0||at<first))first=at;
+    }
+    if(first>=0)found.push({area,category,at:first});
+  }
+  return found.sort((a,b)=>a.at-b.at).slice(0,2);
+}
+const followCount=(area,category)=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category).length;
+function goVideoLibrary(area,category){
+  videoFilters[area]=category;
+  page=area==='Físico'?'gym':'training';
+  render();window.scrollTo(0,0);
+  setTimeout(()=>document.querySelector('.video-library')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+// Campo para el coach en los formularios de evaluación: elegir un video de la biblioteca (opcional).
+function videoPickField(current=''){
+  const videos=state.videos||[];
+  if(!videos.length)return '';
+  return `<label class="full">Video recomendado <span class="optional">(opcional)</span><select name="video"><option value="">Sin video: la app sugiere por palabra clave</option>${videos.map(v=>`<option value="${esc(videoKey(v))}" ${videoKey(v)===current?'selected':''}>${esc(v.title)}${v.category?' · '+esc(v.category):''}</option>`).join('')}</select></label>`;
+}
+function followLinks(item,example){
+  const chosen=item.video?(state.videos||[]).find(v=>videoKey(v)===item.video):null;
+  if(chosen)return `<div class="follow-links"><button type="button" class="follow-video" data-follow-video="${esc(videoKey(chosen))}">▶ Ver video: ${esc(chosen.title)}</button></div>`;
+  const chips=followSuggestions(item.focus).filter(s=>example||followCount(s.area,s.category)>0);
+  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-area="${s.area}">▶ Videos de ${s.category}${n?' ('+n+')':''}</button>`}).join('')}</div>`:'';
+}
 function coachFollowCard(id){
-  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:''};
+  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:'',video:''};
   return `<section class="card coach-follow"><small class="eyebrow">Seguimiento del coach${example?' · Ejemplo':item.label?' · '+esc(item.label):''}</small>
     <div class="follow-grid">
       <div class="follow-box is-good"><span class="follow-icon" aria-hidden="true">✓</span><b>Mejoraste</b><p>${esc(shortNote(item.good))||'—'}</p></div>
-      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p></div>
+      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p>${followLinks(item,example)}</div>
     </div>${item.by?`<small class="muted follow-by">${esc(item.by)}</small>`:''}</section>`;
 }
+document.addEventListener('click',event=>{
+  const t=event.target;
+  const video=t.closest?.('[data-follow-video]');
+  if(video){playVideo(video.dataset.followVideo);return}
+  const cat=t.closest?.('[data-follow-cat]');
+  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat);
+});

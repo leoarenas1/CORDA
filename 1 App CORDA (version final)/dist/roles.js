@@ -183,15 +183,15 @@ function bindRoleActions(){
     const record=athleteFor(member),today=localDay(),old=record.reviews[today]||{};
     const month=today.slice(0,7);
     const monthly=record.profile.monthlyReviews||{};
-    modal('Evaluar a '+esc(member.name),'<label>Mes evaluado<input required type="month" name="month" max="'+month+'" value="'+month+'"></label><label>Preparación para el objetivo (%)<input required type="number" min="0" max="100" step="1" name="score"></label><label class="full">Objetivo evaluado<textarea name="goal" maxlength="400" required></textarea></label><label class="full">Qué hizo bien<textarea name="good" maxlength="600" required></textarea></label><label class="full">Qué trabajar después<textarea name="focus" maxlength="600" required></textarea></label>',data=>{
+    modal('Evaluar a '+esc(member.name),'<label>Mes evaluado<input required type="month" name="month" max="'+month+'" value="'+month+'"></label><label>Preparación para el objetivo (%)<input required type="number" min="0" max="100" step="1" name="score"></label><label class="full">Objetivo evaluado<textarea name="goal" maxlength="400" required></textarea></label><label class="full">Qué hizo bien<textarea name="good" maxlength="600" required></textarea></label><label class="full">Qué trabajar después<textarea name="focus" maxlength="600" required></textarea></label>'+videoPickField(''),data=>{
       const score=Number(data.score);
       if(!Number.isInteger(score)||score<0||score>100||data.month>month)return false;
       record.profile.monthlyReviews??={};
-      record.profile.monthlyReviews[data.month]={score,goal:data.goal,good:data.good,focus:data.focus};
+      record.profile.monthlyReviews[data.month]={score,goal:data.goal,good:data.good,focus:data.focus,video:data.video||''};
       if(data.month===month){
         record.profile.goal=data.goal;
         record.profile.baseline??={date:today,strengths:data.good,priority:data.focus};
-        record.reviews[today]={...old,good:data.good,focus:data.focus};
+        record.reviews[today]={...old,good:data.good,focus:data.focus,video:data.video||''};
       }
     });
     const inputs=$('#modalform').elements;
@@ -201,6 +201,7 @@ function bindRoleActions(){
       inputs.goal.value=item.goal??record.profile.goal??'';
       inputs.good.value=item.good??(inputs.month.value===month?old.good||'':'');
       inputs.focus.value=item.focus??(inputs.month.value===month?old.focus||'':'');
+      if(inputs.video)inputs.video.value=item.video??(inputs.month.value===month?old.video||'':'');
     }
     inputs.month.onchange=loadMonth;loadMonth();
   };

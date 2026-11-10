@@ -253,10 +253,10 @@ function openCoachCheckin(member,queue){
     <p class="full hint">Su meta: «${esc(record.profile.goal||'sin definir')}». 100 % = la logró.</p>
     ${scoreField('Hoy, ¿qué tan cerca estuvo de su meta?',old.score??lastScore(store.coach))}
     <label class="full">¿Qué mejoró hoy? <span class="optional">(opcional)</span><textarea name="good" maxlength="300">${esc(old.good)}</textarea></label>
-    <label class="full">¿Qué le falta? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label></div>`,
+    <label class="full">¿Qué le falta? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label>${videoPickField(old.video)}</div>`,
     data=>{
       // Si no asistió, solo se guarda la falta: no cuenta para la gráfica.
-      store.coach[today]=data.attended==='no'?{attended:false,by:actor()?.name||'Coach',at:Date.now()}:{attended:true,score:Number(data.score),good:data.good.trim(),missing:data.missing.trim(),by:actor()?.name||'Coach',at:Date.now()};hubPick=null;
+      store.coach[today]=data.attended==='no'?{attended:false,by:actor()?.name||'Coach',at:Date.now()}:{attended:true,score:Number(data.score),good:data.good.trim(),missing:data.missing.trim(),video:data.video||'',by:actor()?.name||'Coach',at:Date.now()};hubPick=null;
       if(queue.length)setTimeout(()=>openCoachCheckin(queue[0],queue.slice(1)),0);
     },
     queue.length?'Guardar y seguir':'Guardar');

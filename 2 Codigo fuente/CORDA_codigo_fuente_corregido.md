@@ -60,6 +60,8 @@ Análisis del coach: se quita la tarjeta de comentarios y se separan las dos tar
 
 Mi estado: tarjeta corta de seguimiento del coach al final (mejoraste y siguiente ajuste).
 
+Seguimiento del coach: enlace a videos de la biblioteca según el siguiente ajuste (palabras clave o video elegido por el coach).
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1955,7 +1957,11 @@ Lo último que anotó tu coach|The latest notes from your coach|Les dernières n
 Lo que mejoró|What improved|Ce qui s’est amélioré
 Siguiente ajuste|Next adjustment|Prochain ajustement
 Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.
-Mejoraste|You improved|Vous avez progressé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Mejoraste|You improved|Vous avez progressé
+Saque|Serve|Service
+Revés|Backhand|Revers
+Video recomendado|Recommended video|Vidéo recommandée
+Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -2020,6 +2026,8 @@ const dashboardPatterns=[
   [/^(\d+) días? con molestia$/,(m,i)=>i?`${m[1]} jour${dashboardS(m[1],"","s")} avec gêne`:`${m[1]} day${dashboardS(m[1],"","s")} with discomfort`],
   [/^(Sueño|Energía|Ánimo|Músculos|Estrés) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
   [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
+  [/^▶ Videos de (.+?)( \(\d+\))?$/,(m,i)=>`▶ ${i?'Vidéos : ':''}${dashboardLabels.get(m[1])?.[i]||m[1]}${i?'':' videos'}${m[2]||''}`],
+  [/^▶ Ver video: (.+)$/,(m,i)=>i?`▶ Voir la vidéo : ${m[1]}`:`▶ Watch video: ${m[1]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
@@ -2213,7 +2221,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109z"><link rel="stylesheet" href="style.css?v=20261109z"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109z"><link rel="stylesheet" href="styles/ace.css?v=20261109z"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109z"></script><script src="resenas.js?v=20261109z"></script><script src="portada.js?v=20261109z"></script><script src="community.js?v=20261109z"></script><script src="session-guide.js?v=20261109z"></script><script src="annual-progress.js?v=20261109z"></script><script src="progress-hub.js?v=20261109z"></script><script src="meetings.js?v=20261109z"></script><script src="monthly-fees.js?v=20261109z"></script><script src="portal.js?v=20261109z"></script><script src="private-payments.js?v=20261109z"></script><script src="roles.js?v=20261109z"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109z"></script><script src="legal.js?v=20261109z"></script><script src="auth.js?v=20261109z"></script><script src="sync.js?v=20261109z"></script><script src="guardian.js?v=20261109z"></script><script src="access.js?v=20261109z"></script><script src="backup.js?v=20261109z"></script><script src="wellness.js?v=20261109z"></script><script src="videos.js?v=20261109z"></script><script src="physical.js?v=20261109z"></script><script src="calendar.js?v=20261109z"></script><script src="sobre-corda.js?v=20261109z"></script><script src="app.js?v=20261109z"></script><script src="ace.js?v=20261109z"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109zc"><link rel="stylesheet" href="style.css?v=20261109zc"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109zc"><link rel="stylesheet" href="styles/ace.css?v=20261109zc"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109zc"></script><script src="resenas.js?v=20261109zc"></script><script src="portada.js?v=20261109zc"></script><script src="community.js?v=20261109zc"></script><script src="session-guide.js?v=20261109zc"></script><script src="annual-progress.js?v=20261109zc"></script><script src="progress-hub.js?v=20261109zc"></script><script src="meetings.js?v=20261109zc"></script><script src="monthly-fees.js?v=20261109zc"></script><script src="portal.js?v=20261109zc"></script><script src="private-payments.js?v=20261109zc"></script><script src="roles.js?v=20261109zc"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109zc"></script><script src="legal.js?v=20261109zc"></script><script src="auth.js?v=20261109zc"></script><script src="sync.js?v=20261109zc"></script><script src="guardian.js?v=20261109zc"></script><script src="access.js?v=20261109zc"></script><script src="backup.js?v=20261109zc"></script><script src="wellness.js?v=20261109zc"></script><script src="videos.js?v=20261109zc"></script><script src="physical.js?v=20261109zc"></script><script src="calendar.js?v=20261109zc"></script><script src="sobre-corda.js?v=20261109zc"></script><script src="app.js?v=20261109zc"></script><script src="ace.js?v=20261109zc"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -3503,10 +3511,10 @@ function openCoachCheckin(member,queue){
     <p class="full hint">Su meta: «${esc(record.profile.goal||'sin definir')}». 100 % = la logró.</p>
     ${scoreField('Hoy, ¿qué tan cerca estuvo de su meta?',old.score??lastScore(store.coach))}
     <label class="full">¿Qué mejoró hoy? <span class="optional">(opcional)</span><textarea name="good" maxlength="300">${esc(old.good)}</textarea></label>
-    <label class="full">¿Qué le falta? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label></div>`,
+    <label class="full">¿Qué le falta? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label>${videoPickField(old.video)}</div>`,
     data=>{
       // Si no asistió, solo se guarda la falta: no cuenta para la gráfica.
-      store.coach[today]=data.attended==='no'?{attended:false,by:actor()?.name||'Coach',at:Date.now()}:{attended:true,score:Number(data.score),good:data.good.trim(),missing:data.missing.trim(),by:actor()?.name||'Coach',at:Date.now()};hubPick=null;
+      store.coach[today]=data.attended==='no'?{attended:false,by:actor()?.name||'Coach',at:Date.now()}:{attended:true,score:Number(data.score),good:data.good.trim(),missing:data.missing.trim(),video:data.video||'',by:actor()?.name||'Coach',at:Date.now()};hubPick=null;
       if(queue.length)setTimeout(()=>openCoachCheckin(queue[0],queue.slice(1)),0);
     },
     queue.length?'Guardar y seguir':'Guardar');
@@ -3789,15 +3797,15 @@ function bindRoleActions(){
     const record=athleteFor(member),today=localDay(),old=record.reviews[today]||{};
     const month=today.slice(0,7);
     const monthly=record.profile.monthlyReviews||{};
-    modal('Evaluar a '+esc(member.name),'<label>Mes evaluado<input required type="month" name="month" max="'+month+'" value="'+month+'"></label><label>Preparación para el objetivo (%)<input required type="number" min="0" max="100" step="1" name="score"></label><label class="full">Objetivo evaluado<textarea name="goal" maxlength="400" required></textarea></label><label class="full">Qué hizo bien<textarea name="good" maxlength="600" required></textarea></label><label class="full">Qué trabajar después<textarea name="focus" maxlength="600" required></textarea></label>',data=>{
+    modal('Evaluar a '+esc(member.name),'<label>Mes evaluado<input required type="month" name="month" max="'+month+'" value="'+month+'"></label><label>Preparación para el objetivo (%)<input required type="number" min="0" max="100" step="1" name="score"></label><label class="full">Objetivo evaluado<textarea name="goal" maxlength="400" required></textarea></label><label class="full">Qué hizo bien<textarea name="good" maxlength="600" required></textarea></label><label class="full">Qué trabajar después<textarea name="focus" maxlength="600" required></textarea></label>'+videoPickField(''),data=>{
       const score=Number(data.score);
       if(!Number.isInteger(score)||score<0||score>100||data.month>month)return false;
       record.profile.monthlyReviews??={};
-      record.profile.monthlyReviews[data.month]={score,goal:data.goal,good:data.good,focus:data.focus};
+      record.profile.monthlyReviews[data.month]={score,goal:data.goal,good:data.good,focus:data.focus,video:data.video||''};
       if(data.month===month){
         record.profile.goal=data.goal;
         record.profile.baseline??={date:today,strengths:data.good,priority:data.focus};
-        record.reviews[today]={...old,good:data.good,focus:data.focus};
+        record.reviews[today]={...old,good:data.good,focus:data.focus,video:data.video||''};
       }
     });
     const inputs=$('#modalform').elements;
@@ -3807,6 +3815,7 @@ function bindRoleActions(){
       inputs.goal.value=item.goal??record.profile.goal??'';
       inputs.good.value=item.good??(inputs.month.value===month?old.good||'':'');
       inputs.focus.value=item.focus??(inputs.month.value===month?old.focus||'':'');
+      if(inputs.video)inputs.video.value=item.video??(inputs.month.value===month?old.video||'':'');
     }
     inputs.month.onchange=loadMonth;loadMonth();
   };
@@ -4942,6 +4951,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .follow-box.is-next{background:rgba(183,121,31,.12);border-color:rgba(183,121,31,.45)}
 .follow-box.is-next .follow-icon{background:#B7791F;color:#fff}
 .follow-by{display:block;margin-top:var(--space-3)}
+
+.follow-links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-1)}
+.follow-video{border:0;border-radius:999px;background:var(--lima);color:var(--on-lima);font:inherit;font-weight:700;font-size:var(--small-size);padding:var(--space-2) var(--space-4);cursor:pointer;text-align:left}
+.follow-video:hover,.follow-video:focus-visible{filter:brightness(1.06);outline:2px solid currentColor;outline-offset:2px}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -6059,13 +6072,13 @@ document.addEventListener('click',event=>{
 function coachLatest(id){
   const list=[],athlete=state.athletes?.[id],today=localDay();
   for(const [day,c] of Object.entries(peekCheckins(id).coach||{})){
-    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||''});
+    if(c.attended!==false&&(c.good||c.missing))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:c.good||'',focus:c.missing||'',by:c.by||'',video:c.video||''});
   }
   for(const [day,r] of Object.entries(athlete?.reviews||{})){
-    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:''});
+    if(r&&(r.good||r.focus))list.push({date:day,label:dateLabel(day,{day:'numeric',month:'long'}),good:r.good||'',focus:r.focus||'',by:'',video:r.video||''});
   }
   for(const [month,r] of Object.entries(athlete?.profile?.monthlyReviews||{})){
-    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:''})}
+    if(r&&(r.good||r.focus)){const date=month+'-28'>today?today:month+'-28';list.push({date,label:dateLabel(month+'-01',{month:'long',year:'numeric'}),good:r.good||'',focus:r.focus||'',by:'',video:r.video||''})}
   }
   return list.sort((a,b)=>b.date.localeCompare(a.date))[0]||null;
 }
@@ -6079,14 +6092,73 @@ function shortNote(text,max=70){
   if(clause&&clause[0].trim().length<=max)return clause[0].trim().replace(/[,;:]$/,'');
   return clean.slice(0,max).replace(/\s+\S*$/,'')+'…';
 }
+// ---------- Videos que ayudan con el siguiente ajuste ----------
+// 1) Si el coach eligió un video al evaluar, se muestra ese. 2) Si no, la app busca palabras del ajuste (saque, revés, volea…)
+// y enlaza a esa categoría de la biblioteca de videos. Al tocar, lleva a la biblioteca ya filtrada.
+const FOLLOW_KEYWORDS=[
+  ['Tenis','Saque',['saque','servicio','servir','ace']],
+  ['Tenis','Derecha',['derecha','drive','forehand']],
+  ['Tenis','Revés',['reves','backhand']],
+  ['Tenis','Volea y red',['volea','en la red','a la red','aproximacion','remate','smash']],
+  ['Tenis','Devolución',['devolucion','resto','restar']],
+  ['Tenis','Táctica',['tactica','patron','estrategia','direccion','profundidad','bola corta']],
+  ['Tenis','Mental',['mental','concentracion','nervios','presion','confianza','actitud']],
+  ['Tenis','Partidos',['partido','competencia','torneo','marcador']],
+  ['Físico','Fuerza',['fuerza','pesas','potencia']],
+  ['Físico','Pliometría',['pliometria','salto','saltos','explosiv']],
+  ['Físico','Agilidad',['agilidad','desplazamiento','pies','footwork','primer paso','velocidad']],
+  ['Físico','Cardio',['cardio','resistencia','aguante','fondo fisico']],
+  ['Físico','Core',['core','abdomen','abdominal','estabilidad']],
+  ['Físico','Movilidad',['movilidad','flexibilidad','estiramiento']],
+  ['Físico','Prevención de lesiones',['lesion','prevencion','hombro','rodilla','espalda']]
+];
+const followNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+function followSuggestions(text){
+  const t=followNorm(text),found=[];
+  for(const [area,category,words] of FOLLOW_KEYWORDS){
+    let first=-1;
+    for(const word of words){
+      const at=t.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
+      if(at>=0&&(first<0||at<first))first=at;
+    }
+    if(first>=0)found.push({area,category,at:first});
+  }
+  return found.sort((a,b)=>a.at-b.at).slice(0,2);
+}
+const followCount=(area,category)=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category).length;
+function goVideoLibrary(area,category){
+  videoFilters[area]=category;
+  page=area==='Físico'?'gym':'training';
+  render();window.scrollTo(0,0);
+  setTimeout(()=>document.querySelector('.video-library')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
+}
+// Campo para el coach en los formularios de evaluación: elegir un video de la biblioteca (opcional).
+function videoPickField(current=''){
+  const videos=state.videos||[];
+  if(!videos.length)return '';
+  return `<label class="full">Video recomendado <span class="optional">(opcional)</span><select name="video"><option value="">Sin video: la app sugiere por palabra clave</option>${videos.map(v=>`<option value="${esc(videoKey(v))}" ${videoKey(v)===current?'selected':''}>${esc(v.title)}${v.category?' · '+esc(v.category):''}</option>`).join('')}</select></label>`;
+}
+function followLinks(item,example){
+  const chosen=item.video?(state.videos||[]).find(v=>videoKey(v)===item.video):null;
+  if(chosen)return `<div class="follow-links"><button type="button" class="follow-video" data-follow-video="${esc(videoKey(chosen))}">▶ Ver video: ${esc(chosen.title)}</button></div>`;
+  const chips=followSuggestions(item.focus).filter(s=>example||followCount(s.area,s.category)>0);
+  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-area="${s.area}">▶ Videos de ${s.category}${n?' ('+n+')':''}</button>`}).join('')}</div>`:'';
+}
 function coachFollowCard(id){
-  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:''};
+  const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:'',video:''};
   return `<section class="card coach-follow"><small class="eyebrow">Seguimiento del coach${example?' · Ejemplo':item.label?' · '+esc(item.label):''}</small>
     <div class="follow-grid">
       <div class="follow-box is-good"><span class="follow-icon" aria-hidden="true">✓</span><b>Mejoraste</b><p>${esc(shortNote(item.good))||'—'}</p></div>
-      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p></div>
+      <div class="follow-box is-next"><span class="follow-icon" aria-hidden="true">→</span><b>Siguiente ajuste</b><p>${esc(shortNote(item.focus))||'—'}</p>${followLinks(item,example)}</div>
     </div>${item.by?`<small class="muted follow-by">${esc(item.by)}</small>`:''}</section>`;
 }
+document.addEventListener('click',event=>{
+  const t=event.target;
+  const video=t.closest?.('[data-follow-video]');
+  if(video){playVideo(video.dataset.followVideo);return}
+  const cat=t.closest?.('[data-follow-cat]');
+  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat);
+});
 ````
 
 ## Archivo: `ASSET_CREDITS.md`

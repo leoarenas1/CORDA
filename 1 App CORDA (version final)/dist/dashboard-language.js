@@ -616,7 +616,11 @@ Lo último que anotó tu coach|The latest notes from your coach|Les dernières n
 Lo que mejoró|What improved|Ce qui s’est amélioré
 Siguiente ajuste|Next adjustment|Prochain ajustement
 Tu coach todavía no te ha dejado comentarios. Aparecerán aquí después de cada evaluación.|Your coach has not left you any comments yet. They will appear here after each assessment.|Votre coach ne vous a pas encore laissé de commentaires. Ils apparaîtront ici après chaque évaluation.
-Mejoraste|You improved|Vous avez progressé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Mejoraste|You improved|Vous avez progressé
+Saque|Serve|Service
+Revés|Backhand|Revers
+Video recomendado|Recommended video|Vidéo recommandée
+Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -681,6 +685,8 @@ const dashboardPatterns=[
   [/^(\d+) días? con molestia$/,(m,i)=>i?`${m[1]} jour${dashboardS(m[1],"","s")} avec gêne`:`${m[1]} day${dashboardS(m[1],"","s")} with discomfort`],
   [/^(Sueño|Energía|Ánimo|Músculos|Estrés) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
   [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
+  [/^▶ Videos de (.+?)( \(\d+\))?$/,(m,i)=>`▶ ${i?'Vidéos : ':''}${dashboardLabels.get(m[1])?.[i]||m[1]}${i?'':' videos'}${m[2]||''}`],
+  [/^▶ Ver video: (.+)$/,(m,i)=>i?`▶ Voir la vidéo : ${m[1]}`:`▶ Watch video: ${m[1]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
