@@ -22,6 +22,7 @@ el mensaje rojo «ERROR» con el reporte es lo esperado y no deja ningún dato.
 | 2026-11-09 | 01 a 11 | Datos, códigos y registro: **69 bien, 0 fallaron** |
 | 2026-11-09 | 01 a 11 | Archivos (Storage): 41 bien, 1 falló (un archivo privado llamado `avatar.jpg` lo veía toda la academia) |
 | 2026-11-09 | 01 a 12 | Archivos (Storage), tras el ajuste 12: **42 bien, 0 fallaron** |
+| 2026-11-10 | 01 a 13 | Datos, códigos y registro, con las pruebas del chequeo de estado físico: **73 bien, 0 fallaron** |
 
 ## Alcance y límites
 
