@@ -620,7 +620,65 @@ Mejoraste|You improved|Vous avez progressé
 Saque|Serve|Service
 Revés|Backhand|Revers
 Video recomendado|Recommended video|Vidéo recommandée
-Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé
+Lanzamiento de bola|Ball toss|Lancer de balle
+Posición y pies|Position and feet|Position et pieds
+Golpe en punto alto|Hitting at the highest point|Frappe au point haut
+Primer saque|First serve|Première balle
+Segundo saque y efecto|Second serve and spin|Deuxième balle et effet
+Colocación y dirección|Placement and direction|Placement et direction
+Agarre|Grip|Prise
+Impacto|Impact|Impact
+Terminación|Follow-through|Terminaison
+Cruzada y paralela|Cross-court and down the line|Croisé et long de ligne
+Defensa|Defense|Défense
+Slice|Slice|Slice
+Volea de derecha|Forehand volley|Volée de coup droit
+Volea de revés|Backhand volley|Volée de revers
+Aproximación|Approach shot|Approche
+Remate (smash)|Overhead (smash)|Smash
+Posición en la red|Net position|Position au filet
+Posición de espera|Ready position|Position d’attente
+Primer saque del rival|Opponent’s first serve|Première balle de l’adversaire
+Segundo saque del rival|Opponent’s second serve|Deuxième balle de l’adversaire
+Colocación|Placement|Placement
+Patrones de juego|Game patterns|Schémas de jeu
+Juego de fondo|Baseline play|Jeu de fond de court
+Juego en la red|Net play|Jeu au filet
+Jugar según el rival|Playing the opponent|Jouer selon l’adversaire
+Concentración|Focus|Concentration
+Manejo de la presión|Handling pressure|Gestion de la pression
+Rutinas entre puntos|Routines between points|Routines entre les points
+Confianza|Confidence|Confiance
+Calentamiento previo|Pre-match warm-up|Échauffement avant le match
+Análisis del rival|Opponent analysis|Analyse de l’adversaire
+Revisión de un partido|Match review|Analyse d’un match
+Tren inferior|Lower body|Bas du corps
+Tren superior|Upper body|Haut du corps
+Potencia|Power|Puissance
+Saltos verticales|Vertical jumps|Sauts verticaux
+Saltos laterales|Lateral jumps|Sauts latéraux
+Cajón|Box jumps|Sauts sur caisse
+Escalera|Ladder|Échelle
+Conos|Cones|Plots
+Primer paso (split step)|First step (split step)|Premier pas (split step)
+Desplazamiento lateral|Lateral movement|Déplacement latéral
+Intervalos|Intervals|Intervalles
+Resistencia|Endurance|Endurance
+Recuperación|Recovery|Récupération
+Plancha|Plank|Gainage planche
+Rotación|Rotation|Rotation
+Estabilidad|Stability|Stabilité
+Cadera|Hip|Hanche
+Columna|Spine|Colonne vertébrale
+Calentamiento dinámico|Dynamic warm-up|Échauffement dynamique
+Muñeca y codo|Wrist and elbow|Poignet et coude
+Espalda|Back|Dos
+Sin subtema|No subtopic|Sans sous-thème
+Subtema|Subtopic|Sous-thème
+Temas|Topics|Thèmes
+Aún no hay videos en este tema. Agrégalos con «+ Agregar video» y elige el tema y el subtema.|There are no videos on this topic yet. Add them with “+ Add video” and choose the topic and subtopic.|Il n’y a pas encore de vidéos sur ce thème. Ajoutez-en avec « + Ajouter une vidéo » et choisissez le thème et le sous-thème.
+Aún no hay videos en este tema. Tu coach los irá agregando.|There are no videos on this topic yet. Your coach will add them.|Il n’y a pas encore de vidéos sur ce thème. Votre coach en ajoutera.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -687,6 +745,7 @@ const dashboardPatterns=[
   [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
   [/^▶ Videos de (.+?)( \(\d+\))?$/,(m,i)=>`▶ ${i?'Vidéos : ':''}${dashboardLabels.get(m[1])?.[i]||m[1]}${i?'':' videos'}${m[2]||''}`],
   [/^▶ Ver video: (.+)$/,(m,i)=>i?`▶ Voir la vidéo : ${m[1]}`:`▶ Watch video: ${m[1]}`],
+  [/^Subtemas de (.+)$/,(m,i)=>`${i?'Sous-thèmes de ':'Subtopics of '}${dashboardLabels.get(m[1])?.[i]||m[1]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],

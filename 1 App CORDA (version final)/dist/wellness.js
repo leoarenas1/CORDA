@@ -301,6 +301,24 @@ const FOLLOW_KEYWORDS=[
   ['Físico','Movilidad',['movilidad','flexibilidad','estiramiento']],
   ['Físico','Prevención de lesiones',['lesion','prevencion','hombro','rodilla','espalda']]
 ];
+// Palabras que indican el subtema dentro de cada tema (se compara sin acentos ni mayúsculas).
+const FOLLOW_SUBTOPICS={
+  Saque:{'Lanzamiento de bola':['lanzamiento','lanzar','toss'],'Posición y pies':['posicion','pies','stance','postura'],'Golpe en punto alto':['punto alto','contacto','impacto','golpe alto'],'Primer saque':['primer saque','primer servicio'],'Segundo saque y efecto':['segundo saque','efecto','liftado','kick','slice'],'Colocación y dirección':['colocacion','direccion','esquina','a la t']},
+  Derecha:{'Agarre':['agarre','grip'],'Preparación':['preparacion','preparar','giro'],'Impacto':['impacto','contacto'],'Terminación':['terminacion','acompanamiento'],'Cruzada y paralela':['cruzada','paralela','direccion'],'Defensa':['defensa','defender']},
+  'Revés':{'Agarre':['agarre','grip'],'Preparación':['preparacion','preparar','giro'],'Impacto':['impacto','contacto'],'Terminación':['terminacion','acompanamiento'],'Slice':['slice','cortado'],'Defensa':['defensa','defender']},
+  'Volea y red':{'Volea de derecha':['volea de derecha','volea derecha'],'Volea de revés':['volea de reves','volea reves'],'Aproximación':['aproximacion','subir a la red'],'Remate (smash)':['remate','smash'],'Posición en la red':['posicion en la red','posicion en red']},
+  'Devolución':{'Posición de espera':['posicion de espera','espera'],'Primer saque del rival':['primer saque','saque fuerte','saque rapido'],'Segundo saque del rival':['segundo saque'],'Colocación':['colocacion','direccion','profundidad']},
+  'Táctica':{'Patrones de juego':['patron','patrones'],'Juego de fondo':['fondo','consistencia'],'Juego en la red':['en la red','a la red','volea'],'Dobles':['dobles'],'Jugar según el rival':['rival','oponente','adversario']},
+  Mental:{'Concentración':['concentracion','enfoque'],'Manejo de la presión':['presion','nervios','puntos importantes'],'Rutinas entre puntos':['rutina','entre puntos'],'Confianza':['confianza','seguridad']},
+  Partidos:{'Calentamiento previo':['calentamiento'],'Análisis del rival':['rival','analisis'],'Revisión de un partido':['revision','resumen','partido']},
+  Fuerza:{'Tren inferior':['piernas','sentadilla','tren inferior'],'Tren superior':['hombros','pecho','brazos','tren superior'],'Potencia':['potencia','explosiv']},
+  'Pliometría':{'Saltos verticales':['vertical','salto'],'Saltos laterales':['lateral'],'Cajón':['cajon']},
+  Agilidad:{'Escalera':['escalera'],'Conos':['conos','cono'],'Primer paso (split step)':['primer paso','split step','split'],'Desplazamiento lateral':['lateral','desplazamiento']},
+  Cardio:{'Intervalos':['intervalo'],'Resistencia':['resistencia','aguante'],'Recuperación':['recuperacion']},
+  Core:{'Plancha':['plancha'],'Rotación':['rotacion','giro'],'Estabilidad':['estabilidad']},
+  Movilidad:{'Cadera':['cadera'],'Hombro':['hombro'],'Columna':['columna','espalda'],'Calentamiento dinámico':['calentamiento','dinamico']},
+  'Prevención de lesiones':{'Hombro':['hombro'],'Rodilla':['rodilla'],'Muñeca y codo':['muneca','codo'],'Espalda':['espalda','lumbar']}
+};
 const followNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function followSuggestions(text){
   const t=followNorm(text),found=[];
@@ -310,13 +328,23 @@ function followSuggestions(text){
       const at=t.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
       if(at>=0&&(first<0||at<first))first=at;
     }
-    if(first>=0)found.push({area,category,at:first});
+    if(first>=0)found.push({area,category,at:first,sub:followSub(category,t)});
   }
   return found.sort((a,b)=>a.at-b.at).slice(0,2);
 }
-const followCount=(area,category)=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category).length;
-function goVideoLibrary(area,category){
-  videoFilters[area]=category;
+function followSub(category,normalized){
+  let best='',bestAt=-1;
+  for(const [name,words] of Object.entries(FOLLOW_SUBTOPICS[category]||{})){
+    for(const word of words){
+      const at=normalized.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
+      if(at>=0&&(bestAt<0||at<bestAt)){best=name;bestAt=at}
+    }
+  }
+  return best;
+}
+const followCount=(area,category,sub='')=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category&&(!sub||v.subtopic===sub)).length;
+function goVideoLibrary(area,category,sub=''){
+  videoFilters[area]=category;videoSubFilters[area]=sub;
   page=area==='Físico'?'gym':'training';
   render();window.scrollTo(0,0);
   setTimeout(()=>document.querySelector('.video-library')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
@@ -330,8 +358,8 @@ function videoPickField(current=''){
 function followLinks(item,example){
   const chosen=item.video?(state.videos||[]).find(v=>videoKey(v)===item.video):null;
   if(chosen)return `<div class="follow-links"><button type="button" class="follow-video" data-follow-video="${esc(videoKey(chosen))}">▶ Ver video: ${esc(chosen.title)}</button></div>`;
-  const chips=followSuggestions(item.focus).filter(s=>example||followCount(s.area,s.category)>0);
-  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-area="${s.area}">▶ Videos de ${s.category}${n?' ('+n+')':''}</button>`}).join('')}</div>`:'';
+  const chips=followSuggestions(item.focus).map(s=>({...s,sub:s.sub&&(example||followCount(s.area,s.category,s.sub)>0)?s.sub:''})).filter(s=>example||followCount(s.area,s.category,s.sub)>0);
+  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category,s.sub);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-sub="${esc(s.sub)}" data-follow-area="${s.area}"><span>▶ Videos de ${s.category}${n?' ('+n+')':''}</span>${s.sub?`<span class="follow-sub">${esc(s.sub)}</span>`:''}</button>`}).join('')}</div>`:'';
 }
 function coachFollowCard(id){
   const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:'',video:''};
@@ -346,5 +374,5 @@ document.addEventListener('click',event=>{
   const video=t.closest?.('[data-follow-video]');
   if(video){playVideo(video.dataset.followVideo);return}
   const cat=t.closest?.('[data-follow-cat]');
-  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat);
+  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat,cat.dataset.followSub||'');
 });

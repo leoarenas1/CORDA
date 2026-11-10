@@ -62,6 +62,8 @@ Mi estado: tarjeta corta de seguimiento del coach al final (mejoraste y siguient
 
 Seguimiento del coach: enlace a videos de la biblioteca según el siguiente ajuste (palabras clave o video elegido por el coach).
 
+Biblioteca de videos con temas y subtemas; la tarjeta de seguimiento enlaza al subtema.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1961,7 +1963,65 @@ Mejoraste|You improved|Vous avez progressé
 Saque|Serve|Service
 Revés|Backhand|Revers
 Video recomendado|Recommended video|Vidéo recommandée
-Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Sin video: la app sugiere por palabra clave|No video: the app suggests one by keyword|Pas de vidéo : l’app en suggère une par mot-clé
+Lanzamiento de bola|Ball toss|Lancer de balle
+Posición y pies|Position and feet|Position et pieds
+Golpe en punto alto|Hitting at the highest point|Frappe au point haut
+Primer saque|First serve|Première balle
+Segundo saque y efecto|Second serve and spin|Deuxième balle et effet
+Colocación y dirección|Placement and direction|Placement et direction
+Agarre|Grip|Prise
+Impacto|Impact|Impact
+Terminación|Follow-through|Terminaison
+Cruzada y paralela|Cross-court and down the line|Croisé et long de ligne
+Defensa|Defense|Défense
+Slice|Slice|Slice
+Volea de derecha|Forehand volley|Volée de coup droit
+Volea de revés|Backhand volley|Volée de revers
+Aproximación|Approach shot|Approche
+Remate (smash)|Overhead (smash)|Smash
+Posición en la red|Net position|Position au filet
+Posición de espera|Ready position|Position d’attente
+Primer saque del rival|Opponent’s first serve|Première balle de l’adversaire
+Segundo saque del rival|Opponent’s second serve|Deuxième balle de l’adversaire
+Colocación|Placement|Placement
+Patrones de juego|Game patterns|Schémas de jeu
+Juego de fondo|Baseline play|Jeu de fond de court
+Juego en la red|Net play|Jeu au filet
+Jugar según el rival|Playing the opponent|Jouer selon l’adversaire
+Concentración|Focus|Concentration
+Manejo de la presión|Handling pressure|Gestion de la pression
+Rutinas entre puntos|Routines between points|Routines entre les points
+Confianza|Confidence|Confiance
+Calentamiento previo|Pre-match warm-up|Échauffement avant le match
+Análisis del rival|Opponent analysis|Analyse de l’adversaire
+Revisión de un partido|Match review|Analyse d’un match
+Tren inferior|Lower body|Bas du corps
+Tren superior|Upper body|Haut du corps
+Potencia|Power|Puissance
+Saltos verticales|Vertical jumps|Sauts verticaux
+Saltos laterales|Lateral jumps|Sauts latéraux
+Cajón|Box jumps|Sauts sur caisse
+Escalera|Ladder|Échelle
+Conos|Cones|Plots
+Primer paso (split step)|First step (split step)|Premier pas (split step)
+Desplazamiento lateral|Lateral movement|Déplacement latéral
+Intervalos|Intervals|Intervalles
+Resistencia|Endurance|Endurance
+Recuperación|Recovery|Récupération
+Plancha|Plank|Gainage planche
+Rotación|Rotation|Rotation
+Estabilidad|Stability|Stabilité
+Cadera|Hip|Hanche
+Columna|Spine|Colonne vertébrale
+Calentamiento dinámico|Dynamic warm-up|Échauffement dynamique
+Muñeca y codo|Wrist and elbow|Poignet et coude
+Espalda|Back|Dos
+Sin subtema|No subtopic|Sans sous-thème
+Subtema|Subtopic|Sous-thème
+Temas|Topics|Thèmes
+Aún no hay videos en este tema. Agrégalos con «+ Agregar video» y elige el tema y el subtema.|There are no videos on this topic yet. Add them with “+ Add video” and choose the topic and subtopic.|Il n’y a pas encore de vidéos sur ce thème. Ajoutez-en avec « + Ajouter une vidéo » et choisissez le thème et le sous-thème.
+Aún no hay videos en este tema. Tu coach los irá agregando.|There are no videos on this topic yet. Your coach will add them.|Il n’y a pas encore de vidéos sur ce thème. Votre coach en ajoutera.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -2028,6 +2088,7 @@ const dashboardPatterns=[
   [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
   [/^▶ Videos de (.+?)( \(\d+\))?$/,(m,i)=>`▶ ${i?'Vidéos : ':''}${dashboardLabels.get(m[1])?.[i]||m[1]}${i?'':' videos'}${m[2]||''}`],
   [/^▶ Ver video: (.+)$/,(m,i)=>i?`▶ Voir la vidéo : ${m[1]}`:`▶ Watch video: ${m[1]}`],
+  [/^Subtemas de (.+)$/,(m,i)=>`${i?'Sous-thèmes de ':'Subtopics of '}${dashboardLabels.get(m[1])?.[i]||m[1]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
@@ -2221,7 +2282,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109zc"><link rel="stylesheet" href="style.css?v=20261109zc"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109zc"><link rel="stylesheet" href="styles/ace.css?v=20261109zc"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109zc"></script><script src="resenas.js?v=20261109zc"></script><script src="portada.js?v=20261109zc"></script><script src="community.js?v=20261109zc"></script><script src="session-guide.js?v=20261109zc"></script><script src="annual-progress.js?v=20261109zc"></script><script src="progress-hub.js?v=20261109zc"></script><script src="meetings.js?v=20261109zc"></script><script src="monthly-fees.js?v=20261109zc"></script><script src="portal.js?v=20261109zc"></script><script src="private-payments.js?v=20261109zc"></script><script src="roles.js?v=20261109zc"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109zc"></script><script src="legal.js?v=20261109zc"></script><script src="auth.js?v=20261109zc"></script><script src="sync.js?v=20261109zc"></script><script src="guardian.js?v=20261109zc"></script><script src="access.js?v=20261109zc"></script><script src="backup.js?v=20261109zc"></script><script src="wellness.js?v=20261109zc"></script><script src="videos.js?v=20261109zc"></script><script src="physical.js?v=20261109zc"></script><script src="calendar.js?v=20261109zc"></script><script src="sobre-corda.js?v=20261109zc"></script><script src="app.js?v=20261109zc"></script><script src="ace.js?v=20261109zc"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109zd"><link rel="stylesheet" href="style.css?v=20261109zd"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109zd"><link rel="stylesheet" href="styles/ace.css?v=20261109zd"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109zd"></script><script src="resenas.js?v=20261109zd"></script><script src="portada.js?v=20261109zd"></script><script src="community.js?v=20261109zd"></script><script src="session-guide.js?v=20261109zd"></script><script src="annual-progress.js?v=20261109zd"></script><script src="progress-hub.js?v=20261109zd"></script><script src="meetings.js?v=20261109zd"></script><script src="monthly-fees.js?v=20261109zd"></script><script src="portal.js?v=20261109zd"></script><script src="private-payments.js?v=20261109zd"></script><script src="roles.js?v=20261109zd"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109zd"></script><script src="legal.js?v=20261109zd"></script><script src="auth.js?v=20261109zd"></script><script src="sync.js?v=20261109zd"></script><script src="guardian.js?v=20261109zd"></script><script src="access.js?v=20261109zd"></script><script src="backup.js?v=20261109zd"></script><script src="wellness.js?v=20261109zd"></script><script src="videos.js?v=20261109zd"></script><script src="physical.js?v=20261109zd"></script><script src="calendar.js?v=20261109zd"></script><script src="sobre-corda.js?v=20261109zd"></script><script src="app.js?v=20261109zd"></script><script src="ace.js?v=20261109zd"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -4955,6 +5016,12 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .follow-links{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:var(--space-2);margin-top:var(--space-1)}
 .follow-video{border:0;border-radius:999px;background:var(--lima);color:var(--on-lima);font:inherit;font-weight:700;font-size:var(--small-size);padding:var(--space-2) var(--space-4);cursor:pointer;text-align:left}
 .follow-video:hover,.follow-video:focus-visible{filter:brightness(1.06);outline:2px solid currentColor;outline-offset:2px}
+
+.video-filters{display:flex;flex-wrap:wrap;gap:var(--space-2);margin:var(--space-3) 0}
+.video-filters button small{margin-left:6px;opacity:.7;font-size:.75em}
+.video-subtopics{margin-top:0;padding-left:var(--space-3);border-left:3px solid var(--lima)}
+.follow-video{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.2}
+.follow-sub{font-weight:500;font-size:.85em;opacity:.8}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -5701,7 +5768,7 @@ document.addEventListener('click',async event=>{
 
 ````javascript
 // Biblioteca de video de la academia.
-// - Solo los coaches agregan videos (enlace de YouTube u otro HTTPS), con categoría y nota.
+// - Solo los coaches agregan videos (enlace de YouTube u otro HTTPS), con tema, subtema y nota.
 // - Los videos de YouTube se ven dentro de la app (youtube-nocookie.com).
 // - El jugador marca "Ya lo vi"; el coach ve quién lo vio. Se guarda en state.videoSeen[jugador][video].
 // En Supabase: cada video es un item "video" de la academia y cada visto un item "video_seen" del jugador.
@@ -5709,7 +5776,25 @@ const VIDEO_AREAS={
   Tenis:['Saque','Derecha','Revés','Volea y red','Devolución','Táctica','Mental','Partidos'],
   'Físico':['Fuerza','Pliometría','Agilidad','Cardio','Core','Movilidad','Prevención de lesiones']
 };
-const videoFilters={};
+const videoFilters={},videoSubFilters={};
+// Subtemas de cada tema: al tocar un tema de la biblioteca se ven sus subtemas (por ejemplo, Saque → Lanzamiento de bola).
+const VIDEO_SUBTOPICS={
+  Saque:['Lanzamiento de bola','Posición y pies','Golpe en punto alto','Primer saque','Segundo saque y efecto','Colocación y dirección'],
+  Derecha:['Agarre','Preparación','Impacto','Terminación','Cruzada y paralela','Defensa'],
+  'Revés':['Agarre','Preparación','Impacto','Terminación','Slice','Defensa'],
+  'Volea y red':['Volea de derecha','Volea de revés','Aproximación','Remate (smash)','Posición en la red'],
+  'Devolución':['Posición de espera','Primer saque del rival','Segundo saque del rival','Colocación'],
+  'Táctica':['Patrones de juego','Juego de fondo','Juego en la red','Dobles','Jugar según el rival'],
+  Mental:['Concentración','Manejo de la presión','Rutinas entre puntos','Confianza'],
+  Partidos:['Calentamiento previo','Análisis del rival','Revisión de un partido'],
+  Fuerza:['Tren inferior','Tren superior','Potencia'],
+  'Pliometría':['Saltos verticales','Saltos laterales','Cajón'],
+  Agilidad:['Escalera','Conos','Primer paso (split step)','Desplazamiento lateral'],
+  Cardio:['Intervalos','Resistencia','Recuperación'],
+  Core:['Plancha','Rotación','Estabilidad'],
+  Movilidad:['Cadera','Hombro','Columna','Calentamiento dinámico'],
+  'Prevención de lesiones':['Hombro','Rodilla','Muñeca y codo','Espalda']
+};
 // Videos guardados antes de separar por área: los de categoría "Físico" van a Físico.
 const videoArea=v=>v.area||(v.category==='Físico'||VIDEO_AREAS['Físico'].includes(v.category)?'Físico':'Tenis');
 
@@ -5744,7 +5829,7 @@ function videoCard(v){
     viewers=`<p class="video-seen-by">${players.length?`Visto por ${who.length} de ${players.length}${who.length?': '+who.map(p=>esc(p.name.split(' ')[0])).join(', '):''}`:'Aún no hay jugadores en tu academia.'}</p>`;
   }
   return `<article class="video-card${seen?' is-seen':''}">${thumb}<div class="video-body">
-    ${v.category?`<span class="badge">${esc(v.category)}</span>`:''}<h3>${esc(v.title)}</h3>
+    ${v.category?`<span class="badge">${esc(v.category)}</span>`:''}${v.subtopic?` <span class="badge clay">${esc(v.subtopic)}</span>`:''}<h3>${esc(v.title)}</h3>
     ${v.note?`<p class="video-note">${esc(v.note)}</p>`:''}
     <small class="muted">${esc(v.by||'Coach')}${v.at?' · '+dateLabel(localDay(new Date(v.at)),{day:'numeric',month:'short'}):''}</small>
     ${role==='Jugador'?`<button type="button" class="link video-seen" data-video-seen="${esc(key)}">${seen?'✓ Ya lo viste':'Marcar como visto'}</button>`:''}
@@ -5754,15 +5839,27 @@ function videoCard(v){
 }
 function videoLibrary(area='Tenis'){
   const all=(state.videos||[]).filter(v=>videoArea(v)===area).sort((a,b)=>(b.at||0)-(a.at||0));
-  const used=VIDEO_AREAS[area].filter(c=>all.some(v=>v.category===c));
+  const categories=VIDEO_AREAS[area];
   let filter=videoFilters[area]||'';
-  if(filter&&!used.includes(filter))filter=videoFilters[area]='';
-  const list=filter?all.filter(v=>v.category===filter):all;
-  const chips=used.length>1?`<div class="video-filters">${['',...used].map(c=>`<button type="button" data-video-filter="${esc(c)}" data-video-area="${esc(area)}" aria-pressed="${c===filter}">${c||'Todos'}</button>`).join('')}</div>`:'';
+  if(filter&&!categories.includes(filter))filter=videoFilters[area]='';
+  const subs=VIDEO_SUBTOPICS[filter]||[];
+  let sub=videoSubFilters[area]||'';
+  if(!filter||!subs.includes(sub))sub=videoSubFilters[area]='';
+  const inCategory=c=>all.filter(v=>v.category===c);
+  let list=filter?inCategory(filter):all;
+  if(sub)list=list.filter(v=>v.subtopic===sub);
+  const topics=`<div class="video-filters" role="group" aria-label="Temas">${['',...categories].map(c=>`<button type="button" data-video-filter="${esc(c)}" data-video-area="${esc(area)}" aria-pressed="${c===filter}">${c||'Todos'}${c?`<small>${inCategory(c).length}</small>`:''}</button>`).join('')}</div>`;
+  const subtopics=filter&&subs.length?`<div class="video-filters video-subtopics" role="group" aria-label="Subtemas de ${esc(filter)}">${['',...subs].map(s=>`<button type="button" data-video-sub="${esc(s)}" data-video-area="${esc(area)}" aria-pressed="${s===sub}">${s||'Todos'}${s?`<small>${inCategory(filter).filter(v=>v.subtopic===s).length}</small>`:''}</button>`).join('')}</div>`:'';
   const what=area==='Físico'?'ejercicios y técnica de preparación física':'técnica y táctica';
-  const empty=role==='Coach'?`Agrega videos de YouTube de ${what} para que tus jugadores los vean y los analicen.`:`Aquí aparecerán los videos de ${what} que tu coach comparta.`;
+  const empty=filter
+    ?(role==='Coach'?'Aún no hay videos en este tema. Agrégalos con «+ Agregar video» y elige el tema y el subtema.':'Aún no hay videos en este tema. Tu coach los irá agregando.')
+    :(role==='Coach'?`Agrega videos de YouTube de ${what} para que tus jugadores los vean y los analicen.`:`Aquí aparecerán los videos de ${what} que tu coach comparta.`);
   return `<section class="card video-library"><div class="sectiontitle"><h2>Biblioteca de video${area==='Físico'?' · Físico':''}</h2>${role==='Coach'?`<button class="btn lime small" data-new-video="${esc(area)}">+ Agregar video</button>`:''}</div>
-    ${chips}${list.length?`<div class="video-grid">${list.map(videoCard).join('')}</div>`:`<p class="muted">${empty}</p>`}</section>`;
+    ${topics}${subtopics}${list.length?`<div class="video-grid">${list.map(videoCard).join('')}</div>`:`<p class="muted">${empty}</p>`}</section>`;
+}
+function videoSubOptions(category,current=''){
+  const subs=VIDEO_SUBTOPICS[category]||[];
+  return `<option value="">Sin subtema</option>`+subs.map(s=>`<option value="${esc(s)}" ${s===current?'selected':''}>${esc(s)}</option>`).join('');
 }
 function openVideoForm(key,area='Tenis'){
   const existing=key?(state.videos||[]).find(v=>videoKey(v)===key):null,v=existing||{};
@@ -5770,15 +5867,18 @@ function openVideoForm(key,area='Tenis'){
   modal(existing?'Editar video':'Agregar video',
     field('Título','title',v.title||'')+field('Enlace de YouTube','url',v.url||'','url')+
     `<label>Categoría<select name="category"><option value="">Sin categoría</option>${VIDEO_AREAS[area].map(c=>`<option ${c===v.category?'selected':''}>${c}</option>`).join('')}</select></label>`+
+    `<label>Subtema<select name="subtopic">${videoSubOptions(v.category,v.subtopic)}</select></label>`+
     `<label class="full">Nota para tus jugadores (opcional)<textarea name="note" maxlength="400" placeholder="Ej. Fíjate en la posición de los pies antes del impacto.">${esc(v.note||'')}</textarea></label>`+
     (existing?'<p class="full"><button type="button" class="link danger" id="video-remove">Quitar este video</button></p>':''),
     d=>{
       try{const u=new URL(d.url);if(u.protocol!=='https:')throw Error()}catch{toast('Pega un enlace HTTPS válido (por ejemplo, de YouTube).');return false}
-      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,note:d.note.trim(),area};
+      const data={title:d.title.trim(),url:d.url.trim(),category:d.category,subtopic:d.category?(d.subtopic||''):'',note:d.note.trim(),area};
       if(!data.title){toast('Escribe un título.');return false}
       if(existing)Object.assign(existing,data);
       else (state.videos??=[]).push({...data,id:newMemberId(),by:actor()?.name||'Coach',at:Date.now()});
     },existing?'Guardar cambios':'Agregar video');
+  const categorySelect=$('#modalform').elements.category,subSelect=$('#modalform').elements.subtopic;
+  if(categorySelect&&subSelect)categorySelect.onchange=()=>{subSelect.innerHTML=videoSubOptions(categorySelect.value,'')};
   const remove=$('#video-remove');
   if(remove)remove.onclick=()=>{
     if(!remove.dataset.sure){remove.dataset.sure='1';remove.textContent='¿Seguro? Toca otra vez para quitarlo';return}
@@ -5796,7 +5896,8 @@ document.addEventListener('click',event=>{
   const add=t.closest?.('[data-new-video]');if(add){if(role==='Coach')openVideoForm('',add.dataset.newVideo);return}
   const play=t.closest?.('[data-video-play]');if(play){playVideo(play.dataset.videoPlay);return}
   const edit=t.closest?.('[data-video-edit]');if(edit&&role==='Coach'){openVideoForm(edit.dataset.videoEdit);return}
-  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilters[filter.dataset.videoArea]=filter.dataset.videoFilter;render();return}
+  const filter=t.closest?.('[data-video-filter]');if(filter){videoFilters[filter.dataset.videoArea]=filter.dataset.videoFilter;videoSubFilters[filter.dataset.videoArea]='';render();return}
+  const subFilter=t.closest?.('[data-video-sub]');if(subFilter){videoSubFilters[subFilter.dataset.videoArea]=subFilter.dataset.videoSub;render();return}
   const seen=t.closest?.('[data-video-seen]');
   if(seen&&role==='Jugador'&&state.profile?.memberId){
     const store=videoSeenStore(state.profile.memberId),key=seen.dataset.videoSeen;
@@ -6112,6 +6213,24 @@ const FOLLOW_KEYWORDS=[
   ['Físico','Movilidad',['movilidad','flexibilidad','estiramiento']],
   ['Físico','Prevención de lesiones',['lesion','prevencion','hombro','rodilla','espalda']]
 ];
+// Palabras que indican el subtema dentro de cada tema (se compara sin acentos ni mayúsculas).
+const FOLLOW_SUBTOPICS={
+  Saque:{'Lanzamiento de bola':['lanzamiento','lanzar','toss'],'Posición y pies':['posicion','pies','stance','postura'],'Golpe en punto alto':['punto alto','contacto','impacto','golpe alto'],'Primer saque':['primer saque','primer servicio'],'Segundo saque y efecto':['segundo saque','efecto','liftado','kick','slice'],'Colocación y dirección':['colocacion','direccion','esquina','a la t']},
+  Derecha:{'Agarre':['agarre','grip'],'Preparación':['preparacion','preparar','giro'],'Impacto':['impacto','contacto'],'Terminación':['terminacion','acompanamiento'],'Cruzada y paralela':['cruzada','paralela','direccion'],'Defensa':['defensa','defender']},
+  'Revés':{'Agarre':['agarre','grip'],'Preparación':['preparacion','preparar','giro'],'Impacto':['impacto','contacto'],'Terminación':['terminacion','acompanamiento'],'Slice':['slice','cortado'],'Defensa':['defensa','defender']},
+  'Volea y red':{'Volea de derecha':['volea de derecha','volea derecha'],'Volea de revés':['volea de reves','volea reves'],'Aproximación':['aproximacion','subir a la red'],'Remate (smash)':['remate','smash'],'Posición en la red':['posicion en la red','posicion en red']},
+  'Devolución':{'Posición de espera':['posicion de espera','espera'],'Primer saque del rival':['primer saque','saque fuerte','saque rapido'],'Segundo saque del rival':['segundo saque'],'Colocación':['colocacion','direccion','profundidad']},
+  'Táctica':{'Patrones de juego':['patron','patrones'],'Juego de fondo':['fondo','consistencia'],'Juego en la red':['en la red','a la red','volea'],'Dobles':['dobles'],'Jugar según el rival':['rival','oponente','adversario']},
+  Mental:{'Concentración':['concentracion','enfoque'],'Manejo de la presión':['presion','nervios','puntos importantes'],'Rutinas entre puntos':['rutina','entre puntos'],'Confianza':['confianza','seguridad']},
+  Partidos:{'Calentamiento previo':['calentamiento'],'Análisis del rival':['rival','analisis'],'Revisión de un partido':['revision','resumen','partido']},
+  Fuerza:{'Tren inferior':['piernas','sentadilla','tren inferior'],'Tren superior':['hombros','pecho','brazos','tren superior'],'Potencia':['potencia','explosiv']},
+  'Pliometría':{'Saltos verticales':['vertical','salto'],'Saltos laterales':['lateral'],'Cajón':['cajon']},
+  Agilidad:{'Escalera':['escalera'],'Conos':['conos','cono'],'Primer paso (split step)':['primer paso','split step','split'],'Desplazamiento lateral':['lateral','desplazamiento']},
+  Cardio:{'Intervalos':['intervalo'],'Resistencia':['resistencia','aguante'],'Recuperación':['recuperacion']},
+  Core:{'Plancha':['plancha'],'Rotación':['rotacion','giro'],'Estabilidad':['estabilidad']},
+  Movilidad:{'Cadera':['cadera'],'Hombro':['hombro'],'Columna':['columna','espalda'],'Calentamiento dinámico':['calentamiento','dinamico']},
+  'Prevención de lesiones':{'Hombro':['hombro'],'Rodilla':['rodilla'],'Muñeca y codo':['muneca','codo'],'Espalda':['espalda','lumbar']}
+};
 const followNorm=t=>String(t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 function followSuggestions(text){
   const t=followNorm(text),found=[];
@@ -6121,13 +6240,23 @@ function followSuggestions(text){
       const at=t.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
       if(at>=0&&(first<0||at<first))first=at;
     }
-    if(first>=0)found.push({area,category,at:first});
+    if(first>=0)found.push({area,category,at:first,sub:followSub(category,t)});
   }
   return found.sort((a,b)=>a.at-b.at).slice(0,2);
 }
-const followCount=(area,category)=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category).length;
-function goVideoLibrary(area,category){
-  videoFilters[area]=category;
+function followSub(category,normalized){
+  let best='',bestAt=-1;
+  for(const [name,words] of Object.entries(FOLLOW_SUBTOPICS[category]||{})){
+    for(const word of words){
+      const at=normalized.search(new RegExp('(^|[^a-z])'+word+(word.length<=4?'([^a-z]|$)':'')));
+      if(at>=0&&(bestAt<0||at<bestAt)){best=name;bestAt=at}
+    }
+  }
+  return best;
+}
+const followCount=(area,category,sub='')=>(state.videos||[]).filter(v=>videoArea(v)===area&&v.category===category&&(!sub||v.subtopic===sub)).length;
+function goVideoLibrary(area,category,sub=''){
+  videoFilters[area]=category;videoSubFilters[area]=sub;
   page=area==='Físico'?'gym':'training';
   render();window.scrollTo(0,0);
   setTimeout(()=>document.querySelector('.video-library')?.scrollIntoView({behavior:'smooth',block:'start'}),80);
@@ -6141,8 +6270,8 @@ function videoPickField(current=''){
 function followLinks(item,example){
   const chosen=item.video?(state.videos||[]).find(v=>videoKey(v)===item.video):null;
   if(chosen)return `<div class="follow-links"><button type="button" class="follow-video" data-follow-video="${esc(videoKey(chosen))}">▶ Ver video: ${esc(chosen.title)}</button></div>`;
-  const chips=followSuggestions(item.focus).filter(s=>example||followCount(s.area,s.category)>0);
-  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-area="${s.area}">▶ Videos de ${s.category}${n?' ('+n+')':''}</button>`}).join('')}</div>`:'';
+  const chips=followSuggestions(item.focus).map(s=>({...s,sub:s.sub&&(example||followCount(s.area,s.category,s.sub)>0)?s.sub:''})).filter(s=>example||followCount(s.area,s.category,s.sub)>0);
+  return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category,s.sub);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-sub="${esc(s.sub)}" data-follow-area="${s.area}"><span>▶ Videos de ${s.category}${n?' ('+n+')':''}</span>${s.sub?`<span class="follow-sub">${esc(s.sub)}</span>`:''}</button>`}).join('')}</div>`:'';
 }
 function coachFollowCard(id){
   const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:'',video:''};
@@ -6157,7 +6286,7 @@ document.addEventListener('click',event=>{
   const video=t.closest?.('[data-follow-video]');
   if(video){playVideo(video.dataset.followVideo);return}
   const cat=t.closest?.('[data-follow-cat]');
-  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat);
+  if(cat)goVideoLibrary(cat.dataset.followArea,cat.dataset.followCat,cat.dataset.followSub||'');
 });
 ````
 
