@@ -66,7 +66,9 @@ begin
     (aid, 'ta2', 'review',          'r2',  '{}'),                      -- evaluación del jugador A2
     (bid, 'tb1', 'review',          'r3',  '{}'),                      -- evaluación del jugador de B
     (aid, '',    'private_book',    'tca', '{}'),                      -- libreta privada del coach A
-    (aid, 'ta1', 'private_receipt', 'p1',  '{"coachId":"tca"}');       -- comprobante de clase particular con el coach A
+    (aid, 'ta1', 'private_receipt', 'p1',  '{"coachId":"tca"}'),       -- comprobante de clase particular con el coach A
+    (aid, 'ta1', 'wellness',        'w1',  '{"sleepH":7}'),                 -- chequeo de estado físico de A1
+    (aid, 'ta2', 'wellness',        'w2',  '{"sleepH":6}');                 -- chequeo de estado físico de A2
 
   -- ============ 1. JUGADOR A1 ============
   reset role; perform set_config('request.jwt.claims', json_build_object('sub',id_pa1,'email','zz-pa1@prueba.invalid','role','authenticated')::text, true); set local role authenticated;
@@ -75,7 +77,7 @@ begin
   n := (select count(*) from public.items where key='r3');  res := res || jsonb_build_array(jsonb_build_array('Jugador NO ve datos de otra academia', 0, n));
   n := (select count(*) from public.items where key='k1');  res := res || jsonb_build_array(jsonb_build_array('Jugador ve el plan de su academia', 1, n));
   n := (select count(*) from public.items where kind='private_book'); res := res || jsonb_build_array(jsonb_build_array('Jugador NO ve la libreta privada del coach', 0, n));
-  n := (select count(*) from public.items);                 res := res || jsonb_build_array(jsonb_build_array('Jugador ve solo 3 datos (plan, su evaluación, su comprobante)', 3, n));
+  n := (select count(*) from public.items);                 res := res || jsonb_build_array(jsonb_build_array('Jugador ve solo 4 datos (plan, su evaluación, su comprobante, su chequeo)', 4, n));
   n := (select count(*) from public.profiles);              res := res || jsonb_build_array(jsonb_build_array('Jugador solo ve su propio perfil', 1, n));
   begin update public.profiles set role='Coach' where id=id_pa1; got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede volverse Coach', 'bloqueado', got));
@@ -83,6 +85,11 @@ begin
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede cambiarse de academia', 'bloqueado', got));
   begin update public.profiles set approved=true, linked_child='ta2' where id=id_pa1; got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede cambiar su aprobación ni jugador ligado', 'bloqueado', got));
+  n := (select count(*) from public.items where key='w2'); res := res || jsonb_build_array(jsonb_build_array('Jugador NO ve el chequeo de estado físico de otro jugador', 0, n));
+  begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','wellness','w9'); got:='permitido'; exception when others then got:='bloqueado'; end;
+  res := res || jsonb_build_array(jsonb_build_array('Jugador SÍ puede guardar su propio chequeo de estado físico', 'permitido', got));
+  begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta2','wellness','w8'); got:='permitido'; exception when others then got:='bloqueado'; end;
+  res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede escribir el chequeo de otro jugador', 'bloqueado', got));
   begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','review','nuevo'); got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede escribirse una evaluación', 'bloqueado', got));
   begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','goal','g1'); got:='permitido'; exception when others then got:='bloqueado'; end;
@@ -111,6 +118,7 @@ begin
   reset role; perform set_config('request.jwt.claims', json_build_object('sub',id_tu,'email','zz-tu@prueba.invalid','role','authenticated')::text, true); set local role authenticated;
   n := (select count(*) from public.items where key='r1'); res := res || jsonb_build_array(jsonb_build_array('Tutor ve la evaluación de su jugador', 1, n));
   n := (select count(*) from public.items where key='r2'); res := res || jsonb_build_array(jsonb_build_array('Tutor NO ve la evaluación de otro jugador', 0, n));
+  n := (select count(*) from public.items where key='w1'); res := res || jsonb_build_array(jsonb_build_array('Tutor ve el chequeo de estado físico de su jugador', 1, n));
   n := (select count(*) from public.profiles);             res := res || jsonb_build_array(jsonb_build_array('Tutor ve su perfil y el de su jugador (2)', 2, n));
   begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','review','t1'); got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Tutor NO puede escribir evaluaciones', 'bloqueado', got));
@@ -122,7 +130,7 @@ begin
 
   -- ============ 5. COACH A (dueño) ============
   reset role; perform set_config('request.jwt.claims', json_build_object('sub',id_ca,'email','zz-ca@prueba.invalid','role','authenticated')::text, true); set local role authenticated;
-  n := (select count(*) from public.items);                res := res || jsonb_build_array(jsonb_build_array('Coach ve los 6 datos de su academia (con su libreta, comprobante y la meta del jugador)', 6, n));
+  n := (select count(*) from public.items);                res := res || jsonb_build_array(jsonb_build_array('Coach ve los 9 datos de su academia (con su libreta, comprobante, meta y chequeos de estado físico)', 9, n));
   n := (select count(*) from public.items where key='r3'); res := res || jsonb_build_array(jsonb_build_array('Coach NO ve datos de otra academia', 0, n));
   n := (select count(*) from public.profiles);             res := res || jsonb_build_array(jsonb_build_array('Coach ve los 7 perfiles de su academia y ninguno de otra', 7, n));
   begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','review','c1'); got:='permitido'; exception when others then got:='bloqueado'; end;

@@ -837,3 +837,35 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .access-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) 0;border-top:1px solid var(--line)}
 .access-row[data-status="usado"],.access-row[data-status="revocado"],.access-row[data-status="vencido"]{opacity:.65}
 #access-form{margin-top:var(--space-4)}
+
+/* Estado físico (Análisis del coach) */
+.wellness .sectiontitle{align-items:flex-start;gap:var(--space-3)}
+.well-alerts{list-style:none;margin:var(--space-3) 0;padding:0;display:grid;gap:var(--space-2)}
+.well-alert{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm,8px);border:1px solid var(--line);font-weight:600}
+.well-alert.sev-high{border-color:#B42318;color:#B42318;background:rgba(180,35,24,.08)}
+.well-alert.sev-mid{border-color:#B7791F;color:#8a5a0f;background:rgba(183,121,31,.10)}
+.well-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--space-2);margin:var(--space-3) 0 var(--space-1)}
+.well-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:var(--space-2) 0;border-radius:var(--radius-sm,8px);border:1px solid var(--line);text-align:center}
+.well-day small{font-size:var(--caption-size);text-transform:uppercase;opacity:.75}
+.well-day b{font-family:var(--font-display);font-size:1.15rem}
+.well-day.ok{background:rgba(46,125,50,.18);border-color:rgba(46,125,50,.5)}
+.well-day.mid{background:rgba(183,121,31,.16);border-color:rgba(183,121,31,.5)}
+.well-day.low{background:rgba(180,35,24,.14);border-color:rgba(180,35,24,.5)}
+.well-day.pain{border-color:#B42318}
+.well-day.none{opacity:.55}
+.well-scale-note{margin-top:0}
+.well-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-3);margin:var(--space-3) 0}
+.well-metrics>div{display:flex;flex-direction:column;gap:2px;padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-sm,8px)}
+.well-metrics small{font-size:var(--caption-size);text-transform:uppercase;opacity:.75}
+.well-metrics b{font-family:var(--font-display);font-size:1.6rem;line-height:1.1}
+.well-pains ul{margin:var(--space-2) 0;padding-left:var(--space-5)}
+.well-absences{margin:var(--space-2) 0}
+.well-ends{display:flex;justify-content:space-between;width:100%;margin-top:var(--space-1)}
+.well-scale .mood-option{min-width:3rem}
+.well-badge{margin:var(--space-2) 0 0;font-size:var(--small-size);font-weight:600}
+.well-badge.sev-high{color:#B42318}
+.well-badge.sev-mid{color:#8a5a0f}
+.well-badge.none{opacity:.6;font-weight:400}
+.well-badge.ok{color:#2E7D32}
+.well-badge.mid{color:#8a5a0f}
+.well-badge.low{color:#B42318}

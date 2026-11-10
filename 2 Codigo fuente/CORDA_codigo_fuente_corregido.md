@@ -48,6 +48,8 @@ Traducciones al inglés y francés de las pantallas principales de Jugador, Coac
 
 Traducciones EN/FR de formularios emergentes, listas, avisos y asistente de registro (dashboard-language.js).
 
+Estado físico del jugador en Análisis del coach (wellness.js, SQL 13): chequeo diario, esfuerzo de sesión, molestias y motivo de ausencia.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -87,6 +89,7 @@ Es un prototipo con almacenamiento local en el navegador; este código no incluy
 - `dist/supabase-config.js`
 - `dist/sync.js`
 - `dist/videos.js`
+- `dist/wellness.js`
 - `ASSET_CREDITS.md`
 - `.openai/hosting.json`
 
@@ -1840,7 +1843,88 @@ Entrar al portal|Enter the portal|Entrer dans le portail
 Crear mi cuenta|Create my account|Créer mon compte
 Aceptar y entrar|Accept and enter|Accepter et entrer
 Vincula a tu jugador|Link your player|Liez votre joueur
-← Perfiles|← Profiles|← Profils`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+← Perfiles|← Profiles|← Profils
+Estado físico|Physical condition|État physique
+¿Cómo amaneces?|How do you feel this morning?|Comment vous sentez-vous ce matin ?
+Chequeo de hoy|Today’s check-in|Bilan du jour
+Editar chequeo de hoy|Edit today’s check-in|Modifier le bilan du jour
+⚠ Preparación baja varios días|⚠ Low readiness for several days|⚠ Faible préparation depuis plusieurs jours
+⚠ Duerme poco: menos de 6 h|⚠ Sleeping little: under 6 h|⚠ Dort peu : moins de 6 h
+⚠ Duermes poco: menos de 6 h|⚠ You are sleeping little: under 6 h|⚠ Vous dormez peu : moins de 6 h
+Preparación de los últimos 7 días|Readiness over the last 7 days|Préparation des 7 derniers jours
+Preparación de 0 a 100 por día: sueño, energía, ánimo, dolor muscular y estrés.|Readiness from 0 to 100 per day: sleep, energy, mood, muscle soreness and stress.|Préparation de 0 à 100 par jour : sommeil, énergie, moral, courbatures et stress.
+7 días|7 days|7 jours
+Sueño|Sleep|Sommeil
+promedio|average|moyenne
+Carga de la semana|Weekly load|Charge de la semaine
+Faltan más días para comparar|More days are needed to compare|Il faut plus de jours pour comparer
+Se calcula con el esfuerzo de tus sesiones|Calculated from the effort of your sessions|Calculée à partir de l’effort de vos séances
+Molestias activas|Active issues|Douleurs actives
+Ya no me duele|It no longer hurts|Cela ne me fait plus mal
+Ausencias|Absences|Absences
+30 días:|30 days:|30 jours :
+Reportar una molestia|Report a pain or discomfort|Signaler une gêne
+UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.|AU = effort (1 to 10) × minutes. This is guidance to discuss with your coach, not a medical diagnosis.|UA = effort (1 à 10) × minutes. Ce sont des repères à discuter avec votre coach, pas un diagnostic médical.
+Chequeo diario|Daily check-in|Bilan quotidien
+¿Cómo amaneces hoy?|How do you feel this morning?|Comment vous sentez-vous ce matin ?
+30 segundos: sueño, energía y si te duele algo. Tu coach lo ve y ajusta la carga.|30 seconds: sleep, energy and whether anything hurts. Your coach sees it and adjusts the load.|30 secondes : sommeil, énergie et si quelque chose vous fait mal. Votre coach le voit et ajuste la charge.
+Hacer chequeo|Do check-in|Faire le bilan
+Sin chequeo hoy|No check-in today|Pas de bilan aujourd’hui
+Preparación hoy|Readiness today|Préparation aujourd’hui
+Toma 30 segundos. Tu coach ve tus respuestas para ajustar la carga de entrenamiento. No hay respuestas buenas ni malas: responde con sinceridad.|It takes 30 seconds. Your coach sees your answers to adjust the training load. There are no right or wrong answers: answer honestly.|Cela prend 30 secondes. Votre coach voit vos réponses pour ajuster la charge d’entraînement. Il n’y a pas de bonnes ou de mauvaises réponses : répondez sincèrement.
+Horas que dormiste|Hours you slept|Heures de sommeil
+Calidad del sueño|Sleep quality|Qualité du sommeil
+Energía|Energy|Énergie
+Ánimo|Mood|Moral
+Dolor muscular|Muscle soreness|Courbatures
+Estrés (escuela, trabajo o competencia)|Stress (school, work or competition)|Stress (école, travail ou compétition)
+Muy mala|Very poor|Très mauvaise
+Con mucha energía|Very energetic|Plein d’énergie
+Bajo|Low|Bas
+Nada|None|Aucun
+Mucho|A lot|Beaucoup
+Molestia leve|Mild discomfort|Gêne légère
+Dolor máximo|Maximum pain|Douleur maximale
+Muy suave|Very light|Très léger
+Máximo esfuerzo|Maximum effort|Effort maximal
+¿Te duele o te molesta algo?|Does anything hurt or bother you?|Avez-vous mal ou une gêne quelque part ?
+No, me siento bien|No, I feel fine|Non, je me sens bien
+Intensidad|Intensity|Intensité
+¿Qué sientes?|What do you feel?|Que ressentez-vous ?
+Guardar chequeo|Save check-in|Enregistrer le bilan
+Avísale a tu coach al momento. Si ya hiciste tu chequeo de hoy, se agrega ahí.|Let your coach know right away. If you already did today’s check-in, it is added there.|Prévenez votre coach tout de suite. Si vous avez déjà fait le bilan du jour, la gêne y est ajoutée.
+¿Dónde?|Where?|Où ?
+Enviar a mi coach|Send to my coach|Envoyer à mon coach
+¿Por qué no fuiste?|Why did you not go?|Pourquoi n’y êtes-vous pas allé ?
+Esfuerzo de la sesión|Session effort|Effort de la séance
+Escribe entre 0 y 14 horas de sueño.|Enter between 0 and 14 hours of sleep.|Saisissez entre 0 et 14 heures de sommeil.
+Listo. Se lo avisamos a tu coach.|Done. We let your coach know.|C’est fait. Nous avons prévenu votre coach.
+Hombro|Shoulder|Épaule
+Codo o antebrazo|Elbow or forearm|Coude ou avant-bras
+Muñeca o mano|Wrist or hand|Poignet ou main
+Espalda baja|Lower back|Bas du dos
+Espalda alta o cuello|Upper back or neck|Haut du dos ou cou
+Cadera o ingle|Hip or groin|Hanche ou aine
+Muslo|Thigh|Cuisse
+Rodilla|Knee|Genou
+Pantorrilla o tobillo|Calf or ankle|Mollet ou cheville
+Pie|Foot|Pied
+Otra zona|Other area|Autre zone
+Enfermedad|Illness|Maladie
+Lesión|Injury|Blessure
+Escuela o trabajo|School or work|École ou travail
+Viaje o torneo|Travel or tournament|Voyage ou tournoi
+Otra razón|Other reason|Autre raison
+Camino a tu meta|Path to your goal|Chemin vers votre objectif
+Diario|Daily|Quotidien
+Semanal|Weekly|Hebdomadaire
+Mensual|Monthly|Mensuel
+Trimestral|Quarterly|Trimestriel
+Anual|Yearly|Annuel
+Aún no hay evaluaciones del coach en este periodo.|There are no coach assessments in this period yet.|Il n’y a pas encore d’évaluations du coach sur cette période.
+Aún no hay encuestas en este periodo. Al terminar tu entrenamiento te llegará la pregunta.|There are no surveys in this period yet. The question will reach you when your training ends.|Il n’y a pas encore d’enquêtes sur cette période. La question vous parviendra à la fin de votre entraînement.
+Aún no hay encuestas del jugador en este periodo.|There are no player surveys in this period yet.|Il n’y a pas encore d’enquêtes du joueur sur cette période.
+Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -1879,7 +1963,8 @@ const dashboardViews={diario:['daily','quotidienne'],semanal:['weekly','hebdomad
 const dashboardMoods={'sin energía':['no energy','sans énergie'],'con cansancio':['tired','fatigué'],normal:['normal','normal'],bien:['good','bien'],excelente:['excellent','excellent']};
 const dashboardS=(n,one,many)=>Number(n)===1?one:many;
 const dashboardPatterns=[
-  [/^Tu meta: «([\s\S]*)»\. 100 % = la lograste\.$/,(m,i)=>i?`Votre objectif : «${m[1]}». 100 % = vous l’avez atteint.`:`Your goal: “${m[1]}”. 100% = you achieved it.`],
+  [/^Tu meta: «([\s\S]*)»\. 100 % = la lograste\.$/,(m,i)=>i?`Votre objectif : «${m[1].replace(/\.$/,'')}». 100 % = vous l’avez atteint.`:`Your goal: “${m[1].replace(/\.$/,'')}”. 100% = you achieved it.`],
+  [/^en (\d+) días?$/,(m,i)=>i?`dans ${m[1]} jour${dashboardS(m[1],'','s')}`:`in ${m[1]} day${dashboardS(m[1],'','s')}`],
   [/^Su meta: «([\s\S]*)»\. 100 % = la logró\.$/,(m,i)=>i?`Son objectif : «${m[1]}». 100 % = atteint.`:`Their goal: “${m[1]}”. 100% = achieved.`],
   [/^(Inicio|Fin) (\S+)$/,(m,i)=>{const day=dashboardLabels.get(m[2])?.[i]||m[2];return i?`${m[1]==='Inicio'?'Début':'Fin'} ${day}`:`${m[1]==='Inicio'?'Start':'End'} ${day}`}],
   [/^lo usó (.+)$/,(m,i)=>i?`utilisé par ${m[1]}`:`used by ${m[1]}`],
@@ -1890,6 +1975,12 @@ const dashboardPatterns=[
   [/^Respaldo descargado: (\d+) perfiles? y (\d+) datos?\.$/,(m,i)=>i?`Sauvegarde téléchargée : ${m[1]} profil${dashboardS(m[1],'','s')} et ${m[2]} donnée${dashboardS(m[2],'','s')}.`:`Backup downloaded: ${m[1]} profile${dashboardS(m[1],'','s')} and ${m[2]} data item${dashboardS(m[2],'','s')}.`],
   [/^PASO (\d) DE (\d)$/,(m,i)=>i?`ÉTAPE ${m[1]} SUR ${m[2]}`:`STEP ${m[1]} OF ${m[2]}`],
   [/^¿Dónde juegas, (.+)\?$/,(m,i)=>i?`Où jouez-vous, ${m[1]} ?`:`Where do you play, ${m[1]}?`],
+  [/^(⚠ )?Molestia (\d+)\/10$/,(m,i)=>`${m[1]||""}${i?"Douleur":"Pain"} ${m[2]}/10`],
+  [/^(⚠ )?Carga \+(\d+) % vs\. (tu|su) promedio$/,(m,i)=>i?`${m[1]||""}Charge +${m[2]} % par rapport à ${m[3]==="tu"?"votre":"sa"} moyenne`:`${m[1]||""}Load +${m[2]}% vs. ${m[3]==="tu"?"your":"their"} average`],
+  [/^Estado físico de (.+)$/,(m,i)=>i?`État physique de ${m[1]}`:`${m[1]}’s physical condition`],
+  [/^(\d+) UA$/,(m,i)=>i?`${m[1]} UA`:`${m[1]} AU`],
+  [/^([+-]?\d+) % vs\. el promedio de 4 semanas$/,(m,i)=>i?`${m[1]} % par rapport à la moyenne sur 4 semaines`:`${m[1]}% vs. the 4-week average`],
+  [/^(Enfermedad|Lesión|Escuela o trabajo|Viaje o torneo|Otra razón) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
@@ -2083,7 +2174,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109l"><link rel="stylesheet" href="style.css?v=20261109l"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109l"><link rel="stylesheet" href="styles/ace.css?v=20261109l"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109l"></script><script src="resenas.js?v=20261109l"></script><script src="portada.js?v=20261109l"></script><script src="community.js?v=20261109l"></script><script src="session-guide.js?v=20261109l"></script><script src="annual-progress.js?v=20261109l"></script><script src="progress-hub.js?v=20261109l"></script><script src="meetings.js?v=20261109l"></script><script src="monthly-fees.js?v=20261109l"></script><script src="portal.js?v=20261109l"></script><script src="private-payments.js?v=20261109l"></script><script src="roles.js?v=20261109l"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109l"></script><script src="legal.js?v=20261109l"></script><script src="auth.js?v=20261109l"></script><script src="sync.js?v=20261109l"></script><script src="guardian.js?v=20261109l"></script><script src="access.js?v=20261109l"></script><script src="backup.js?v=20261109l"></script><script src="videos.js?v=20261109l"></script><script src="physical.js?v=20261109l"></script><script src="calendar.js?v=20261109l"></script><script src="sobre-corda.js?v=20261109l"></script><script src="app.js?v=20261109l"></script><script src="ace.js?v=20261109l"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109o"><link rel="stylesheet" href="style.css?v=20261109o"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109o"><link rel="stylesheet" href="styles/ace.css?v=20261109o"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109o"></script><script src="resenas.js?v=20261109o"></script><script src="portada.js?v=20261109o"></script><script src="community.js?v=20261109o"></script><script src="session-guide.js?v=20261109o"></script><script src="annual-progress.js?v=20261109o"></script><script src="progress-hub.js?v=20261109o"></script><script src="meetings.js?v=20261109o"></script><script src="monthly-fees.js?v=20261109o"></script><script src="portal.js?v=20261109o"></script><script src="private-payments.js?v=20261109o"></script><script src="roles.js?v=20261109o"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109o"></script><script src="legal.js?v=20261109o"></script><script src="auth.js?v=20261109o"></script><script src="sync.js?v=20261109o"></script><script src="guardian.js?v=20261109o"></script><script src="access.js?v=20261109o"></script><script src="backup.js?v=20261109o"></script><script src="wellness.js?v=20261109o"></script><script src="videos.js?v=20261109o"></script><script src="physical.js?v=20261109o"></script><script src="calendar.js?v=20261109o"></script><script src="sobre-corda.js?v=20261109o"></script><script src="app.js?v=20261109o"></script><script src="ace.js?v=20261109o"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -2098,7 +2189,7 @@ async function saveGuardianLink(){
 //   · se sube al perfil de Supabase (profiles.details.consent) como constancia;
 //   · si la versión cambia, la app vuelve a pedir la aceptación (consentGate).
 const LEGAL={
-  version:'2026-11-09',
+  version:'2026-11-09b',
   fecha:'9 de noviembre de 2026',
   responsable:'Leonardo Arenas, fundador de CORDA',
   domicilio:'',                         // por completar: calle, número, colonia, Guadalajara, Jalisco
@@ -2122,7 +2213,7 @@ const LEGAL_DOCS={
 <li><b>Cuenta:</b> correo electrónico, contraseña (se guarda cifrada; nadie en CORDA puede leerla) y tu rol: jugador, coach o tutor.</li>
 <li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional). Si eres menor de 18 años, también el correo de tu madre, padre o tutor, para invitarle a autorizarte.</li>
 <li><b>Entrenamiento:</b> sesiones y asistencia, comentarios y evaluaciones del coach, ejercicios, videos que marcas como vistos, torneos (nombre, fecha, modalidad, superficie y resultado) y reuniones.</li>
-<li><b>Bienestar (dato sensible):</b> en las encuestas diarias puedes registrar tu energía, tu ánimo y qué faltó en el entrenamiento. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
+<li><b>Bienestar (dato sensible):</b> en las encuestas diarias y en el chequeo de estado físico puedes registrar tu energía, tu ánimo, cuántas horas dormiste, tu dolor muscular, tu estrés, el esfuerzo de cada sesión, el motivo si faltas y las molestias o lesiones que quieras avisar. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
 <li><b>Pagos:</b> los comprobantes de transferencia que decidas subir (imagen o PDF) de mensualidades o clases particulares. Pueden mostrar el nombre del titular y datos de una cuenta bancaria, así que sube solo el comprobante. CORDA <b>no cobra ni procesa pagos</b> y no guarda números de tarjeta.</li>
 <li><b>Contacto opcional:</b> si lo quieres, puedes añadir un correo de contacto, un teléfono y una descripción para que tu academia te encuentre. Es tu decisión y puedes quitarlos cuando quieras.</li>
 <li><b>Datos técnicos:</b> tu navegador guarda en tu dispositivo tus preferencias y la sesión iniciada. No usamos publicidad ni rastreadores de terceros.</li>
@@ -2239,7 +2330,7 @@ const LEGAL_DOCS={
 <li>Soy la madre, el padre o la persona que ejerce la patria potestad o tutela legal del jugador menor de edad, y tengo facultad para autorizar este tratamiento de sus datos.</li>
 <li>Leí el <b>Aviso de privacidad</b> y los <b>Términos y condiciones</b> de CORDA y los acepto en nombre del menor.</li>
 <li>Autorizo que el menor tenga una cuenta de CORDA y que se traten sus datos personales (nombre, fecha de nacimiento, perfil deportivo, foto opcional, entrenamientos, evaluaciones, torneos y comprobantes de pago) para las finalidades del Aviso de privacidad.</li>
-<li>Autorizo de forma <b>expresa</b> que se traten los datos de <b>bienestar</b> que el menor decida registrar en las encuestas (energía, ánimo y observaciones), y entiendo que son datos sensibles y que responderlas es voluntario.</li>
+<li>Autorizo de forma <b>expresa</b> que se traten los datos de <b>bienestar</b> que el menor decida registrar en las encuestas y en el chequeo de estado físico (energía, ánimo, sueño, dolor, molestias o lesiones y observaciones), y entiendo que son datos sensibles y que responderlas es voluntario.</li>
 <li>Entiendo que los coaches aprobados de su academia podrán ver y registrar información de su entrenamiento, y que las demás personas de su academia ven su nombre, rol y foto de perfil, pero no su meta, sus encuestas ni sus pagos.</li>
 <li>Puedo crear mi cuenta de Tutor para ver el avance del menor, y puedo ejercer en su nombre los derechos de acceso, rectificación, cancelación y oposición, o retirar este consentimiento, escribiendo a <a href="mailto:${LEGAL.correo}">${LEGAL.correo}</a>. Si lo retiro, la cuenta del menor se cerrará.</li>
 <li>Me comprometo a acompañar y supervisar el uso de CORDA por parte del menor, y a no subir información de otras personas sin su permiso.</li>
@@ -2851,14 +2942,14 @@ function playerHome(){
   const payment=`<section class="card"><small class="eyebrow">Mensualidad · ${dateLabel(today,{month:'long'})}</small><h2>${esc(feeStatus(feeLedger(),today.slice(0,7)))}</h2><button data-page="payments" class="link">Ver mensualidad ↗</button></section>`;
   const side=role==='Tutor'?payment:competing?tournamentCard():notices;
   return heading(role==='Coach'?'Plan de entrenamiento':role==='Tutor'?'Agenda del jugador':'Mi entrenamiento',dateLabel(today,{weekday:'long',day:'numeric',month:'long'})+' · '+esc(state.profile.academy),`<div class="heading-actions">${role==='Coach'?'<button id="newsession" class="btn">+ Crear sesión</button>':''}${headingAvatar()}</div>`)+
-    guardianBanner()+calendarBanner()+(role==='Jugador'?checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
+    guardianBanner()+calendarBanner()+(role==='Jugador'?wellnessBanner()+checkinBanner():'')+'<div class="portal-grid">'+nextSessionCard()+side+'</div><div class="flow-week"><section class="agenda-main"><div class="row"><h2>Esta semana</h2><button class="link" data-page="calendar">Mi plan ↗</button></div>'+calendarStrip(agendaDate)+'<h3>'+dateLabel(agendaDate,{weekday:'long',day:'numeric'})+'</h3>'+(sessions.map(sessionSummary).join('')||'<p class="hint">Sin sesiones para este día.</p>')+'</section>'+monthlyReviewCard()+'</div>'+
     '<div class="flow-week">'+(role==='Tutor'?notices:competing?payment+notices:payment)+meetingCard()+'</div>'+playerBanner();
 }
 function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+progressHub(state.profile.memberId,state.profile.goal);
+  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+progressHub(state.profile.memberId,state.profile.goal);
 }
 function bindPortal() {
   bindAnnual();
@@ -3334,7 +3425,8 @@ function attendanceField(question,yes,no,old){
 // Si no asistió, se ocultan (y se desactivan) las demás preguntas.
 function bindAttendance(){
   const form=$('#modalform'),rest=form.querySelector('.attend-rest');
-  const sync=()=>{const absent=form.querySelector('[name="attended"][value="no"]').checked;rest.hidden=absent;rest.querySelectorAll('input,textarea').forEach(i=>i.disabled=absent)};
+  const why=form.querySelector('.absent-only');
+  const sync=()=>{const absent=form.querySelector('[name="attended"][value="no"]').checked;rest.hidden=absent;rest.querySelectorAll('input,textarea').forEach(i=>i.disabled=absent);if(why){why.hidden=!absent;why.querySelectorAll('select').forEach(s=>s.disabled=!absent)}};
   form.querySelectorAll('[name="attended"]').forEach(r=>r.onchange=sync);sync();
 }
 function bindScoreField(){
@@ -3348,15 +3440,19 @@ function openPlayerCheckin(fromNotice=false){
   modal(fromNotice?'¿Cómo te fue hoy?':'Encuesta de hoy',
     `${fromNotice?'<p class="full hub-notice"><small class="eyebrow">Notificación · después de tu entrenamiento</small>Responde en 20 segundos. Con esto se calcula tu porcentaje del día.</p>':''}
     ${attendanceField('¿Fuiste hoy al entrenamiento?','Sí fui','No fui',old)}
+    <div class="full formgrid absent-only" hidden><label class="full">¿Por qué no fuiste?<select name="reason">${ABSENCE_REASONS.map(r=>`<option ${old.reason===r?'selected':''}>${r}</option>`).join('')}</select></label></div>
     <div class="full formgrid attend-rest">
     <p class="full hint">Tu meta: «${esc(state.profile.goal||'sin definir')}». 100 % = la lograste.</p>
     ${scoreField('¿Qué tan cerca te sentiste hoy de tu meta?',old.score??lastScore(store.player))}
     <fieldset class="full mood-scale"><legend>¿Cómo te sentiste en el entrenamiento?</legend>${mood}</fieldset>
+    <label class="full hub-range">Esfuerzo de la sesión<span class="hub-range-value"><output id="hub-rpe-out">${old.rpe??5} / 10</output></span><input type="range" name="rpe" min="1" max="10" step="1" value="${old.rpe??5}"><small class="hub-range-scale"><span>1 · Muy suave</span><span>10 · Máximo esfuerzo</span></small></label>
     <label class="full">¿Qué te salió bien? <span class="optional">(opcional)</span><textarea name="good" maxlength="300">${esc(old.good)}</textarea></label>
     <label class="full">¿Qué te faltó? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label></div>`,
-    data=>{store.player[today]=data.attended==='no'?{attended:false,at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};hubPick=null},
+    data=>{store.player[today]=data.attended==='no'?{attended:false,reason:data.reason||'',at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),rpe:Number(data.rpe)||5,good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};hubPick=null},
     'Enviar');
   bindScoreField();bindAttendance();
+  const rpe=$('#modalform [name="rpe"]'),rpeOut=$('#hub-rpe-out');
+  if(rpe)rpe.oninput=()=>rpeOut.textContent=rpe.value+' / 10';
 }
 function openCoachCheckin(member,queue){
   const store=checkinStore(member.id),today=localDay(),old=store.coach[today]||{};
@@ -3595,14 +3691,14 @@ function playerList(){
   return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn lime" id="roster-add">+ Jugador</button>')+
     (members.length?`<div class="athlete-list">${members.map(m=>{
       const record=athleteFor(m),note=latestPlayerNote(record);
-      return `<article class="card"><div class="row">${avatar(m)}<h2><button class="athlete-name" data-athlete="${esc(m.id)}">${esc(m.name)}</button></h2></div><small>Fortaleza observada</small><p>${esc(note.good||'Por evaluar')}</p><small>Siguiente ajuste</small><p>${esc(note.focus||'Por evaluar')}</p><button class="link" data-athlete="${esc(m.id)}">Ver seguimiento ↗</button></article>`;
+      return `<article class="card"><div class="row">${avatar(m)}<h2><button class="athlete-name" data-athlete="${esc(m.id)}">${esc(m.name)}</button></h2></div>${wellnessBadge(m.id)}<small>Fortaleza observada</small><p>${esc(note.good||'Por evaluar')}</p><small>Siguiente ajuste</small><p>${esc(note.focus||'Por evaluar')}</p><button class="link" data-athlete="${esc(m.id)}">Ver seguimiento ↗</button></article>`;
     }).join('')}</div>`:'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
 }
 function athleteDetail(record,name){
   const note=latestPlayerNote(record);
   const history=Object.entries(record.reviews||{}).sort(([a],[b])=>b.localeCompare(a));
   const months=Object.entries(record.profile.monthlyReviews||{}).sort(([a],[b])=>b.localeCompare(a));
-  return heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+progressHub(record.profile.memberId,record.profile.goal,name)+
+  return heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+progressHub(record.profile.memberId,record.profile.goal,name)+
     `<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
     ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>
@@ -4733,6 +4829,38 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .access-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) 0;border-top:1px solid var(--line)}
 .access-row[data-status="usado"],.access-row[data-status="revocado"],.access-row[data-status="vencido"]{opacity:.65}
 #access-form{margin-top:var(--space-4)}
+
+/* Estado físico (Análisis del coach) */
+.wellness .sectiontitle{align-items:flex-start;gap:var(--space-3)}
+.well-alerts{list-style:none;margin:var(--space-3) 0;padding:0;display:grid;gap:var(--space-2)}
+.well-alert{padding:var(--space-2) var(--space-3);border-radius:var(--radius-sm,8px);border:1px solid var(--line);font-weight:600}
+.well-alert.sev-high{border-color:#B42318;color:#B42318;background:rgba(180,35,24,.08)}
+.well-alert.sev-mid{border-color:#B7791F;color:#8a5a0f;background:rgba(183,121,31,.10)}
+.well-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:var(--space-2);margin:var(--space-3) 0 var(--space-1)}
+.well-day{display:flex;flex-direction:column;align-items:center;gap:2px;padding:var(--space-2) 0;border-radius:var(--radius-sm,8px);border:1px solid var(--line);text-align:center}
+.well-day small{font-size:var(--caption-size);text-transform:uppercase;opacity:.75}
+.well-day b{font-family:var(--font-display);font-size:1.15rem}
+.well-day.ok{background:rgba(46,125,50,.18);border-color:rgba(46,125,50,.5)}
+.well-day.mid{background:rgba(183,121,31,.16);border-color:rgba(183,121,31,.5)}
+.well-day.low{background:rgba(180,35,24,.14);border-color:rgba(180,35,24,.5)}
+.well-day.pain{border-color:#B42318}
+.well-day.none{opacity:.55}
+.well-scale-note{margin-top:0}
+.well-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-3);margin:var(--space-3) 0}
+.well-metrics>div{display:flex;flex-direction:column;gap:2px;padding:var(--space-3);border:1px solid var(--line);border-radius:var(--radius-sm,8px)}
+.well-metrics small{font-size:var(--caption-size);text-transform:uppercase;opacity:.75}
+.well-metrics b{font-family:var(--font-display);font-size:1.6rem;line-height:1.1}
+.well-pains ul{margin:var(--space-2) 0;padding-left:var(--space-5)}
+.well-absences{margin:var(--space-2) 0}
+.well-ends{display:flex;justify-content:space-between;width:100%;margin-top:var(--space-1)}
+.well-scale .mood-option{min-width:3rem}
+.well-badge{margin:var(--space-2) 0 0;font-size:var(--small-size);font-weight:600}
+.well-badge.sev-high{color:#B42318}
+.well-badge.sev-mid{color:#8a5a0f}
+.well-badge.none{opacity:.6;font-weight:400}
+.well-badge.ok{color:#2E7D32}
+.well-badge.mid{color:#8a5a0f}
+.well-badge.low{color:#B42318}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -5139,8 +5267,8 @@ const CORDA_SUPABASE={
 // Quién puede ver o editar cada cosa lo deciden las reglas RLS de supabase/03_datos_compartidos.sql.
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
-const PLAYER_KINDS=new Set(['checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
-const DELETABLE=new Set(['session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
+const PLAYER_KINDS=new Set(['wellness','checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
+const DELETABLE=new Set(['wellness','session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -5171,7 +5299,7 @@ const ACADEMY_LISTS=[
 ];
 // Datos de cada jugador guardados por fecha o mes: [tipo, cómo leer el objeto]
 const PLAYER_MAPS=[
-  ['checkin_player',id=>checkinStore(id).player],['checkin_coach',id=>checkinStore(id).coach],
+  ['wellness',id=>checkinStore(id).wellness??={}],['checkin_player',id=>checkinStore(id).player],['checkin_coach',id=>checkinStore(id).coach],
   ['review',id=>syncAthlete(id).reviews??={}],['monthly_review',id=>syncAthlete(id).profile.monthlyReviews??={}],
   ['fee_month',id=>syncLedger(id).months],['video_seen',id=>videoSeenStore(id)]
 ];
@@ -5580,6 +5708,191 @@ document.addEventListener('click',event=>{
     const store=videoSeenStore(state.profile.memberId),key=seen.dataset.videoSeen;
     if(store[key])delete store[key];else store[key]={at:Date.now()};
     save();render();
+  }
+});
+````
+
+## Archivo: `dist/wellness.js`
+
+````javascript
+// Estado físico del jugador, dentro de «Análisis del coach».
+// Tres cosas que un jugador de competencia necesita y el coach necesita ver:
+//   1. Chequeo diario de 30 segundos (sueño, energía, ánimo, dolor muscular, estrés y molestias): state.checkins[jugador].wellness['AAAA-MM-DD'].
+//   2. Esfuerzo de cada sesión (1 a 10) en la encuesta de después del entrenamiento (progress-hub.js): carga = esfuerzo × minutos.
+//   3. Motivo cuando el jugador no fue al entrenamiento (enfermedad, lesión, escuela, viaje…).
+// Las alertas son orientativas: ayudan al coach a preguntar y ajustar la carga; no son un diagnóstico médico.
+// En Supabase cada chequeo es un item «wellness» del jugador (supabase/13_estado_fisico.sql).
+const WELL_AREAS=['Hombro','Codo o antebrazo','Muñeca o mano','Espalda baja','Espalda alta o cuello','Cadera o ingle','Muslo','Rodilla','Pantorrilla o tobillo','Pie','Otra zona'];
+const ABSENCE_REASONS=['Enfermedad','Lesión','Escuela o trabajo','Viaje o torneo','Otra razón'];
+const WELL_EXAMPLE_SCORES=[74,68,81,57,62,79,76];
+
+const wellRecords=id=>checkinStore(id).wellness??={};
+const wellPeek=id=>peekCheckins(id).wellness||{};
+const wellDays=(n,end=localDay())=>Array.from({length:n},(_,i)=>dateAfter(end,i-(n-1)));
+const wellNum=(n,digits=1)=>Number(n).toFixed(digits).replace('.',coverLanguage==='en'?'.':',');
+
+// Preparación 0–100: promedio de sueño, energía, ánimo, dolor muscular (al revés) y estrés (al revés).
+function readiness(w){
+  const part=(v,inverse)=>{const n=(Number(v)-1)/4;return inverse?1-n:n};
+  const parts=[part(w?.sleepQ),part(w?.energy),part(w?.mood),part(w?.soreness,true),part(w?.stress,true)].filter(Number.isFinite);
+  return parts.length===5?Math.round(parts.reduce((a,b)=>a+b,0)/5*100):null;
+}
+const wellClass=score=>score===null?'none':score>=70?'ok':score>=50?'mid':'low';
+
+// ---------- Carga de entrenamiento ----------
+function wellDayLoad(id,day){
+  const c=peekCheckins(id).player?.[day];
+  if(!c||c.attended===false||!Number.isFinite(c.rpe))return null;
+  const minutes=(state.sessions||[]).filter(s=>s.date===day&&!s.cancelled).reduce((sum,s)=>sum+(Number(s.duration)||0),0)||60;
+  return c.rpe*minutes;
+}
+const wellSumLoad=(id,days)=>days.reduce((sum,d)=>sum+(wellDayLoad(id,d)||0),0);
+function wellLoad(id){
+  const today=localDay(),recent=wellDays(7,today),before=wellDays(28,dateAfter(today,-7));
+  const withData=[...recent,...before].filter(d=>wellDayLoad(id,d)!==null).length;
+  const acute=wellSumLoad(id,recent),chronic=wellSumLoad(id,before)/4;
+  return {acute,chronic,ratio:withData>=10&&chronic>0?acute/chronic:null,any:withData>0};
+}
+
+// ---------- Molestias activas y alertas ----------
+function wellPains(id){
+  const records=wellPeek(id),latest={};
+  for(const day of wellDays(7)){for(const p of records[day]?.pain||[])latest[p.area]={...p,day}}
+  return Object.values(latest).filter(p=>p.level>0).sort((a,b)=>b.level-a.level);
+}
+function wellnessAlerts(id,self=false){
+  const records=wellPeek(id),alerts=[];
+  for(const p of wellPains(id)){
+    if(p.level>=6&&wellDays(3).includes(p.day))alerts.push({sev:'high',text:'Molestia '+p.level+'/10 · '+p.area});
+  }
+  const recent=wellDays(3).map(d=>readiness(records[d]||{})).filter(s=>s!==null);
+  if(recent.length>=2&&recent.slice(-2).every(s=>s<=45))alerts.push({sev:'high',text:'Preparación baja varios días'});
+  const sleeps=wellDays(3).map(d=>records[d]?.sleepH).filter(Number.isFinite);
+  if(sleeps.length>=2&&sleeps.reduce((a,b)=>a+b,0)/sleeps.length<6)alerts.push({sev:'mid',text:(self?'Duermes poco':'Duerme poco')+': menos de 6 h'});
+  const load=wellLoad(id);
+  if(load.ratio!==null&&load.ratio>1.5)alerts.push({sev:'mid',text:'Carga +'+Math.round((load.ratio-1)*100)+' % vs. '+(self?'tu':'su')+' promedio'});
+  return alerts.sort((a,b)=>(a.sev==='high'?0:1)-(b.sev==='high'?0:1));
+}
+
+// ---------- Datos de ejemplo (mientras el jugador no ha hecho ningún chequeo) ----------
+function wellExample(){
+  const records={};
+  wellDays(7).forEach((d,i)=>{const s=WELL_EXAMPLE_SCORES[i];records[d]={sleepH:+(5.5+s/40).toFixed(1),sleepQ:Math.round(1+s/25),energy:Math.round(1+s/25),mood:Math.round(1+s/25),soreness:s>70?2:3,stress:s>70?2:3,pain:i===6?[{area:'Hombro',level:3}]:[]}});
+  return records;
+}
+
+// ---------- Panel ----------
+function wellnessPanel(id,name,self){
+  const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
+  const today=localDay(),days=wellDays(7);
+  const scores=days.map(d=>records[d]?readiness(records[d]):null),known=scores.filter(s=>s!==null);
+  const avg=known.length?Math.round(known.reduce((a,b)=>a+b,0)/known.length):null;
+  const sleeps=days.map(d=>records[d]?.sleepH).filter(Number.isFinite),sleepAvg=sleeps.length?sleeps.reduce((a,b)=>a+b,0)/sleeps.length:null;
+  const load=example?{acute:1840,chronic:1640,ratio:1.12,any:true}:wellLoad(id);
+  const alerts=example?[]:wellnessAlerts(id,self),pains=example?[{area:'Hombro',level:3,day:today}]:wellPains(id);
+  const first=esc(String(name||'').split(' ')[0]||'');
+  const doneToday=!example&&real[today]&&readiness(real[today])!==null;
+  const absences={};
+  if(!example)for(const d of wellDays(30)){const c=peekCheckins(id).player?.[d];if(c?.attended===false&&c.reason)absences[c.reason]=(absences[c.reason]||0)+1}
+  const strip=days.map((d,i)=>{const s=scores[i],r=records[d],cls=s===null?(r?.pain?.some(p=>p.level>0)?'pain':'none'):wellClass(s);
+    return `<div class="well-day ${cls}" role="listitem"><small>${dateLabel(d,{weekday:'short'})}</small><b>${s===null?'—':s}</b></div>`}).join('');
+  const trend=load.ratio===null?(load.any?'Faltan más días para comparar':'Se calcula con el esfuerzo de tus sesiones'):(load.ratio>=1?'+':'')+Math.round((load.ratio-1)*100)+' % vs. el promedio de 4 semanas';
+  return `<section class="card wellness" id="wellness-panel"><div class="sectiontitle"><div><small class="eyebrow">Estado físico${example?' · Datos de ejemplo':''}</small><h2>${self?'¿Cómo amaneces?':'Estado físico de '+first}</h2></div>
+    ${self&&role==='Jugador'?`<button class="btn lime small" data-open-wellness>${doneToday?'Editar chequeo de hoy':'Chequeo de hoy · 30 s'}</button>`:''}</div>
+    ${alerts.length?`<ul class="well-alerts">${alerts.map(a=>`<li class="well-alert sev-${a.sev}">⚠ ${esc(a.text)}</li>`).join('')}</ul>`:''}
+    <div class="well-strip" role="list" aria-label="Preparación de los últimos 7 días">${strip}</div>
+    <p class="hint well-scale-note">Preparación de 0 a 100 por día: sueño, energía, ánimo, dolor muscular y estrés.</p>
+    <div class="well-metrics">
+      <div><small>Preparación · 7 días</small><b>${avg===null?'—':avg}</b></div>
+      <div><small>Sueño · promedio</small><b>${sleepAvg===null?'—':wellNum(sleepAvg)+' h'}</b></div>
+      <div><small>Carga de la semana</small><b>${load.any?Math.round(load.acute)+' UA':'—'}</b><span class="hint">${trend}</span></div>
+    </div>
+    ${pains.length?`<div class="well-pains"><small class="eyebrow">Molestias activas</small><ul>${pains.map(p=>`<li><b>${esc(p.area)}</b> · ${p.level}/10${self&&role==='Jugador'&&!example?` <button type="button" class="link" data-pain-clear="${esc(p.area)}">Ya no me duele</button>`:''}</li>`).join('')}</ul></div>`:''}
+    ${Object.keys(absences).length?`<p class="hint well-absences"><b>Ausencias · 30 días:</b> ${Object.entries(absences).map(([r,n])=>esc(r)+' '+n).join(' · ')}</p>`:''}
+    ${self&&role==='Jugador'?'<button type="button" class="link" data-report-pain>Reportar una molestia</button>':''}
+    <p class="hint">UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
+}
+function wellnessBanner(){
+  if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
+  const done=wellPeek(state.profile.memberId)[localDay()];
+  if(done&&readiness(done)!==null)return '';
+  return `<section class="card checkin-banner calendar-banner wellness-banner"><div><small class="eyebrow">Chequeo diario</small><h2>¿Cómo amaneces hoy?</h2><p class="hint">30 segundos: sueño, energía y si te duele algo. Tu coach lo ve y ajusta la carga.</p></div><div class="calendar-actions"><button class="btn lime" data-open-wellness>Hacer chequeo</button></div></section>`;
+}
+// Etiqueta corta para la lista de jugadores del coach.
+function wellnessBadge(id){
+  const records=wellPeek(id);
+  if(!Object.keys(records).length)return '';
+  const alerts=wellnessAlerts(id);
+  if(alerts.length)return `<p class="well-badge sev-${alerts[0].sev}">⚠ ${esc(alerts[0].text)}${alerts.length>1?` <small>+${alerts.length-1}</small>`:''}</p>`;
+  const score=records[localDay()]?readiness(records[localDay()]):null;
+  return score===null?'<p class="well-badge none">Sin chequeo hoy</p>':`<p class="well-badge ${wellClass(score)}">Preparación hoy · ${score}</p>`;
+}
+
+// ---------- Formularios ----------
+function wellScale(name,legend,low,high,old){
+  const boxes=[1,2,3,4,5].map(v=>`<label class="mood-option"><input type="radio" name="${name}" value="${v}" required ${Number(old)===v?'checked':''}><span>${v}</span></label>`).join('');
+  return `<fieldset class="full mood-scale well-scale"><legend>${legend}</legend>${boxes}<small class="hub-range-scale well-ends"><span>1 · ${low}</span><span>5 · ${high}</span></small></fieldset>`;
+}
+function painFields(old){
+  const level=old.level??3;
+  return `<div class="full formgrid well-pain-fields" ${old.area?'':'hidden'}>
+    <label class="full hub-range">Intensidad<span class="hub-range-value"><output id="well-pain-out">${level} / 10</output></span><input type="range" name="painLevel" min="1" max="10" step="1" value="${level}"><small class="hub-range-scale"><span>1 · Molestia leve</span><span>10 · Dolor máximo</span></small></label>
+    <label class="full">¿Qué sientes? <span class="optional">(opcional)</span><textarea name="note" maxlength="300">${esc(old.note||'')}</textarea></label></div>`;
+}
+function bindPainFields(){
+  const form=$('#modalform'),area=form.elements.area,box=form.querySelector('.well-pain-fields'),level=form.elements.painLevel,out=$('#well-pain-out');
+  const sync=()=>{const on=!!area.value;box.hidden=!on;box.querySelectorAll('input,textarea').forEach(i=>i.disabled=!on)};
+  area.onchange=sync;sync();
+  if(level)level.oninput=()=>out.textContent=level.value+' / 10';
+}
+function openWellness(){
+  if(role!=='Jugador'||!state.profile?.memberId)return;
+  const id=state.profile.memberId,today=localDay(),old=wellRecords(id)[today]||{},pain=(old.pain||[]).find(p=>p.level>0)||{};
+  modal('Chequeo de hoy',
+    `<p class="full hint">Toma 30 segundos. Tu coach ve tus respuestas para ajustar la carga de entrenamiento. No hay respuestas buenas ni malas: responde con sinceridad.</p>
+    <label class="full">Horas que dormiste<input name="sleepH" type="number" min="0" max="14" step="0.5" inputmode="decimal" required value="${old.sleepH??''}"></label>
+    ${wellScale('sleepQ','Calidad del sueño','Muy mala','Excelente',old.sleepQ)}
+    ${wellScale('energy','Energía','Sin energía','Con mucha energía',old.energy)}
+    ${wellScale('mood','Ánimo','Bajo','Excelente',old.mood)}
+    ${wellScale('soreness','Dolor muscular','Nada','Mucho',old.soreness)}
+    ${wellScale('stress','Estrés (escuela, trabajo o competencia)','Nada','Mucho',old.stress)}
+    <label class="full">¿Te duele o te molesta algo? <span class="optional">(opcional)</span><select name="area"><option value="">No, me siento bien</option>${WELL_AREAS.map(a=>`<option ${pain.area===a?'selected':''}>${a}</option>`).join('')}</select></label>
+    ${painFields({...pain,note:old.note})}`,
+    data=>{
+      const hours=Number(data.sleepH);
+      if(!(hours>=0&&hours<=14)){toast('Escribe entre 0 y 14 horas de sueño.');return false}
+      wellRecords(id)[today]={sleepH:hours,sleepQ:Number(data.sleepQ),energy:Number(data.energy),mood:Number(data.mood),soreness:Number(data.soreness),stress:Number(data.stress),
+        pain:data.area?[{area:data.area,level:Number(data.painLevel)||1}]:[],note:data.area?String(data.note||'').trim():'',at:Date.now()};
+    },'Guardar chequeo');
+  bindPainFields();
+}
+function openPainReport(){
+  if(role!=='Jugador'||!state.profile?.memberId)return;
+  const id=state.profile.memberId,today=localDay();
+  modal('Reportar una molestia',
+    `<p class="full hint">Avísale a tu coach al momento. Si ya hiciste tu chequeo de hoy, se agrega ahí.</p>
+    <label class="full">¿Dónde?<select name="area" required>${WELL_AREAS.map(a=>`<option>${a}</option>`).join('')}</select></label>
+    ${painFields({})}`,
+    data=>{
+      const record=wellRecords(id)[today]??={};
+      record.pain=(record.pain||[]).filter(p=>p.area!==data.area).concat({area:data.area,level:Number(data.painLevel)||1});
+      if(String(data.note||'').trim())record.note=String(data.note).trim();
+      record.at=Date.now();
+    },'Enviar a mi coach');
+  const form=$('#modalform'),level=form.elements.painLevel,out=$('#well-pain-out');
+  form.querySelector('.well-pain-fields').hidden=false;
+  if(level)level.oninput=()=>out.textContent=level.value+' / 10';
+}
+document.addEventListener('click',event=>{
+  const t=event.target;
+  if(t.closest?.('[data-open-wellness]')){openWellness();return}
+  if(t.closest?.('[data-report-pain]')){openPainReport();return}
+  const clear=t.closest?.('[data-pain-clear]');
+  if(clear&&role==='Jugador'&&state.profile?.memberId){
+    const record=wellRecords(state.profile.memberId)[localDay()]??={};
+    record.pain=(record.pain||[]).filter(p=>p.area!==clear.dataset.painClear).concat({area:clear.dataset.painClear,level:0});
+    record.at=Date.now();
+    save();render();toast('Listo. Se lo avisamos a tu coach.');
   }
 });
 ````

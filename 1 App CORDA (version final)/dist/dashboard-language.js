@@ -515,7 +515,88 @@ Entrar al portal|Enter the portal|Entrer dans le portail
 Crear mi cuenta|Create my account|Créer mon compte
 Aceptar y entrar|Accept and enter|Accepter et entrer
 Vincula a tu jugador|Link your player|Liez votre joueur
-← Perfiles|← Profiles|← Profils`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+← Perfiles|← Profiles|← Profils
+Estado físico|Physical condition|État physique
+¿Cómo amaneces?|How do you feel this morning?|Comment vous sentez-vous ce matin ?
+Chequeo de hoy|Today’s check-in|Bilan du jour
+Editar chequeo de hoy|Edit today’s check-in|Modifier le bilan du jour
+⚠ Preparación baja varios días|⚠ Low readiness for several days|⚠ Faible préparation depuis plusieurs jours
+⚠ Duerme poco: menos de 6 h|⚠ Sleeping little: under 6 h|⚠ Dort peu : moins de 6 h
+⚠ Duermes poco: menos de 6 h|⚠ You are sleeping little: under 6 h|⚠ Vous dormez peu : moins de 6 h
+Preparación de los últimos 7 días|Readiness over the last 7 days|Préparation des 7 derniers jours
+Preparación de 0 a 100 por día: sueño, energía, ánimo, dolor muscular y estrés.|Readiness from 0 to 100 per day: sleep, energy, mood, muscle soreness and stress.|Préparation de 0 à 100 par jour : sommeil, énergie, moral, courbatures et stress.
+7 días|7 days|7 jours
+Sueño|Sleep|Sommeil
+promedio|average|moyenne
+Carga de la semana|Weekly load|Charge de la semaine
+Faltan más días para comparar|More days are needed to compare|Il faut plus de jours pour comparer
+Se calcula con el esfuerzo de tus sesiones|Calculated from the effort of your sessions|Calculée à partir de l’effort de vos séances
+Molestias activas|Active issues|Douleurs actives
+Ya no me duele|It no longer hurts|Cela ne me fait plus mal
+Ausencias|Absences|Absences
+30 días:|30 days:|30 jours :
+Reportar una molestia|Report a pain or discomfort|Signaler une gêne
+UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.|AU = effort (1 to 10) × minutes. This is guidance to discuss with your coach, not a medical diagnosis.|UA = effort (1 à 10) × minutes. Ce sont des repères à discuter avec votre coach, pas un diagnostic médical.
+Chequeo diario|Daily check-in|Bilan quotidien
+¿Cómo amaneces hoy?|How do you feel this morning?|Comment vous sentez-vous ce matin ?
+30 segundos: sueño, energía y si te duele algo. Tu coach lo ve y ajusta la carga.|30 seconds: sleep, energy and whether anything hurts. Your coach sees it and adjusts the load.|30 secondes : sommeil, énergie et si quelque chose vous fait mal. Votre coach le voit et ajuste la charge.
+Hacer chequeo|Do check-in|Faire le bilan
+Sin chequeo hoy|No check-in today|Pas de bilan aujourd’hui
+Preparación hoy|Readiness today|Préparation aujourd’hui
+Toma 30 segundos. Tu coach ve tus respuestas para ajustar la carga de entrenamiento. No hay respuestas buenas ni malas: responde con sinceridad.|It takes 30 seconds. Your coach sees your answers to adjust the training load. There are no right or wrong answers: answer honestly.|Cela prend 30 secondes. Votre coach voit vos réponses pour ajuster la charge d’entraînement. Il n’y a pas de bonnes ou de mauvaises réponses : répondez sincèrement.
+Horas que dormiste|Hours you slept|Heures de sommeil
+Calidad del sueño|Sleep quality|Qualité du sommeil
+Energía|Energy|Énergie
+Ánimo|Mood|Moral
+Dolor muscular|Muscle soreness|Courbatures
+Estrés (escuela, trabajo o competencia)|Stress (school, work or competition)|Stress (école, travail ou compétition)
+Muy mala|Very poor|Très mauvaise
+Con mucha energía|Very energetic|Plein d’énergie
+Bajo|Low|Bas
+Nada|None|Aucun
+Mucho|A lot|Beaucoup
+Molestia leve|Mild discomfort|Gêne légère
+Dolor máximo|Maximum pain|Douleur maximale
+Muy suave|Very light|Très léger
+Máximo esfuerzo|Maximum effort|Effort maximal
+¿Te duele o te molesta algo?|Does anything hurt or bother you?|Avez-vous mal ou une gêne quelque part ?
+No, me siento bien|No, I feel fine|Non, je me sens bien
+Intensidad|Intensity|Intensité
+¿Qué sientes?|What do you feel?|Que ressentez-vous ?
+Guardar chequeo|Save check-in|Enregistrer le bilan
+Avísale a tu coach al momento. Si ya hiciste tu chequeo de hoy, se agrega ahí.|Let your coach know right away. If you already did today’s check-in, it is added there.|Prévenez votre coach tout de suite. Si vous avez déjà fait le bilan du jour, la gêne y est ajoutée.
+¿Dónde?|Where?|Où ?
+Enviar a mi coach|Send to my coach|Envoyer à mon coach
+¿Por qué no fuiste?|Why did you not go?|Pourquoi n’y êtes-vous pas allé ?
+Esfuerzo de la sesión|Session effort|Effort de la séance
+Escribe entre 0 y 14 horas de sueño.|Enter between 0 and 14 hours of sleep.|Saisissez entre 0 et 14 heures de sommeil.
+Listo. Se lo avisamos a tu coach.|Done. We let your coach know.|C’est fait. Nous avons prévenu votre coach.
+Hombro|Shoulder|Épaule
+Codo o antebrazo|Elbow or forearm|Coude ou avant-bras
+Muñeca o mano|Wrist or hand|Poignet ou main
+Espalda baja|Lower back|Bas du dos
+Espalda alta o cuello|Upper back or neck|Haut du dos ou cou
+Cadera o ingle|Hip or groin|Hanche ou aine
+Muslo|Thigh|Cuisse
+Rodilla|Knee|Genou
+Pantorrilla o tobillo|Calf or ankle|Mollet ou cheville
+Pie|Foot|Pied
+Otra zona|Other area|Autre zone
+Enfermedad|Illness|Maladie
+Lesión|Injury|Blessure
+Escuela o trabajo|School or work|École ou travail
+Viaje o torneo|Travel or tournament|Voyage ou tournoi
+Otra razón|Other reason|Autre raison
+Camino a tu meta|Path to your goal|Chemin vers votre objectif
+Diario|Daily|Quotidien
+Semanal|Weekly|Hebdomadaire
+Mensual|Monthly|Mensuel
+Trimestral|Quarterly|Trimestriel
+Anual|Yearly|Annuel
+Aún no hay evaluaciones del coach en este periodo.|There are no coach assessments in this period yet.|Il n’y a pas encore d’évaluations du coach sur cette période.
+Aún no hay encuestas en este periodo. Al terminar tu entrenamiento te llegará la pregunta.|There are no surveys in this period yet. The question will reach you when your training ends.|Il n’y a pas encore d’enquêtes sur cette période. La question vous parviendra à la fin de votre entraînement.
+Aún no hay encuestas del jugador en este periodo.|There are no player surveys in this period yet.|Il n’y a pas encore d’enquêtes du joueur sur cette période.
+Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -554,7 +635,8 @@ const dashboardViews={diario:['daily','quotidienne'],semanal:['weekly','hebdomad
 const dashboardMoods={'sin energía':['no energy','sans énergie'],'con cansancio':['tired','fatigué'],normal:['normal','normal'],bien:['good','bien'],excelente:['excellent','excellent']};
 const dashboardS=(n,one,many)=>Number(n)===1?one:many;
 const dashboardPatterns=[
-  [/^Tu meta: «([\s\S]*)»\. 100 % = la lograste\.$/,(m,i)=>i?`Votre objectif : «${m[1]}». 100 % = vous l’avez atteint.`:`Your goal: “${m[1]}”. 100% = you achieved it.`],
+  [/^Tu meta: «([\s\S]*)»\. 100 % = la lograste\.$/,(m,i)=>i?`Votre objectif : «${m[1].replace(/\.$/,'')}». 100 % = vous l’avez atteint.`:`Your goal: “${m[1].replace(/\.$/,'')}”. 100% = you achieved it.`],
+  [/^en (\d+) días?$/,(m,i)=>i?`dans ${m[1]} jour${dashboardS(m[1],'','s')}`:`in ${m[1]} day${dashboardS(m[1],'','s')}`],
   [/^Su meta: «([\s\S]*)»\. 100 % = la logró\.$/,(m,i)=>i?`Son objectif : «${m[1]}». 100 % = atteint.`:`Their goal: “${m[1]}”. 100% = achieved.`],
   [/^(Inicio|Fin) (\S+)$/,(m,i)=>{const day=dashboardLabels.get(m[2])?.[i]||m[2];return i?`${m[1]==='Inicio'?'Début':'Fin'} ${day}`:`${m[1]==='Inicio'?'Start':'End'} ${day}`}],
   [/^lo usó (.+)$/,(m,i)=>i?`utilisé par ${m[1]}`:`used by ${m[1]}`],
@@ -565,6 +647,12 @@ const dashboardPatterns=[
   [/^Respaldo descargado: (\d+) perfiles? y (\d+) datos?\.$/,(m,i)=>i?`Sauvegarde téléchargée : ${m[1]} profil${dashboardS(m[1],'','s')} et ${m[2]} donnée${dashboardS(m[2],'','s')}.`:`Backup downloaded: ${m[1]} profile${dashboardS(m[1],'','s')} and ${m[2]} data item${dashboardS(m[2],'','s')}.`],
   [/^PASO (\d) DE (\d)$/,(m,i)=>i?`ÉTAPE ${m[1]} SUR ${m[2]}`:`STEP ${m[1]} OF ${m[2]}`],
   [/^¿Dónde juegas, (.+)\?$/,(m,i)=>i?`Où jouez-vous, ${m[1]} ?`:`Where do you play, ${m[1]}?`],
+  [/^(⚠ )?Molestia (\d+)\/10$/,(m,i)=>`${m[1]||""}${i?"Douleur":"Pain"} ${m[2]}/10`],
+  [/^(⚠ )?Carga \+(\d+) % vs\. (tu|su) promedio$/,(m,i)=>i?`${m[1]||""}Charge +${m[2]} % par rapport à ${m[3]==="tu"?"votre":"sa"} moyenne`:`${m[1]||""}Load +${m[2]}% vs. ${m[3]==="tu"?"your":"their"} average`],
+  [/^Estado físico de (.+)$/,(m,i)=>i?`État physique de ${m[1]}`:`${m[1]}’s physical condition`],
+  [/^(\d+) UA$/,(m,i)=>i?`${m[1]} UA`:`${m[1]} AU`],
+  [/^([+-]?\d+) % vs\. el promedio de 4 semanas$/,(m,i)=>i?`${m[1]} % par rapport à la moyenne sur 4 semaines`:`${m[1]}% vs. the 4-week average`],
+  [/^(Enfermedad|Lesión|Escuela o trabajo|Viaje o torneo|Otra razón) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],

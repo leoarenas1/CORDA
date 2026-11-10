@@ -214,7 +214,8 @@ function attendanceField(question,yes,no,old){
 // Si no asistió, se ocultan (y se desactivan) las demás preguntas.
 function bindAttendance(){
   const form=$('#modalform'),rest=form.querySelector('.attend-rest');
-  const sync=()=>{const absent=form.querySelector('[name="attended"][value="no"]').checked;rest.hidden=absent;rest.querySelectorAll('input,textarea').forEach(i=>i.disabled=absent)};
+  const why=form.querySelector('.absent-only');
+  const sync=()=>{const absent=form.querySelector('[name="attended"][value="no"]').checked;rest.hidden=absent;rest.querySelectorAll('input,textarea').forEach(i=>i.disabled=absent);if(why){why.hidden=!absent;why.querySelectorAll('select').forEach(s=>s.disabled=!absent)}};
   form.querySelectorAll('[name="attended"]').forEach(r=>r.onchange=sync);sync();
 }
 function bindScoreField(){
@@ -228,15 +229,19 @@ function openPlayerCheckin(fromNotice=false){
   modal(fromNotice?'¿Cómo te fue hoy?':'Encuesta de hoy',
     `${fromNotice?'<p class="full hub-notice"><small class="eyebrow">Notificación · después de tu entrenamiento</small>Responde en 20 segundos. Con esto se calcula tu porcentaje del día.</p>':''}
     ${attendanceField('¿Fuiste hoy al entrenamiento?','Sí fui','No fui',old)}
+    <div class="full formgrid absent-only" hidden><label class="full">¿Por qué no fuiste?<select name="reason">${ABSENCE_REASONS.map(r=>`<option ${old.reason===r?'selected':''}>${r}</option>`).join('')}</select></label></div>
     <div class="full formgrid attend-rest">
     <p class="full hint">Tu meta: «${esc(state.profile.goal||'sin definir')}». 100 % = la lograste.</p>
     ${scoreField('¿Qué tan cerca te sentiste hoy de tu meta?',old.score??lastScore(store.player))}
     <fieldset class="full mood-scale"><legend>¿Cómo te sentiste en el entrenamiento?</legend>${mood}</fieldset>
+    <label class="full hub-range">Esfuerzo de la sesión<span class="hub-range-value"><output id="hub-rpe-out">${old.rpe??5} / 10</output></span><input type="range" name="rpe" min="1" max="10" step="1" value="${old.rpe??5}"><small class="hub-range-scale"><span>1 · Muy suave</span><span>10 · Máximo esfuerzo</span></small></label>
     <label class="full">¿Qué te salió bien? <span class="optional">(opcional)</span><textarea name="good" maxlength="300">${esc(old.good)}</textarea></label>
     <label class="full">¿Qué te faltó? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label></div>`,
-    data=>{store.player[today]=data.attended==='no'?{attended:false,at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};hubPick=null},
+    data=>{store.player[today]=data.attended==='no'?{attended:false,reason:data.reason||'',at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),rpe:Number(data.rpe)||5,good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};hubPick=null},
     'Enviar');
   bindScoreField();bindAttendance();
+  const rpe=$('#modalform [name="rpe"]'),rpeOut=$('#hub-rpe-out');
+  if(rpe)rpe.oninput=()=>rpeOut.textContent=rpe.value+' / 10';
 }
 function openCoachCheckin(member,queue){
   const store=checkinStore(member.id),today=localDay(),old=store.coach[today]||{};

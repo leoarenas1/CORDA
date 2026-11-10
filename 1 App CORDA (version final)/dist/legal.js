@@ -7,7 +7,7 @@
 //   · se sube al perfil de Supabase (profiles.details.consent) como constancia;
 //   · si la versión cambia, la app vuelve a pedir la aceptación (consentGate).
 const LEGAL={
-  version:'2026-11-09',
+  version:'2026-11-09b',
   fecha:'9 de noviembre de 2026',
   responsable:'Leonardo Arenas, fundador de CORDA',
   domicilio:'',                         // por completar: calle, número, colonia, Guadalajara, Jalisco
@@ -31,7 +31,7 @@ const LEGAL_DOCS={
 <li><b>Cuenta:</b> correo electrónico, contraseña (se guarda cifrada; nadie en CORDA puede leerla) y tu rol: jugador, coach o tutor.</li>
 <li><b>Perfil deportivo:</b> nombre, fecha de nacimiento, academia, etapa o nivel, UTR/WTN, estilo de juego, mano dominante, raqueta, disponibilidad, preferencias, tu meta personal y una foto de perfil (la foto es opcional). Si eres menor de 18 años, también el correo de tu madre, padre o tutor, para invitarle a autorizarte.</li>
 <li><b>Entrenamiento:</b> sesiones y asistencia, comentarios y evaluaciones del coach, ejercicios, videos que marcas como vistos, torneos (nombre, fecha, modalidad, superficie y resultado) y reuniones.</li>
-<li><b>Bienestar (dato sensible):</b> en las encuestas diarias puedes registrar tu energía, tu ánimo y qué faltó en el entrenamiento. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
+<li><b>Bienestar (dato sensible):</b> en las encuestas diarias y en el chequeo de estado físico puedes registrar tu energía, tu ánimo, cuántas horas dormiste, tu dolor muscular, tu estrés, el esfuerzo de cada sesión, el motivo si faltas y las molestias o lesiones que quieras avisar. Responderlas es voluntario. Estos datos se refieren a tu estado físico y emocional, por eso los tratamos con cuidado y solo con tu consentimiento expreso.</li>
 <li><b>Pagos:</b> los comprobantes de transferencia que decidas subir (imagen o PDF) de mensualidades o clases particulares. Pueden mostrar el nombre del titular y datos de una cuenta bancaria, así que sube solo el comprobante. CORDA <b>no cobra ni procesa pagos</b> y no guarda números de tarjeta.</li>
 <li><b>Contacto opcional:</b> si lo quieres, puedes añadir un correo de contacto, un teléfono y una descripción para que tu academia te encuentre. Es tu decisión y puedes quitarlos cuando quieras.</li>
 <li><b>Datos técnicos:</b> tu navegador guarda en tu dispositivo tus preferencias y la sesión iniciada. No usamos publicidad ni rastreadores de terceros.</li>
@@ -148,7 +148,7 @@ const LEGAL_DOCS={
 <li>Soy la madre, el padre o la persona que ejerce la patria potestad o tutela legal del jugador menor de edad, y tengo facultad para autorizar este tratamiento de sus datos.</li>
 <li>Leí el <b>Aviso de privacidad</b> y los <b>Términos y condiciones</b> de CORDA y los acepto en nombre del menor.</li>
 <li>Autorizo que el menor tenga una cuenta de CORDA y que se traten sus datos personales (nombre, fecha de nacimiento, perfil deportivo, foto opcional, entrenamientos, evaluaciones, torneos y comprobantes de pago) para las finalidades del Aviso de privacidad.</li>
-<li>Autorizo de forma <b>expresa</b> que se traten los datos de <b>bienestar</b> que el menor decida registrar en las encuestas (energía, ánimo y observaciones), y entiendo que son datos sensibles y que responderlas es voluntario.</li>
+<li>Autorizo de forma <b>expresa</b> que se traten los datos de <b>bienestar</b> que el menor decida registrar en las encuestas y en el chequeo de estado físico (energía, ánimo, sueño, dolor, molestias o lesiones y observaciones), y entiendo que son datos sensibles y que responderlas es voluntario.</li>
 <li>Entiendo que los coaches aprobados de su academia podrán ver y registrar información de su entrenamiento, y que las demás personas de su academia ven su nombre, rol y foto de perfil, pero no su meta, sus encuestas ni sus pagos.</li>
 <li>Puedo crear mi cuenta de Tutor para ver el avance del menor, y puedo ejercer en su nombre los derechos de acceso, rectificación, cancelación y oposición, o retirar este consentimiento, escribiendo a <a href="mailto:${LEGAL.correo}">${LEGAL.correo}</a>. Si lo retiro, la cuenta del menor se cerrará.</li>
 <li>Me comprometo a acompañar y supervisar el uso de CORDA por parte del menor, y a no subir información de otras personas sin su permiso.</li>
