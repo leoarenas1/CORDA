@@ -59,9 +59,83 @@ function wellnessAlerts(id,self=false){
 
 // ---------- Datos de ejemplo (mientras el jugador no ha hecho ningún chequeo) ----------
 function wellExample(){
-  const records={};
-  wellDays(7).forEach((d,i)=>{const s=WELL_EXAMPLE_SCORES[i];records[d]={sleepH:+(5.5+s/40).toFixed(1),sleepQ:Math.round(1+s/25),energy:Math.round(1+s/25),mood:Math.round(1+s/25),soreness:s>70?2:3,stress:s>70?2:3,pain:i===6?[{area:'Hombro',level:3}]:[]}});
+  const records={},today=localDay(),clamp=v=>Math.max(1,Math.min(5,Math.round(v)));
+  for(let i=0;i<200;i++){
+    if(i%9===4)continue;
+    const base=76-Math.min(40,i*0.2)+10*Math.sin(i/4);
+    records[dateAfter(today,-i)]={sleepH:+(5.2+base/45).toFixed(1),sleepQ:clamp(1+4*(base-8)/100),energy:clamp(1+4*base/100),mood:clamp(1+4*(base+4)/100),
+      soreness:clamp(5-4*(base+6)/100),stress:clamp(5-4*(base-10)/100),pain:i%23===3?[{area:'Hombro',level:3}]:[]};
+  }
   return records;
+}
+
+// ---------- Cómo se ha sentido: gráfica diaria, semanal y mensual + qué falla y qué va bien ----------
+// Cada factor va de 0 (peor) a 100 (mejor). Músculos y estrés se invierten: 100 = sin dolor muscular y sin estrés.
+const WELL_FACTORS=[['sleepQ','Sueño',false],['energy','Energía',false],['mood','Ánimo',false],['soreness','Músculos',true],['stress','Estrés',true]];
+const WELL_PERIODS={day:'Últimos 14 días',week:'Últimas 8 semanas',month:'Últimos 6 meses'};
+let wellPeriod='week',wellPick=null,wellArgs=null;
+const factorValue=(w,key,inverse)=>{const n=(Number(w[key])-1)/4;return Math.round((inverse?1-n:n)*100)};
+function wellWindow(period,today=localDay()){
+  if(period==='day')return wellDays(14,today);
+  if(period==='week'){const monday=mondayOf(today);return Array.from({length:8},(_,i)=>dateAfter(monday,(i-7)*7))}
+  const first=new Date(today+'T12:00:00');first.setDate(1);
+  return Array.from({length:6},(_,i)=>{const d=new Date(first);d.setMonth(first.getMonth()-(5-i));return localDay(d).slice(0,7)});
+}
+function wellAgg(list){
+  const full=list.filter(w=>readiness(w)!==null),hours=list.map(w=>w.sleepH).filter(Number.isFinite);
+  if(!full.length)return {n:0,score:null,factors:null,sleepH:hours.length?hours.reduce((a,b)=>a+b,0)/hours.length:null,pain:list.filter(w=>(w.pain||[]).some(p=>p.level>0)).length};
+  const factors=Object.fromEntries(WELL_FACTORS.map(([key,,inverse])=>[key,Math.round(full.reduce((s,w)=>s+factorValue(w,key,inverse),0)/full.length)]));
+  return {n:full.length,score:Math.round(full.reduce((s,w)=>s+readiness(w),0)/full.length),factors,
+    sleepH:hours.length?hours.reduce((a,b)=>a+b,0)/hours.length:null,pain:list.filter(w=>(w.pain||[]).some(p=>p.level>0)).length};
+}
+function wellBuckets(records,period){
+  const keys=wellWindow(period),groups=Object.fromEntries(keys.map(k=>[k,[]])),pooled=[];
+  for(const [day,w] of Object.entries(records)){const k=bucketKey(day,period);if(groups[k]){groups[k].push(w);pooled.push(w)}}
+  return {buckets:keys.map(k=>({key:k,...wellAgg(groups[k])})),pooled:wellAgg(pooled)};
+}
+const wellLabel=(key,period)=>period==='month'?dateLabel(key+'-01',{month:'short',year:'2-digit'}):dateLabel(key,{day:'numeric',month:'short'});
+function wellChart(buckets,period,pick){
+  const W=320,H=150,left=26,right=6,top=14,bottom=24,n=buckets.length,slot=(W-left-right)/n,bar=Math.min(26,slot*0.62);
+  const y=v=>top+(H-top-bottom)*(1-v/100);
+  const grid=[0,50,100].map(v=>`<line x1="${left}" x2="${W-right}" y1="${y(v)}" y2="${y(v)}" class="chart-grid"/><text x="${left-4}" y="${y(v)+3}" text-anchor="end">${v}</text>`).join('');
+  const step=n>10?2:1;
+  const cols=buckets.map((b,i)=>{
+    const x=left+slot*i+(slot-bar)/2,cx=x+bar/2,has=b.score!==null;
+    return `<g class="well-col ${pick===b.key?'is-picked':''}" ${has?`data-well-pick="${b.key}" role="button" tabindex="0" aria-label="${esc(wellLabel(b.key,period))}: ${b.score}"`:''}>
+      <rect class="well-hit" x="${left+slot*i}" y="${top}" width="${slot}" height="${H-top-bottom}"/>
+      ${has?`<rect class="well-bar ${wellClass(b.score)}" x="${x}" y="${y(b.score)}" width="${bar}" height="${y(0)-y(b.score)}" rx="3"/><text x="${cx}" y="${y(b.score)-3}" text-anchor="middle" class="well-val">${b.score}</text>`:`<rect class="well-bar none" x="${x}" y="${y(0)-3}" width="${bar}" height="3" rx="1.5"/>`}
+      ${i%step===(n-1)%step?`<text x="${cx}" y="${H-8}" text-anchor="middle">${wellLabel(b.key,period)}</text>`:''}</g>`}).join('');
+  return `<svg class="well-chartsvg" role="img" viewBox="0 0 ${W} ${H}" aria-label="Cómo te has sentido, ${WELL_PERIODS[period].toLowerCase()}">${grid}${cols}</svg>`;
+}
+function wellnessTrend(id,self,name){
+  wellArgs=[id,self,name];
+  const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
+  const {buckets,pooled}=wellBuckets(records,wellPeriod);
+  const picked=wellPick?buckets.find(b=>b.key===wellPick&&b.n):null,view=picked||pooled;
+  const first=esc(String(name||'').split(' ')[0]);
+  const periods=[['day','Diario'],['week','Semanal'],['month','Mensual']].map(([k,label])=>`<button type="button" data-well-period="${k}" aria-pressed="${k===wellPeriod}">${label}</button>`).join('');
+  const rows=view.factors?WELL_FACTORS.map(([key,label])=>{const v=view.factors[key];return `<div class="well-factor"><span>${label}</span><div class="well-meter"><i class="${wellClass(v)}" style="width:${v}%"></i></div><b>${v}</b></div>`}).join(''):'';
+  const entries=view.factors?WELL_FACTORS.map(([key,label])=>[label,view.factors[key]]):[];
+  const bad=entries.filter(([,v])=>v<50).sort((a,b)=>a[1]-b[1]).slice(0,2),good=entries.filter(([,v])=>v>=70).sort((a,b)=>b[1]-a[1]).slice(0,2);
+  const summary=view.factors?`<p class="well-summary">${bad.length?`<b>Falla:</b> ${bad.map(([l,v])=>esc(l)+' '+v).join(' · ')}`:'<b>Nada en rojo</b> en este periodo.'}</p>${good.length?`<p class="well-summary"><b>Va bien:</b> ${good.map(([l,v])=>esc(l)+' '+v).join(' · ')}</p>`:''}`:'<p class="hint">Todavía no hay chequeos en este periodo.</p>';
+  const title=picked?bucketLongWell(picked.key,wellPeriod):'Todo el periodo';
+  return `<section class="card well-trend" id="well-trend"><div class="sectiontitle"><div><small class="eyebrow">${self?'Cómo te has sentido':'Cómo se ha sentido '+first}${example?' · Datos de ejemplo':''}</small><h2>Preparación diaria, semanal y mensual</h2></div></div>
+    <div class="well-periods" role="group" aria-label="Periodo">${periods}</div>
+    <p class="hint">${WELL_PERIODS[wellPeriod]}. Toca una barra para ver el detalle de ese día, semana o mes.</p>
+    <div class="well-chart">${wellChart(buckets,wellPeriod,picked?picked.key:null)}</div>
+    <div class="well-detail"><div class="well-detail-head"><h3>${title}</h3>${picked?'<button type="button" class="link" data-well-all>Ver todo el periodo</button>':''}</div>
+      ${view.factors?`<p class="hint"><b>Preparación ${view.score}</b>${view.n>1?' · '+view.n+' chequeos':''}${view.sleepH!==null?' · Sueño '+wellNum(view.sleepH)+' h':''}${view.pain?' · '+view.pain+(view.pain===1?' día con molestia':' días con molestia'):''}</p>`:''}
+      ${rows}${summary}
+      <p class="hint">Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.</p></div></section>`;
+}
+function bucketLongWell(key,period){
+  if(period==='day')return dateLabel(key,{weekday:'long',day:'numeric',month:'long'});
+  if(period==='week')return 'Semana del '+dateLabel(key,{day:'numeric',month:'long'});
+  return dateLabel(key+'-01',{month:'long',year:'numeric'});
+}
+function redrawWellTrend(){
+  const el=$('#well-trend');
+  if(el&&wellArgs)el.outerHTML=wellnessTrend(...wellArgs);
 }
 
 // ---------- Panel ----------
@@ -77,14 +151,10 @@ function wellnessPanel(id,name,self){
   const doneToday=!example&&real[today]&&readiness(real[today])!==null;
   const absences={};
   if(!example)for(const d of wellDays(30)){const c=peekCheckins(id).player?.[d];if(c?.attended===false&&c.reason)absences[c.reason]=(absences[c.reason]||0)+1}
-  const strip=days.map((d,i)=>{const s=scores[i],r=records[d],cls=s===null?(r?.pain?.some(p=>p.level>0)?'pain':'none'):wellClass(s);
-    return `<div class="well-day ${cls}" role="listitem"><small>${dateLabel(d,{weekday:'short'})}</small><b>${s===null?'—':s}</b></div>`}).join('');
   const trend=load.ratio===null?(load.any?'Faltan más días para comparar':'Se calcula con el esfuerzo de tus sesiones'):(load.ratio>=1?'+':'')+Math.round((load.ratio-1)*100)+' % vs. el promedio de 4 semanas';
   return `<section class="card wellness" id="wellness-panel"><div class="sectiontitle"><div><small class="eyebrow">Estado físico${example?' · Datos de ejemplo':''}</small><h2>${self?'¿Cómo amaneces?':'Estado físico de '+first}</h2></div>
     ${self&&role==='Jugador'?`<button class="btn lime small" data-open-wellness>${doneToday?'Editar chequeo de hoy':'Chequeo de hoy · 30 s'}</button>`:''}</div>
     ${alerts.length?`<ul class="well-alerts">${alerts.map(a=>`<li class="well-alert sev-${a.sev}">⚠ ${esc(a.text)}</li>`).join('')}</ul>`:''}
-    <div class="well-strip" role="list" aria-label="Preparación de los últimos 7 días">${strip}</div>
-    <p class="hint well-scale-note">Preparación de 0 a 100 por día: sueño, energía, ánimo, dolor muscular y estrés.</p>
     <div class="well-metrics">
       <div><small>Preparación · 7 días</small><b>${avg===null?'—':avg}</b></div>
       <div><small>Sueño · promedio</small><b>${sleepAvg===null?'—':wellNum(sleepAvg)+' h'}</b></div>
@@ -168,6 +238,11 @@ function openPainReport(){
 }
 document.addEventListener('click',event=>{
   const t=event.target;
+  const period=t.closest?.('[data-well-period]');
+  if(period){wellPeriod=period.dataset.wellPeriod;wellPick=null;redrawWellTrend();return}
+  const pick=t.closest?.('[data-well-pick]');
+  if(pick){wellPick=wellPick===pick.dataset.wellPick?null:pick.dataset.wellPick;redrawWellTrend();return}
+  if(t.closest?.('[data-well-all]')){wellPick=null;redrawWellTrend();return}
   if(t.closest?.('[data-open-wellness]')){openWellness();return}
   if(t.closest?.('[data-report-pain]')){openPainReport();return}
   const clear=t.closest?.('[data-pain-clear]');

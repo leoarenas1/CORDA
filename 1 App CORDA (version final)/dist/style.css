@@ -869,3 +869,28 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .well-badge.ok{color:#2E7D32}
 .well-badge.mid{color:#8a5a0f}
 .well-badge.low{color:#B42318}
+
+/* Cómo se ha sentido: gráfica y desglose */
+.well-periods{display:flex;gap:var(--space-2);margin:var(--space-3) 0 var(--space-1);flex-wrap:wrap}
+.well-periods button{border:1px solid var(--line);border-radius:999px;background:transparent;color:inherit;padding:var(--space-2) var(--space-4);font:inherit;font-size:var(--small-size);cursor:pointer}
+.well-periods button[aria-pressed="true"]{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
+.well-chart{margin:var(--space-2) 0}
+.well-chartsvg{width:100%;height:auto;display:block;overflow:visible}
+.well-chartsvg text{font-size:9px;fill:currentColor;opacity:.75}
+.well-chartsvg .chart-grid{stroke:var(--line);stroke-width:1}
+.well-chartsvg .well-val{font-weight:700;opacity:1;font-size:9px}
+.well-hit{fill:transparent}
+.well-col[data-well-pick]{cursor:pointer}
+.well-bar.ok{fill:#2E7D32}.well-bar.mid{fill:#B7791F}.well-bar.low{fill:#B42318}.well-bar.none{fill:var(--line)}
+.well-col.is-picked .well-bar{stroke:currentColor;stroke-width:2}
+.well-col:focus{outline:0}.well-col:focus-visible .well-hit{stroke:currentColor;stroke-width:1}
+.well-detail{margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px solid var(--line)}
+.well-detail-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3)}
+.well-detail h3{margin:0}
+.well-detail h3::first-letter{text-transform:uppercase}
+.well-factor{display:grid;grid-template-columns:5.5rem 1fr 2.2rem;gap:var(--space-3);align-items:center;margin:var(--space-2) 0}
+.well-meter{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.well-meter i{display:block;height:100%;border-radius:999px}
+.well-meter i.ok{background:#2E7D32}.well-meter i.mid{background:#B7791F}.well-meter i.low{background:#B42318}.well-meter i.none{background:transparent}
+.well-factor b{text-align:right;font-family:var(--font-display)}
+.well-summary{margin:var(--space-2) 0}

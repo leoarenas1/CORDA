@@ -596,7 +596,21 @@ Anual|Yearly|Annuel
 Aún no hay evaluaciones del coach en este periodo.|There are no coach assessments in this period yet.|Il n’y a pas encore d’évaluations du coach sur cette période.
 Aún no hay encuestas en este periodo. Al terminar tu entrenamiento te llegará la pregunta.|There are no surveys in this period yet. The question will reach you when your training ends.|Il n’y a pas encore d’enquêtes sur cette période. La question vous parviendra à la fin de votre entraînement.
 Aún no hay encuestas del jugador en este periodo.|There are no player surveys in this period yet.|Il n’y a pas encore d’enquêtes du joueur sur cette période.
-Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.
+Cómo te has sentido|How you have been feeling|Comment vous vous êtes senti
+Preparación diaria, semanal y mensual|Daily, weekly and monthly readiness|Préparation quotidienne, hebdomadaire et mensuelle
+Periodo|Period|Période
+Todo el periodo|Whole period|Toute la période
+Ver todo el periodo|View whole period|Voir toute la période
+Falla:|Falling short:|À améliorer :
+Nada en rojo|Nothing in the red|Rien dans le rouge
+en este periodo.|in this period.|sur cette période.
+Va bien:|Going well:|Ça va bien :
+Músculos|Muscles|Muscles
+Estrés|Stress|Stress
+Todavía no hay chequeos en este periodo.|There are no check-ins in this period yet.|Il n’y a pas encore de bilans sur cette période.
+Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.|Each bar goes from 0 (worst) to 100 (best). For Muscles and Stress, 100 means no muscle soreness and no stress.|Chaque barre va de 0 (le pire) à 100 (le meilleur). Pour Muscles et Stress, 100 signifie aucune courbature et aucun stress.
+Datos de ejemplo|Sample data|Données d’exemple`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -653,6 +667,14 @@ const dashboardPatterns=[
   [/^(\d+) UA$/,(m,i)=>i?`${m[1]} UA`:`${m[1]} AU`],
   [/^([+-]?\d+) % vs\. el promedio de 4 semanas$/,(m,i)=>i?`${m[1]} % par rapport à la moyenne sur 4 semaines`:`${m[1]}% vs. the 4-week average`],
   [/^(Enfermedad|Lesión|Escuela o trabajo|Viaje o torneo|Otra razón) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
+  [/^Cómo se ha sentido (.+)$/,(m,i)=>i?`Comment s’est senti ${m[1]}`:`How ${m[1]} has been feeling`],
+  [/^(Últimos 14 días|Últimas 8 semanas|Últimos 6 meses)\. Toca una barra para ver el detalle de ese día, semana o mes\.$/,(m,i)=>{const w={"Últimos 14 días":["Last 14 days","14 derniers jours"],"Últimas 8 semanas":["Last 8 weeks","8 dernières semaines"],"Últimos 6 meses":["Last 6 months","6 derniers mois"]}[m[1]][i];return i?`${w}. Touchez une barre pour voir le détail de ce jour, de cette semaine ou de ce mois.`:`${w}. Tap a bar to see the details for that day, week or month.`}],
+  [/^Preparación (\d+)$/,(m,i)=>i?`Préparation ${m[1]}`:`Readiness ${m[1]}`],
+  [/^(\d+) chequeos?$/,(m,i)=>i?`${m[1]} bilan${dashboardS(m[1],"","s")}`:`${m[1]} check-in${dashboardS(m[1],"","s")}`],
+  [/^Sueño ([\d.,]+) h$/,(m,i)=>i?`Sommeil ${m[1]} h`:`Sleep ${m[1]} h`],
+  [/^(\d+) días? con molestia$/,(m,i)=>i?`${m[1]} jour${dashboardS(m[1],"","s")} avec gêne`:`${m[1]} day${dashboardS(m[1],"","s")} with discomfort`],
+  [/^(Sueño|Energía|Ánimo|Músculos|Estrés) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
+  [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],

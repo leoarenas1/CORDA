@@ -50,6 +50,8 @@ Traducciones EN/FR de formularios emergentes, listas, avisos y asistente de regi
 
 Estado físico del jugador en Análisis del coach (wellness.js, SQL 13): chequeo diario, esfuerzo de sesión, molestias y motivo de ausencia.
 
+Análisis del coach: se quitan los porcentajes de meta y se agrega la gráfica de cómo se siente el jugador (diaria, semanal y mensual) con qué falla y qué va bien.
+
 ## Cómo usar este documento
 
 Contiene el código completo de los archivos de texto de la aplicación, separado por ruta. Para reconstruirla, copia cada bloque en un archivo con la ruta indicada y sirve la carpeta `dist` con un servidor web estático. Por ejemplo: `python3 -m http.server 8000 --directory dist`.
@@ -1924,7 +1926,21 @@ Anual|Yearly|Annuel
 Aún no hay evaluaciones del coach en este periodo.|There are no coach assessments in this period yet.|Il n’y a pas encore d’évaluations du coach sur cette période.
 Aún no hay encuestas en este periodo. Al terminar tu entrenamiento te llegará la pregunta.|There are no surveys in this period yet. The question will reach you when your training ends.|Il n’y a pas encore d’enquêtes sur cette période. La question vous parviendra à la fin de votre entraînement.
 Aún no hay encuestas del jugador en este periodo.|There are no player surveys in this period yet.|Il n’y a pas encore d’enquêtes du joueur sur cette période.
-Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
+Aún sin meta. Escríbela en tu perfil.|No goal yet. Write it in your profile.|Pas encore d’objectif. Écrivez-le dans votre profil.
+Cómo te has sentido|How you have been feeling|Comment vous vous êtes senti
+Preparación diaria, semanal y mensual|Daily, weekly and monthly readiness|Préparation quotidienne, hebdomadaire et mensuelle
+Periodo|Period|Période
+Todo el periodo|Whole period|Toute la période
+Ver todo el periodo|View whole period|Voir toute la période
+Falla:|Falling short:|À améliorer :
+Nada en rojo|Nothing in the red|Rien dans le rouge
+en este periodo.|in this period.|sur cette période.
+Va bien:|Going well:|Ça va bien :
+Músculos|Muscles|Muscles
+Estrés|Stress|Stress
+Todavía no hay chequeos en este periodo.|There are no check-ins in this period yet.|Il n’y a pas encore de bilans sur cette période.
+Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.|Each bar goes from 0 (worst) to 100 (best). For Muscles and Stress, 100 means no muscle soreness and no stress.|Chaque barre va de 0 (le pire) à 100 (le meilleur). Pour Muscles et Stress, 100 signifie aucune courbature et aucun stress.
+Datos de ejemplo|Sample data|Données d’exemple`.split('\n').map(row=>{const [es,en,fr]=row.split('|');return [es,[en,fr]]}));
 // Free text typed by members. Fields picked from fixed option lists are left out
 // on purpose: those values are interface copy and should still be translated.
 function memberTexts(){
@@ -1981,6 +1997,14 @@ const dashboardPatterns=[
   [/^(\d+) UA$/,(m,i)=>i?`${m[1]} UA`:`${m[1]} AU`],
   [/^([+-]?\d+) % vs\. el promedio de 4 semanas$/,(m,i)=>i?`${m[1]} % par rapport à la moyenne sur 4 semaines`:`${m[1]}% vs. the 4-week average`],
   [/^(Enfermedad|Lesión|Escuela o trabajo|Viaje o torneo|Otra razón) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
+  [/^Cómo se ha sentido (.+)$/,(m,i)=>i?`Comment s’est senti ${m[1]}`:`How ${m[1]} has been feeling`],
+  [/^(Últimos 14 días|Últimas 8 semanas|Últimos 6 meses)\. Toca una barra para ver el detalle de ese día, semana o mes\.$/,(m,i)=>{const w={"Últimos 14 días":["Last 14 days","14 derniers jours"],"Últimas 8 semanas":["Last 8 weeks","8 dernières semaines"],"Últimos 6 meses":["Last 6 months","6 derniers mois"]}[m[1]][i];return i?`${w}. Touchez une barre pour voir le détail de ce jour, de cette semaine ou de ce mois.`:`${w}. Tap a bar to see the details for that day, week or month.`}],
+  [/^Preparación (\d+)$/,(m,i)=>i?`Préparation ${m[1]}`:`Readiness ${m[1]}`],
+  [/^(\d+) chequeos?$/,(m,i)=>i?`${m[1]} bilan${dashboardS(m[1],"","s")}`:`${m[1]} check-in${dashboardS(m[1],"","s")}`],
+  [/^Sueño ([\d.,]+) h$/,(m,i)=>i?`Sommeil ${m[1]} h`:`Sleep ${m[1]} h`],
+  [/^(\d+) días? con molestia$/,(m,i)=>i?`${m[1]} jour${dashboardS(m[1],"","s")} avec gêne`:`${m[1]} day${dashboardS(m[1],"","s")} with discomfort`],
+  [/^(Sueño|Energía|Ánimo|Músculos|Estrés) (\d+)$/,(m,i)=>`${dashboardLabels.get(m[1])?.[i]||m[1]} ${m[2]}`],
+  [/^Cómo te has sentido, (últimos 14 días|últimas 8 semanas|últimos 6 meses)$/,(m,i)=>{const w={"últimos 14 días":["last 14 days","14 derniers jours"],"últimas 8 semanas":["last 8 weeks","8 dernières semaines"],"últimos 6 meses":["last 6 months","6 derniers mois"]}[m[1]][i];return i?`Comment vous vous êtes senti, ${w}`:`How you have been feeling, ${w}`}],
   [/^Subió (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En hausse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Up ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Bajó (\d+) puntos? respecto al periodo anterior\.$/,(m,i)=>i?`En baisse de ${m[1]} point${dashboardS(m[1],'','s')} par rapport à la période précédente.`:`Down ${m[1]} point${dashboardS(m[1],'','s')} from the previous period.`],
   [/^Van en sintonía: (tu sensación y la de tu coach|jugador y coach) difieren (\d+) puntos? en promedio\.$/,(m,i)=>{const own=m[1]!=='jugador y coach';return i?`En phase : ${own?'votre ressenti et celui de votre coach':'le joueur et le coach'} diffèrent de ${m[2]} point${dashboardS(m[2],'','s')} en moyenne.`:`In sync: ${own?'your feeling and your coach’s':'player and coach'} differ by ${m[2]} point${dashboardS(m[2],'','s')} on average.`}],
@@ -2174,7 +2198,7 @@ async function saveGuardianLink(){
 ## Archivo: `dist/index.html`
 
 ````html
-<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109o"><link rel="stylesheet" href="style.css?v=20261109o"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109o"><link rel="stylesheet" href="styles/ace.css?v=20261109o"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109o"></script><script src="resenas.js?v=20261109o"></script><script src="portada.js?v=20261109o"></script><script src="community.js?v=20261109o"></script><script src="session-guide.js?v=20261109o"></script><script src="annual-progress.js?v=20261109o"></script><script src="progress-hub.js?v=20261109o"></script><script src="meetings.js?v=20261109o"></script><script src="monthly-fees.js?v=20261109o"></script><script src="portal.js?v=20261109o"></script><script src="private-payments.js?v=20261109o"></script><script src="roles.js?v=20261109o"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109o"></script><script src="legal.js?v=20261109o"></script><script src="auth.js?v=20261109o"></script><script src="sync.js?v=20261109o"></script><script src="guardian.js?v=20261109o"></script><script src="access.js?v=20261109o"></script><script src="backup.js?v=20261109o"></script><script src="wellness.js?v=20261109o"></script><script src="videos.js?v=20261109o"></script><script src="physical.js?v=20261109o"></script><script src="calendar.js?v=20261109o"></script><script src="sobre-corda.js?v=20261109o"></script><script src="app.js?v=20261109o"></script><script src="ace.js?v=20261109o"></script></body></html>
+<!doctype html><html lang="es" data-theme="cancha"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F3B2C"><title>CORDA · Tu juego, con dirección</title><link rel="stylesheet" href="styles/tokens.css?v=20261109r"><link rel="stylesheet" href="style.css?v=20261109r"><link rel="stylesheet" href="styles/sobre-corda.css?v=20261109r"><link rel="stylesheet" href="styles/ace.css?v=20261109r"></head><body><div id="app"></div><dialog id="modal" data-theme="arena"></dialog><div id="toast" role="status"></div><script src="dashboard-language.js?v=20261109r"></script><script src="resenas.js?v=20261109r"></script><script src="portada.js?v=20261109r"></script><script src="community.js?v=20261109r"></script><script src="session-guide.js?v=20261109r"></script><script src="annual-progress.js?v=20261109r"></script><script src="progress-hub.js?v=20261109r"></script><script src="meetings.js?v=20261109r"></script><script src="monthly-fees.js?v=20261109r"></script><script src="portal.js?v=20261109r"></script><script src="private-payments.js?v=20261109r"></script><script src="roles.js?v=20261109r"></script><script src="vendor/supabase-2.119.0.js"></script><script src="supabase-config.js?v=20261109r"></script><script src="legal.js?v=20261109r"></script><script src="auth.js?v=20261109r"></script><script src="sync.js?v=20261109r"></script><script src="guardian.js?v=20261109r"></script><script src="access.js?v=20261109r"></script><script src="backup.js?v=20261109r"></script><script src="wellness.js?v=20261109r"></script><script src="videos.js?v=20261109r"></script><script src="physical.js?v=20261109r"></script><script src="calendar.js?v=20261109r"></script><script src="sobre-corda.js?v=20261109r"></script><script src="app.js?v=20261109r"></script><script src="ace.js?v=20261109r"></script></body></html>
 ````
 
 ## Archivo: `dist/legal.js`
@@ -2949,7 +2973,7 @@ function planTabs(){
   return '<nav class="plan-tabs" aria-label="Secciones de mi plan">'+[['calendar','Semana'],['training','Tenis'],['gym','Físico']].map(([id,title])=>'<button aria-pressed="'+(id===page)+'" data-page="'+id+'">'+title+'</button>').join('')+'</nav>';
 }
 function progressPage(){
-  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+progressHub(state.profile.memberId,state.profile.goal);
+  return heading('Análisis del coach',esc(state.profile.name)+' · '+esc(state.profile.academy))+wellnessPanel(state.profile.memberId,state.profile.name,true)+wellnessTrend(state.profile.memberId,true,state.profile.name);
 }
 function bindPortal() {
   bindAnnual();
@@ -3698,7 +3722,7 @@ function athleteDetail(record,name){
   const note=latestPlayerNote(record);
   const history=Object.entries(record.reviews||{}).sort(([a],[b])=>b.localeCompare(a));
   const months=Object.entries(record.profile.monthlyReviews||{}).sort(([a],[b])=>b.localeCompare(a));
-  return heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+progressHub(record.profile.memberId,record.profile.goal,name)+
+  return heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+wellnessTrend(record.profile.memberId,false,name)+
     `<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
     ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>
@@ -4861,6 +4885,31 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .well-badge.ok{color:#2E7D32}
 .well-badge.mid{color:#8a5a0f}
 .well-badge.low{color:#B42318}
+
+/* Cómo se ha sentido: gráfica y desglose */
+.well-periods{display:flex;gap:var(--space-2);margin:var(--space-3) 0 var(--space-1);flex-wrap:wrap}
+.well-periods button{border:1px solid var(--line);border-radius:999px;background:transparent;color:inherit;padding:var(--space-2) var(--space-4);font:inherit;font-size:var(--small-size);cursor:pointer}
+.well-periods button[aria-pressed="true"]{background:var(--verde-medio);border-color:var(--verde-medio);color:var(--marfil)}
+.well-chart{margin:var(--space-2) 0}
+.well-chartsvg{width:100%;height:auto;display:block;overflow:visible}
+.well-chartsvg text{font-size:9px;fill:currentColor;opacity:.75}
+.well-chartsvg .chart-grid{stroke:var(--line);stroke-width:1}
+.well-chartsvg .well-val{font-weight:700;opacity:1;font-size:9px}
+.well-hit{fill:transparent}
+.well-col[data-well-pick]{cursor:pointer}
+.well-bar.ok{fill:#2E7D32}.well-bar.mid{fill:#B7791F}.well-bar.low{fill:#B42318}.well-bar.none{fill:var(--line)}
+.well-col.is-picked .well-bar{stroke:currentColor;stroke-width:2}
+.well-col:focus{outline:0}.well-col:focus-visible .well-hit{stroke:currentColor;stroke-width:1}
+.well-detail{margin-top:var(--space-4);padding-top:var(--space-3);border-top:1px solid var(--line)}
+.well-detail-head{display:flex;justify-content:space-between;align-items:baseline;gap:var(--space-3)}
+.well-detail h3{margin:0}
+.well-detail h3::first-letter{text-transform:uppercase}
+.well-factor{display:grid;grid-template-columns:5.5rem 1fr 2.2rem;gap:var(--space-3);align-items:center;margin:var(--space-2) 0}
+.well-meter{height:10px;border-radius:999px;background:var(--line);overflow:hidden}
+.well-meter i{display:block;height:100%;border-radius:999px}
+.well-meter i.ok{background:#2E7D32}.well-meter i.mid{background:#B7791F}.well-meter i.low{background:#B42318}.well-meter i.none{background:transparent}
+.well-factor b{text-align:right;font-family:var(--font-display)}
+.well-summary{margin:var(--space-2) 0}
 ````
 
 ## Archivo: `dist/styles/ace.css`
@@ -5776,9 +5825,83 @@ function wellnessAlerts(id,self=false){
 
 // ---------- Datos de ejemplo (mientras el jugador no ha hecho ningún chequeo) ----------
 function wellExample(){
-  const records={};
-  wellDays(7).forEach((d,i)=>{const s=WELL_EXAMPLE_SCORES[i];records[d]={sleepH:+(5.5+s/40).toFixed(1),sleepQ:Math.round(1+s/25),energy:Math.round(1+s/25),mood:Math.round(1+s/25),soreness:s>70?2:3,stress:s>70?2:3,pain:i===6?[{area:'Hombro',level:3}]:[]}});
+  const records={},today=localDay(),clamp=v=>Math.max(1,Math.min(5,Math.round(v)));
+  for(let i=0;i<200;i++){
+    if(i%9===4)continue;
+    const base=76-Math.min(40,i*0.2)+10*Math.sin(i/4);
+    records[dateAfter(today,-i)]={sleepH:+(5.2+base/45).toFixed(1),sleepQ:clamp(1+4*(base-8)/100),energy:clamp(1+4*base/100),mood:clamp(1+4*(base+4)/100),
+      soreness:clamp(5-4*(base+6)/100),stress:clamp(5-4*(base-10)/100),pain:i%23===3?[{area:'Hombro',level:3}]:[]};
+  }
   return records;
+}
+
+// ---------- Cómo se ha sentido: gráfica diaria, semanal y mensual + qué falla y qué va bien ----------
+// Cada factor va de 0 (peor) a 100 (mejor). Músculos y estrés se invierten: 100 = sin dolor muscular y sin estrés.
+const WELL_FACTORS=[['sleepQ','Sueño',false],['energy','Energía',false],['mood','Ánimo',false],['soreness','Músculos',true],['stress','Estrés',true]];
+const WELL_PERIODS={day:'Últimos 14 días',week:'Últimas 8 semanas',month:'Últimos 6 meses'};
+let wellPeriod='week',wellPick=null,wellArgs=null;
+const factorValue=(w,key,inverse)=>{const n=(Number(w[key])-1)/4;return Math.round((inverse?1-n:n)*100)};
+function wellWindow(period,today=localDay()){
+  if(period==='day')return wellDays(14,today);
+  if(period==='week'){const monday=mondayOf(today);return Array.from({length:8},(_,i)=>dateAfter(monday,(i-7)*7))}
+  const first=new Date(today+'T12:00:00');first.setDate(1);
+  return Array.from({length:6},(_,i)=>{const d=new Date(first);d.setMonth(first.getMonth()-(5-i));return localDay(d).slice(0,7)});
+}
+function wellAgg(list){
+  const full=list.filter(w=>readiness(w)!==null),hours=list.map(w=>w.sleepH).filter(Number.isFinite);
+  if(!full.length)return {n:0,score:null,factors:null,sleepH:hours.length?hours.reduce((a,b)=>a+b,0)/hours.length:null,pain:list.filter(w=>(w.pain||[]).some(p=>p.level>0)).length};
+  const factors=Object.fromEntries(WELL_FACTORS.map(([key,,inverse])=>[key,Math.round(full.reduce((s,w)=>s+factorValue(w,key,inverse),0)/full.length)]));
+  return {n:full.length,score:Math.round(full.reduce((s,w)=>s+readiness(w),0)/full.length),factors,
+    sleepH:hours.length?hours.reduce((a,b)=>a+b,0)/hours.length:null,pain:list.filter(w=>(w.pain||[]).some(p=>p.level>0)).length};
+}
+function wellBuckets(records,period){
+  const keys=wellWindow(period),groups=Object.fromEntries(keys.map(k=>[k,[]])),pooled=[];
+  for(const [day,w] of Object.entries(records)){const k=bucketKey(day,period);if(groups[k]){groups[k].push(w);pooled.push(w)}}
+  return {buckets:keys.map(k=>({key:k,...wellAgg(groups[k])})),pooled:wellAgg(pooled)};
+}
+const wellLabel=(key,period)=>period==='month'?dateLabel(key+'-01',{month:'short',year:'2-digit'}):dateLabel(key,{day:'numeric',month:'short'});
+function wellChart(buckets,period,pick){
+  const W=320,H=150,left=26,right=6,top=14,bottom=24,n=buckets.length,slot=(W-left-right)/n,bar=Math.min(26,slot*0.62);
+  const y=v=>top+(H-top-bottom)*(1-v/100);
+  const grid=[0,50,100].map(v=>`<line x1="${left}" x2="${W-right}" y1="${y(v)}" y2="${y(v)}" class="chart-grid"/><text x="${left-4}" y="${y(v)+3}" text-anchor="end">${v}</text>`).join('');
+  const step=n>10?2:1;
+  const cols=buckets.map((b,i)=>{
+    const x=left+slot*i+(slot-bar)/2,cx=x+bar/2,has=b.score!==null;
+    return `<g class="well-col ${pick===b.key?'is-picked':''}" ${has?`data-well-pick="${b.key}" role="button" tabindex="0" aria-label="${esc(wellLabel(b.key,period))}: ${b.score}"`:''}>
+      <rect class="well-hit" x="${left+slot*i}" y="${top}" width="${slot}" height="${H-top-bottom}"/>
+      ${has?`<rect class="well-bar ${wellClass(b.score)}" x="${x}" y="${y(b.score)}" width="${bar}" height="${y(0)-y(b.score)}" rx="3"/><text x="${cx}" y="${y(b.score)-3}" text-anchor="middle" class="well-val">${b.score}</text>`:`<rect class="well-bar none" x="${x}" y="${y(0)-3}" width="${bar}" height="3" rx="1.5"/>`}
+      ${i%step===(n-1)%step?`<text x="${cx}" y="${H-8}" text-anchor="middle">${wellLabel(b.key,period)}</text>`:''}</g>`}).join('');
+  return `<svg class="well-chartsvg" role="img" viewBox="0 0 ${W} ${H}" aria-label="Cómo te has sentido, ${WELL_PERIODS[period].toLowerCase()}">${grid}${cols}</svg>`;
+}
+function wellnessTrend(id,self,name){
+  wellArgs=[id,self,name];
+  const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
+  const {buckets,pooled}=wellBuckets(records,wellPeriod);
+  const picked=wellPick?buckets.find(b=>b.key===wellPick&&b.n):null,view=picked||pooled;
+  const first=esc(String(name||'').split(' ')[0]);
+  const periods=[['day','Diario'],['week','Semanal'],['month','Mensual']].map(([k,label])=>`<button type="button" data-well-period="${k}" aria-pressed="${k===wellPeriod}">${label}</button>`).join('');
+  const rows=view.factors?WELL_FACTORS.map(([key,label])=>{const v=view.factors[key];return `<div class="well-factor"><span>${label}</span><div class="well-meter"><i class="${wellClass(v)}" style="width:${v}%"></i></div><b>${v}</b></div>`}).join(''):'';
+  const entries=view.factors?WELL_FACTORS.map(([key,label])=>[label,view.factors[key]]):[];
+  const bad=entries.filter(([,v])=>v<50).sort((a,b)=>a[1]-b[1]).slice(0,2),good=entries.filter(([,v])=>v>=70).sort((a,b)=>b[1]-a[1]).slice(0,2);
+  const summary=view.factors?`<p class="well-summary">${bad.length?`<b>Falla:</b> ${bad.map(([l,v])=>esc(l)+' '+v).join(' · ')}`:'<b>Nada en rojo</b> en este periodo.'}</p>${good.length?`<p class="well-summary"><b>Va bien:</b> ${good.map(([l,v])=>esc(l)+' '+v).join(' · ')}</p>`:''}`:'<p class="hint">Todavía no hay chequeos en este periodo.</p>';
+  const title=picked?bucketLongWell(picked.key,wellPeriod):'Todo el periodo';
+  return `<section class="card well-trend" id="well-trend"><div class="sectiontitle"><div><small class="eyebrow">${self?'Cómo te has sentido':'Cómo se ha sentido '+first}${example?' · Datos de ejemplo':''}</small><h2>Preparación diaria, semanal y mensual</h2></div></div>
+    <div class="well-periods" role="group" aria-label="Periodo">${periods}</div>
+    <p class="hint">${WELL_PERIODS[wellPeriod]}. Toca una barra para ver el detalle de ese día, semana o mes.</p>
+    <div class="well-chart">${wellChart(buckets,wellPeriod,picked?picked.key:null)}</div>
+    <div class="well-detail"><div class="well-detail-head"><h3>${title}</h3>${picked?'<button type="button" class="link" data-well-all>Ver todo el periodo</button>':''}</div>
+      ${view.factors?`<p class="hint"><b>Preparación ${view.score}</b>${view.n>1?' · '+view.n+' chequeos':''}${view.sleepH!==null?' · Sueño '+wellNum(view.sleepH)+' h':''}${view.pain?' · '+view.pain+(view.pain===1?' día con molestia':' días con molestia'):''}</p>`:''}
+      ${rows}${summary}
+      <p class="hint">Cada barra va de 0 (peor) a 100 (mejor). En Músculos y Estrés, 100 significa sin dolor muscular y sin estrés.</p></div></section>`;
+}
+function bucketLongWell(key,period){
+  if(period==='day')return dateLabel(key,{weekday:'long',day:'numeric',month:'long'});
+  if(period==='week')return 'Semana del '+dateLabel(key,{day:'numeric',month:'long'});
+  return dateLabel(key+'-01',{month:'long',year:'numeric'});
+}
+function redrawWellTrend(){
+  const el=$('#well-trend');
+  if(el&&wellArgs)el.outerHTML=wellnessTrend(...wellArgs);
 }
 
 // ---------- Panel ----------
@@ -5794,14 +5917,10 @@ function wellnessPanel(id,name,self){
   const doneToday=!example&&real[today]&&readiness(real[today])!==null;
   const absences={};
   if(!example)for(const d of wellDays(30)){const c=peekCheckins(id).player?.[d];if(c?.attended===false&&c.reason)absences[c.reason]=(absences[c.reason]||0)+1}
-  const strip=days.map((d,i)=>{const s=scores[i],r=records[d],cls=s===null?(r?.pain?.some(p=>p.level>0)?'pain':'none'):wellClass(s);
-    return `<div class="well-day ${cls}" role="listitem"><small>${dateLabel(d,{weekday:'short'})}</small><b>${s===null?'—':s}</b></div>`}).join('');
   const trend=load.ratio===null?(load.any?'Faltan más días para comparar':'Se calcula con el esfuerzo de tus sesiones'):(load.ratio>=1?'+':'')+Math.round((load.ratio-1)*100)+' % vs. el promedio de 4 semanas';
   return `<section class="card wellness" id="wellness-panel"><div class="sectiontitle"><div><small class="eyebrow">Estado físico${example?' · Datos de ejemplo':''}</small><h2>${self?'¿Cómo amaneces?':'Estado físico de '+first}</h2></div>
     ${self&&role==='Jugador'?`<button class="btn lime small" data-open-wellness>${doneToday?'Editar chequeo de hoy':'Chequeo de hoy · 30 s'}</button>`:''}</div>
     ${alerts.length?`<ul class="well-alerts">${alerts.map(a=>`<li class="well-alert sev-${a.sev}">⚠ ${esc(a.text)}</li>`).join('')}</ul>`:''}
-    <div class="well-strip" role="list" aria-label="Preparación de los últimos 7 días">${strip}</div>
-    <p class="hint well-scale-note">Preparación de 0 a 100 por día: sueño, energía, ánimo, dolor muscular y estrés.</p>
     <div class="well-metrics">
       <div><small>Preparación · 7 días</small><b>${avg===null?'—':avg}</b></div>
       <div><small>Sueño · promedio</small><b>${sleepAvg===null?'—':wellNum(sleepAvg)+' h'}</b></div>
@@ -5885,6 +6004,11 @@ function openPainReport(){
 }
 document.addEventListener('click',event=>{
   const t=event.target;
+  const period=t.closest?.('[data-well-period]');
+  if(period){wellPeriod=period.dataset.wellPeriod;wellPick=null;redrawWellTrend();return}
+  const pick=t.closest?.('[data-well-pick]');
+  if(pick){wellPick=wellPick===pick.dataset.wellPick?null:pick.dataset.wellPick;redrawWellTrend();return}
+  if(t.closest?.('[data-well-all]')){wellPick=null;redrawWellTrend();return}
   if(t.closest?.('[data-open-wellness]')){openWellness();return}
   if(t.closest?.('[data-report-pain]')){openPainReport();return}
   const clear=t.closest?.('[data-pain-clear]');
