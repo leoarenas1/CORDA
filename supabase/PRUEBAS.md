@@ -14,6 +14,7 @@ el mensaje rojo «ERROR» con el reporte es lo esperado y no deja ningún dato.
 - Los códigos de acceso sirven una sola vez; no sirven si están revocados, vencidos o son de otro perfil.
   Coach y Tutor no se registran sin código; un jugador sin código queda sin academia aunque escriba la de otra.
   El código de dueño no le quita la academia a su dueño actual.
+- Nadie puede cambiarse el `memberId` de su perfil para hacerse pasar por otro jugador (pero sí editar el resto de su perfil).
 
 ## Resultados
 
@@ -23,6 +24,8 @@ el mensaje rojo «ERROR» con el reporte es lo esperado y no deja ningún dato.
 | 2026-11-09 | 01 a 11 | Archivos (Storage): 41 bien, 1 falló (un archivo privado llamado `avatar.jpg` lo veía toda la academia) |
 | 2026-11-09 | 01 a 12 | Archivos (Storage), tras el ajuste 12: **42 bien, 0 fallaron** |
 | 2026-11-10 | 01 a 13 | Datos, códigos y registro, con las pruebas del chequeo de estado físico: **73 bien, 0 fallaron** |
+| 2026-11-11 | 01 a 15 | Datos, códigos y registro, con el candado del `memberId`: **75 bien, 0 fallaron** |
+| 2026-11-11 | 01 a 15 | Archivos (Storage): **42 bien, 0 fallaron** |
 
 ## Alcance y límites
 

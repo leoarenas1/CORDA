@@ -57,3 +57,5 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `pruebas_seguridad_storage.sql` | Pruebas de seguridad de los archivos (fotos y comprobantes, Storage), también con datos inventados. |
 | `12_avatar_solo_foto.sql` | Solo la foto de perfil real (`<academia>/<integrante>/avatar.jpg`) es visible para toda la academia; un archivo privado llamado avatar.jpg ya no. |
 | `13_estado_fisico.sql` | El jugador guarda su chequeo de estado físico (sueño, energía, dolor, molestias); lo ven su coach y su tutor. |
+| `14_borrar_cuenta.sql` | «Borrar mi cuenta» desde Mi perfil: borra la cuenta y los datos de la persona. El dueño de la academia no puede borrarse solo. |
+| `15_proteger_member_id.sql` | Nadie puede cambiarse el `memberId` de su perfil (evita hacerse pasar por otro jugador). |

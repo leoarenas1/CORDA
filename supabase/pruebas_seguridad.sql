@@ -85,6 +85,11 @@ begin
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede cambiarse de academia', 'bloqueado', got));
   begin update public.profiles set approved=true, linked_child='ta2' where id=id_pa1; got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede cambiar su aprobación ni jugador ligado', 'bloqueado', got));
+  begin update public.profiles set details = jsonb_set(details, '{memberId}', '"ta2"') where id=id_pa1; got:='permitido'; exception when others then got:='bloqueado'; end;
+  res := res || jsonb_build_array(jsonb_build_array('Jugador NO puede cambiarse el memberId para hacerse pasar por otro jugador', 'bloqueado', got));
+  begin update public.profiles set details = jsonb_set(details, '{profile,tutorEmail}', '"otro@prueba.invalid"') where id=id_pa1; got:='permitido'; exception when others then got:='bloqueado'; end;
+  res := res || jsonb_build_array(jsonb_build_array('Jugador SÍ puede editar el resto de su perfil (por ejemplo el correo de su tutor)', 'permitido', got));
+  update public.profiles set details = jsonb_set(details, '{profile,tutorEmail}', '"zz-tu@prueba.invalid"') where id=id_pa1;
   n := (select count(*) from public.items where key='w2'); res := res || jsonb_build_array(jsonb_build_array('Jugador NO ve el chequeo de estado físico de otro jugador', 0, n));
   begin insert into public.items (academy_id, member_id, kind, key) values (aid,'ta1','wellness','w9'); got:='permitido'; exception when others then got:='bloqueado'; end;
   res := res || jsonb_build_array(jsonb_build_array('Jugador SÍ puede guardar su propio chequeo de estado físico', 'permitido', got));
