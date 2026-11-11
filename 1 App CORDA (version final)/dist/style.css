@@ -933,3 +933,9 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .danger-link{color:#B3261E!important}
 .btn.danger{background:#B3261E;color:#fff;border-color:#B3261E}
 .btn.danger[disabled]{opacity:.45;cursor:not-allowed}
+
+/* Foto de perfil editable */
+.photo-edit{display:flex;align-items:center;gap:var(--space-4);margin:var(--space-4) 0}
+.photo-edit-av .avatar{width:72px;height:72px;font-size:1.4rem}
+.photo-edit-actions{display:grid;gap:var(--space-2);justify-items:start}
+.photo-pick{cursor:pointer}

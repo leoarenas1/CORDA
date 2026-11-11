@@ -211,3 +211,33 @@ function dailyGreeting(){
   const hello=coverText('Bienvenid@','Welcome','Bienvenue');
   return `<div class="demo greeting"><b>${esc(first?hello+', '+first:hello)} 👋</b><span>${esc(line)}</span></div>`;
 }
+
+// ---------- Foto de perfil: cambiar o quitar (jugador, coach y tutor) ----------
+function photoEditor(withAvatar=true){
+  const me=actor();if(!me)return '';
+  const t=coverText;
+  return `<div class="photo-edit">${withAvatar?`<div class="photo-edit-av">${avatar(me)}</div>`:''}<div class="photo-edit-actions"><label class="btn light small photo-pick">${me.photo?t('Cambiar foto','Change photo','Changer la photo'):t('Agregar foto','Add photo','Ajouter une photo')}<input id="my-photo" type="file" accept="image/jpeg,image/png" hidden></label>${me.photo?`<button type="button" class="link" id="my-photo-remove">${t('Quitar foto','Remove photo','Retirer la photo')}</button>`:''}<small class="hint">${t('JPG o PNG, hasta 2 MB.','JPG or PNG, up to 2 MB.','JPG ou PNG, 2 Mo max.')}</small></div></div>`;
+}
+async function setMyPhoto(photo){
+  const me=actor();if(!me)return;
+  me.photo=photo;
+  const card=(state.directory||[]).find(m=>m.id===me.memberId);
+  if(card)card.photo=photo;
+  if(!photo&&typeof cloud!=='undefined'&&cloud&&typeof syncCtx!=='undefined'&&syncCtx&&me.memberId===syncCtx.memberId){
+    try{await cloud.storage.from(MEDIA_BUCKET).remove([mediaRoot(me.memberId)+'/avatar.jpg'])}catch{}
+  }
+  save();render();
+  toast(photo?coverText('Foto actualizada.','Photo updated.','Photo mise à jour.'):coverText('Foto quitada.','Photo removed.','Photo retirée.'));
+}
+document.addEventListener('change',async e=>{
+  if(e.target?.id!=='my-photo'||!e.target.files[0])return;
+  try{
+    const source=await readImage(e.target.files[0]);
+    const img=new Image();img.src=source;await img.decode();
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=320;
+    const side=Math.min(img.width,img.height);
+    canvas.getContext('2d').drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,320,320);
+    await setMyPhoto(canvas.toDataURL('image/jpeg',0.85));
+  }catch(er){toast(er.message||'No se pudo cargar la foto.')}
+});
+document.addEventListener('click',e=>{if(e.target.closest?.('#my-photo-remove'))setMyPhoto('')});
