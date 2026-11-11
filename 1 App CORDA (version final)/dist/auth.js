@@ -454,3 +454,53 @@ function signOut(){
   render();window.scrollTo(0,0);
   toast(coverText('Sesión cerrada.','Signed out.','Déconnecté.'));
 }
+
+// ---------- Borrar mi cuenta ----------
+async function removeMyFiles(){
+  if(!cloud||!syncCtx)return;
+  const bucket=cloud.storage.from(MEDIA_BUCKET);
+  const walk=async dir=>{
+    const {data,error}=await bucket.list(dir,{limit:1000});
+    if(error)throw error;
+    let paths=[];
+    for(const f of data||[])paths=paths.concat(f.id?[dir+'/'+f.name]:await walk(dir+'/'+f.name));
+    return paths;
+  };
+  const paths=await walk(syncCtx.academyId+'/'+syncCtx.memberId);
+  if(paths.length){const {error}=await bucket.remove(paths);if(error)throw error}
+}
+function wipeLocalData(){
+  try{[ 'corda-v1',ACCOUNTS_KEY,SESSION_KEY,REMEMBER_KEY ].forEach(k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)})}catch{}
+  location.replace(location.pathname);
+}
+function askDeleteAccount(){
+  const t=coverText;
+  modal(t('Borrar mi cuenta','Delete my account','Supprimer mon compte'),
+    '<div class="full"><p>'+t('Se borrarán tu cuenta y tus datos de CORDA: perfil, foto, chequeos, objetivos y mensualidades. Esto no se puede deshacer.','Your account and your CORDA data will be deleted: profile, photo, check-ins, goals and fees. This cannot be undone.','Votre compte et vos données CORDA seront supprimés : profil, photo, suivis, objectifs et mensualités. Cette action est irréversible.')+'</p>'+
+    '<label class="full">'+t('Escribe BORRAR para confirmar','Type DELETE to confirm','Tapez SUPPRIMER pour confirmer')+'<input id="del-confirm" autocomplete="off" autocapitalize="characters"></label>'+
+    '<p class="hint" id="del-msg" role="status"></p>'+
+    '<div class="formactions"><button type="button" class="link" id="del-cancel">'+t('Cancelar','Cancel','Annuler')+'</button><button type="button" class="btn danger" id="del-go" disabled>'+t('Borrar mi cuenta para siempre','Delete my account forever','Supprimer mon compte définitivement')+'</button></div></div>',null);
+  const word=t('BORRAR','DELETE','SUPPRIMER'),input=$('#del-confirm'),go=$('#del-go'),msg=$('#del-msg');
+  input.oninput=()=>{go.disabled=input.value.trim().toUpperCase()!==word};
+  $('#del-cancel').onclick=()=>$('#modal').close();
+  go.onclick=async()=>{
+    go.disabled=true;input.disabled=true;
+    msg.textContent=t('Borrando…','Deleting…','Suppression…');
+    try{
+      if(cloud&&currentAccount){
+        await removeMyFiles();
+        const {error}=await cloud.rpc('delete_my_account');
+        if(error)throw error;
+        try{await cloud.auth.signOut({scope:'local'})}catch{}
+      }
+      wipeLocalData();
+    }catch(e){
+      const owner=String(e?.message||'').includes('owner_cannot_delete');
+      msg.textContent=owner
+        ?t('Eres el dueño de la academia. Antes de borrar tu cuenta, pasa la academia a otra persona escribiendo a info@cordatenis.com.','You own the academy. Before deleting your account, transfer the academy to someone else by writing to info@cordatenis.com.','Vous êtes propriétaire de l’académie. Avant de supprimer votre compte, transférez-la en écrivant à info@cordatenis.com.')
+        :t('No pudimos borrar tu cuenta ahora. Revisa tu conexión e inténtalo de nuevo, o escribe a info@cordatenis.com.','We could not delete your account now. Check your connection and try again, or write to info@cordatenis.com.','Impossible de supprimer votre compte pour le moment. Vérifiez votre connexion ou écrivez à info@cordatenis.com.');
+      input.disabled=false;go.disabled=false;
+    }
+  };
+}
+document.addEventListener('click',e=>{if(e.target.closest?.('#delete-account'))askDeleteAccount()});
