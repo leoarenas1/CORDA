@@ -8,7 +8,7 @@
 const BALL='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6c3.4 3 3.4 9.8 0 12.8"/><path d="M18.4 5.6c-3.4 3-3.4 9.8 0 12.8"/></svg>';
 const CLOSE='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
 const SEND='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
-const CONTACT='Escríbenos a <a href="mailto:corda.tenis@gmail.com">corda.tenis@gmail.com</a> o por <a href="https://wa.me/523318621604" target="_blank" rel="noopener noreferrer">WhatsApp</a>.';
+const CONTACT='Escríbenos a <a href="mailto:info@cordatenis.com">info@cordatenis.com</a> o por <a href="https://wa.me/523318621604" target="_blank" rel="noopener noreferrer">WhatsApp</a>.';
 
 const inApp=()=>entry==='app'&&!!state.profile;
 const isPlayerSide=()=>inApp()&&role!=='Coach';
@@ -36,14 +36,14 @@ const INTENTS=[
     return s?{text:`Para ${esc(s.title)} (${esc(s.time)}): ${esc(sessionGear(s))}.`,actions:[['Ver la sesión',()=>{close();openSession(s.id)}]]}:{text:'Cada sesión indica qué llevar. Lo ves al abrir la sesión desde tu plan.'};
   }},
   {keys:['proxima sesion','entreno','entrenamiento','sesion','horario','a que hora','agenda','hoy','manana','plan'],answer:()=>{
-    if(!isPlayerSide())return inApp()?{text:'Tu plan de la academia está en «Plan de la academia».',actions:[['Abrir el plan',go('calendar')]]}:{text:'Inicia sesión para ver tu próxima sesión, el horario y qué llevar.',actions:[['Iniciar sesión',toSignIn]]};
+    if(!isPlayerSide())return inApp()?{text:'Tu plan de la academia está en «Plan».',actions:[['Abrir el plan',go('calendar')]]}:{text:'Inicia sesión para ver tu próxima sesión, el horario y qué llevar.',actions:[['Iniciar sesión',toSignIn]]};
     const s=nearestSession();
     if(!s)return {text:'No tienes sesiones próximas. Revisa tu plan para ver otras fechas.',actions:[['Abrir mi plan',go('calendar')]]};
     return {text:`Tu próxima sesión: <b>${esc(dateLabel(s.date,{weekday:'long',day:'numeric',month:'long'}))}</b> · ${esc(s.time)} · ${esc(s.place)} · ${esc(sessionCoach(s))}.`,actions:[['Ver la sesión',()=>{close();openSession(s.id)}],['Abrir mi plan',go('calendar')]]};
   }},
   {keys:['pago','pagar','mensualidad','comprobante','transferencia','clabe','cuota','colegiatura','matricula'],answer:()=>({text:'Abre «Mensualidad», elige el mes y transfiere con tu matrícula como concepto. Luego sube el comprobante a ese mes. Verás una palomita cuando la academia lo confirme.',actions:inApp()&&role!=='Coach'?[['Ir a Mensualidad',go('payments')]]:inApp()?[]:[['Iniciar sesión',toSignIn]]})},
-  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','porcentaje'],answer:()=>({text:'El apartado de progreso, con números y porcentajes, todavía está en preparación. Por ahora, en Inicio ves el balance del mes de tu coach y, en «Mi estado», cómo te has sentido y qué falla.',actions:inApp()?[['Ir a Mi estado',go('goals')]]:[]})},
-  {keys:['mi estado','chequeo','amanezco','dormi','sueno','dolor','molestia','lesion','cansancio','cansado','estado fisico','como me siento','grafica'],answer:()=>({text:'En «Mi estado» haces tu chequeo de 30 segundos (sueño, energía, ánimo, dolor muscular y estrés), reportas una molestia y ves una gráfica de cómo te has sentido, diaria, semanal o mensual, con lo que falla y lo que va bien. Tu coach lo ve para ajustar la carga.',actions:inApp()?[['Ir a Mi estado',go('goals')]]:[]})},
+  {keys:['objetivo','meta','progreso','avance','mejorar','evaluacion','feedback','porcentaje'],answer:()=>({text:'El apartado de progreso, con números y porcentajes, todavía está en preparación. Por ahora, en Inicio ves el balance del mes de tu coach y, en «Estado», cómo te has sentido y qué falla.',actions:inApp()?[['Ir a Estado',go('goals')]]:[]})},
+  {keys:['mi estado','chequeo','amanezco','dormi','sueno','dolor','molestia','lesion','cansancio','cansado','estado fisico','como me siento','grafica'],answer:()=>({text:'En «Estado» haces tu chequeo de 30 segundos (sueño, energía, ánimo, dolor muscular y estrés), reportas una molestia y ves una gráfica de cómo te has sentido, diaria, semanal o mensual, con lo que falla y lo que va bien. Tu coach lo ve para ajustar la carga.',actions:inApp()?[['Ir a Estado',go('goals')]]:[]})},
   {keys:['encuesta','como me fue','como me senti','notificacion','aviso diario'],answer:()=>({text:'Después de cada entrenamiento, al abrir CORDA te llega la pregunta «¿Cómo te fue hoy?». Tu respuesta calcula tu porcentaje del día. Tu coach responde lo mismo sobre ti.',actions:isPlayerSide()?[['Responder ahora',()=>{close();openPlayerCheckin()}]]:[]})},
   {keys:['torneo','competencia','competir','partido'],answer:()=>({text:'En Inicio o en tu plan, toca «Añadir torneo». CORDA arma la cuenta regresiva y las etapas de preparación.',actions:isPlayerSide()?[['Abrir mi plan',go('calendar')]]:[]})},
   {keys:['agendar una cita','agendar cita','cita con','cita','junta','reunion','hablar con mi coach','director'],answer:()=>({text:'En Inicio, la tarjeta «Citas con la academia» te deja elegir con quién reunirte y ver los horarios libres.',actions:inApp()?[['Ir a Inicio',go('home')]]:[]})},

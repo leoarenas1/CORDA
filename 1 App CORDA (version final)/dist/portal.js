@@ -190,7 +190,7 @@ function calendarPage() {
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
 }
 
-// Foto de perfil de quien inició sesión, a la derecha del título de Inicio. Lleva a «Mi perfil».
+// Foto de perfil de quien inició sesión, a la derecha del título de Inicio. Lleva a «Perfil».
 function headingAvatar(){
   const me=actor()||state.profile;
   return `<button type="button" class="heading-avatar" data-page="profile" aria-label="Mi perfil" title="Mi perfil">${avatar(me)}</button>`;

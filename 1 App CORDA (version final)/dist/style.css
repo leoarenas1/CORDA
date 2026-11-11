@@ -921,3 +921,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .video-subtopics{margin-top:0;padding-left:var(--space-3);border-left:3px solid var(--lima)}
 .follow-video{display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.2}
 .follow-sub{font-weight:500;font-size:.85em;opacity:.8}
+
+/* ---------- Candado: funciones de CORDA Progreso en la versión Conecta ---------- */
+.lockcard{display:flex;gap:var(--space-4);align-items:flex-start;border:1.5px dashed var(--lima,#C8F03C);background:linear-gradient(180deg,rgba(200,240,60,.10),rgba(200,240,60,.03))}
+.lockcard .lockicon{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#0F3B2C;color:#C8F03C}
+.lockcard .lockbody{display:grid;gap:var(--space-2);justify-items:start}
+.lockcard h2{margin:0}
+.lockcard .hint{margin:0}

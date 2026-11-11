@@ -108,6 +108,7 @@ function wellChart(buckets,period,pick){
   return `<svg class="well-chartsvg" role="img" viewBox="0 0 ${W} ${H}" aria-label="Cómo te has sentido, ${WELL_PERIODS[period].toLowerCase()}">${grid}${cols}</svg>`;
 }
 function wellnessTrend(id,self,name){
+  if(planLocked())return lockCard('Gráfica de cómo se siente','La evolución de cada jugador por día, semana y mes, a partir de su chequeo diario.');
   wellArgs=[id,self,name];
   const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
   const {buckets,pooled}=wellBuckets(records,wellPeriod);
@@ -362,6 +363,7 @@ function followLinks(item,example){
   return chips.length?`<div class="follow-links">${chips.map(s=>{const n=followCount(s.area,s.category,s.sub);return `<button type="button" class="follow-video" data-follow-cat="${esc(s.category)}" data-follow-sub="${esc(s.sub)}" data-follow-area="${s.area}"><span>▶ Videos de ${s.category}${n?' ('+n+')':''}</span>${s.sub?`<span class="follow-sub">${esc(s.sub)}</span>`:''}</button>`}).join('')}</div>`:'';
 }
 function coachFollowCard(id){
+  if(planLocked())return lockCard('Tarjeta de seguimiento','El último avance de cada jugador y su balance del mes, con la mirada de su coach.');
   const note=coachLatest(id),example=!note,item=note||{label:'',good:exampleAssessment.good,focus:exampleAssessment.focus,by:'',video:''};
   return `<section class="card coach-follow"><small class="eyebrow">Seguimiento del coach${example?' · Ejemplo':item.label?' · '+esc(item.label):''}</small>
     <div class="follow-grid">

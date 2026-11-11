@@ -1,9 +1,14 @@
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
+Plan|Plan|Programme
+Estado|Condition|État
+Panel|Dashboard|Tableau
+Jugadores|Players|Joueurs
+Pagos|Payments|Paiements
 Mi plan|My plan|Mon programme
 Mi estado|My condition|Mon état
 Mi academia|My academy|Mon académie
-Mensualidad|Monthly fees|Mensualité
+Mensualidad|Fees|Mensualité
 Tu academia|Your academy|Votre académie
 Academia|Academy|Académie
 Panel del coach|Coach dashboard|Tableau du coach
@@ -495,7 +500,7 @@ Cuánto|How much|Combien
 : un número que se pueda medir|: a number you can measure|: un chiffre mesurable
 Para cuándo|By when|Pour quand
 : una fecha o un torneo|: a date or a tournament|: une date ou un tournoi
-Tu coach y tú medirán tu avance contra esta meta. Podrás cambiarla después en «Mi perfil».|You and your coach will measure your progress against this goal. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif. Vous pourrez le modifier plus tard dans « Mon profil ».
+Tu coach y tú medirán tu avance contra esta meta. Podrás cambiarla después en «Perfil».|You and your coach will measure your progress against this goal. You can change it later in “My profile”.|Votre coach et vous mesurerez votre progression par rapport à cet objectif. Vous pourrez le modifier plus tard dans « Mon profil ».
 TU FOTO|YOUR PHOTO|VOTRE PHOTO
 Ponle cara a tu juego.|Put a face to your game.|Donnez un visage à votre jeu.
 Una foto para que tu coach te reconozca. Tú decides.|A photo so your coach recognizes you. It is up to you.|Une photo pour que votre coach vous reconnaisse. C’est vous qui décidez.

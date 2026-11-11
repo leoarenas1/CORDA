@@ -1,6 +1,7 @@
 // Tarjeta "Tu balance del mes" del inicio. La gráfica de progreso vive en progress-hub.js.
 const exampleAssessment={good:'Tu segundo saque entra con más regularidad, incluso cuando juegas con el marcador en contra.',focus:'Dale más efecto al segundo saque para ganar margen sobre la red. En la próxima sesión, practica al cuerpo empezando en 30–40 y registra cuántos saques entran profundos.'};
 function monthlyReviewCard(){
+  if(planLocked()&&role!=='Coach')return lockCard('Tu balance del mes','El último avance y el balance del mes, con la mirada de tu coach.');
   const key=localDay().slice(0,7),assessment=state.profile.monthlyReviews?.[key];
   const note=assessment||exampleAssessment;
   const last=Object.entries(state.reviews).sort(([a],[b])=>b.localeCompare(a))[0];

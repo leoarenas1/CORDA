@@ -19,6 +19,9 @@ La misma app, tal como se subió a claude.ai (sin las marcas de caché `?v=`).
 **4 Marca y diseno**
 Los dos logotipos de CORDA y la sección «Sobre CORDA» (`SobreCorda.jsx` y `sobre-corda.css`).
 
+**6 Pagina web corda.mx**
+La página de venta de CORDA (corda.mx): qué es, qué gana una academia, precio de CORDA Conecta, formulario de demo y botones de descarga. Ver su `LEEME.md` para lo que falta configurar antes de publicar.
+
 **5 Version original**
 La app como estaba antes de las correcciones, más `corda-fixes.patch` con los primeros tres arreglos.
 

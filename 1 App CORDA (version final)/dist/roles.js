@@ -25,9 +25,16 @@ function useAthlete(member){
   const a=athleteFor(member);
   state.profile=a.profile;state.reviews=a.reviews;state.goals=a.goals;
 }
+
+/* Versión de la demo: 'conecta' bloquea con candado lo que es de CORDA Progreso. Cambia a 'progreso' para abrirlo todo. */
+const PLAN_DEMO='conecta';
+const planLocked=()=>PLAN_DEMO==='conecta';
+function lockCard(title,text){
+  return `<section class="card lockcard"><div class="lockicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div class="lockbody"><small class="eyebrow">Incluido en CORDA Progreso</small><h2>${title}</h2><p class="hint">${text}</p><a class="btn lime small" href="https://www.cordatenis.com/#demo" target="_blank" rel="noopener">Contrata CORDA Progreso</a></div></section>`;
+}
 function roleNav(){
-  const labels=role==='Coach'?['Panel del coach','Plan de la academia','Mis jugadores','Mi academia','Citas']:role==='Tutor'?['Inicio familiar','Agenda','Avances','Mi academia','Mensualidad']:['Inicio','Mi plan','Mi estado','Mi academia','Mensualidad'];
-  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'appointments':'payments',role==='Coach'?'calendar':'wallet']].map(([id,i],n)=>[id,i,labels[n]]).concat(role==='Coach'?[['private-payments','wallet','Pagos privados']]:[]).concat([['profile','profile','Mi perfil']]);
+  const labels=role==='Coach'?['Panel','Plan','Jugadores','Academia','Pagos']:role==='Tutor'?['Inicio','Agenda','Avances','Academia','Mensualidad']:['Inicio','Plan','Estado','Academia','Mensualidad'];
+  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'private-payments':'payments','wallet']].map(([id,i],n)=>[id,i,labels[n]]);
 }
 function pickRole(mode){
   entry='access';
@@ -157,7 +164,7 @@ function familyHome(){
 }
 function adultProfile(){
   const a=actor();
-  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button> <button class="btn light small" id="backup-download">Descargar respaldo de la academia</button><p class="hint" id="backup-stamp">'+backupStamp()+'</p>':''}<button class="link" id="account-setup">Editar datos</button></section>`;
+  return heading('Mi perfil',role)+`<section class="card"><h2>${esc(a.name)}</h2><p>${esc(a.academy)}</p>${role==='Tutor'?'<p>Jugador vinculado · '+esc(state.profile.name)+'</p>':''}${role==='Coach'?'<button class="btn light small" data-page="private-payments">Pagos privados ↗</button> '+(planLocked()?lockCard('Respaldo descargable','Los datos de tu academia en un archivo, cuando los necesites.'):'<button class="btn light small" id="backup-download">Descargar respaldo de la academia</button><p class="hint" id="backup-stamp">'+backupStamp()+'</p>'):''}<button class="link" id="account-setup">Editar datos</button></section>`;
 }
 function bindRoleActions(){
   bindPrivatePayments();

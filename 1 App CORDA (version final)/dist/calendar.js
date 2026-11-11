@@ -103,6 +103,20 @@ function calendarBannerDue(){
   return calPending().length>0;
 }
 function calendarBanner(){
+  return '';
+}
+// Aviso emergente: se abre al tocar «Agregar a mi calendario» en Mi plan.
+function openCalendarInfo(){
+  const pending=calPending(),total=calSessionsInWindow().length,first=!state.calendarSync;
+  const t=coverText;
+  const title=first?t('Lleva tus entrenamientos a tu celular','Take your sessions to your phone','Emportez vos séances sur votre téléphone'):t('Tu plan cambió','Your plan changed','Votre programme a changé');
+  const body=first
+    ?t('Agrega '+total+' entrenamientos de las próximas semanas a tu calendario de Apple o Google, con un recordatorio 1 hora antes.','Add '+total+' upcoming sessions to your Apple or Google calendar, with a reminder 1 hour before.','Ajoutez '+total+' séances à votre calendrier Apple ou Google, avec un rappel 1 heure avant.')
+    :t(pending.length+(pending.length===1?' entrenamiento nuevo o cambiado.':' entrenamientos nuevos o cambiados.')+' Actualiza tu calendario para tenerlo al día.',pending.length+' new or changed sessions. Update your calendar to stay current.',pending.length+' séances nouvelles ou modifiées. Mettez à jour votre calendrier.');
+  const label=first?t('Agregar a mi calendario','Add to my calendar','Ajouter à mon calendrier'):t('Actualizar mi calendario','Update my calendar','Mettre à jour mon calendrier');
+  modal(title,'<div class="full calendar-pop"><p>'+body+'</p><p class="hint calendar-help">'+t('En iPhone se abre en Calendario; en Android, en Google Calendar.','On iPhone it opens in Calendar; on Android, in Google Calendar.','Sur iPhone, il s’ouvre dans Calendrier ; sur Android, dans Google Agenda.')+'</p><button type="button" class="btn lime block" data-calendar-add>'+label+'</button></div>',null);
+}
+function calendarBannerOld(){
   if(!calendarBannerDue())return '';
   const pending=calPending(),total=calSessionsInWindow().length,first=!state.calendarSync;
   const demo=pending.every(s=>s.demo);
@@ -124,7 +138,8 @@ function calendarButton(){
 }
 document.addEventListener('click',event=>{
   const t=event.target;
-  if(t.closest?.('[data-calendar-add],#calendar-add')){addToCalendar();return}
+  if(t.closest?.('[data-calendar-add]')){addToCalendar();const m=document.querySelector('#modal');if(m?.open)m.close();return}
+  if(t.closest?.('#calendar-add')){openCalendarInfo();return}
   if(t.closest?.('[data-calendar-later]')){state.calendarPrompt={day:localDay()};save();render();return}
   if(t.closest?.('[data-calendar-off]')){
     state.calendarPrompt={off:true};save();render();
