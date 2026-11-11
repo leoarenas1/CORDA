@@ -30,7 +30,6 @@ begin
          or (member_id = '' and kind = 'member_card' and key = prof.member_id));
   end if;
 
-  update public.items set updated_by = null where updated_by = me;
   delete from auth.users where id = me;   -- el perfil se borra en cascada
 end $$;
 revoke all on function public.delete_my_account() from public, anon;
