@@ -30,6 +30,9 @@ begin
          or (member_id = '' and kind = 'member_card' and key = prof.member_id));
   end if;
 
+  -- El código con el que entró esta persona ya se usó: queda revocado para que nadie lo vuelva a canjear
+  -- (al borrar el usuario, access_codes.used_by queda vacío y el código parecería libre otra vez).
+  update public.access_codes set revoked = true where used_by = me;
   delete from auth.users where id = me;   -- el perfil se borra en cascada
 end $$;
 revoke all on function public.delete_my_account() from public, anon;
