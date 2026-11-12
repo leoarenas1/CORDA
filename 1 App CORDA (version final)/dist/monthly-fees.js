@@ -35,7 +35,7 @@ function feePage(){
     const mark=value==='Pagado'?'✓':value==='En revisión'?'◷':'';
     return `<button data-fee-month="${key}" aria-pressed="${key===feeMonth}"><span class="fee-dot ${value==='Pagado'?'paid':value==='En revisión'?'review':''}" aria-hidden="true">${mark}</span><span><b>${dateLabel(key+'-01',{month:'long'})}</b><small>${value}</small></span></button>`;
   }).join('');
-  return heading('Mensualidad','Consulta tu matrícula, adjunta el comprobante y revisa qué meses ya están pagados.')+
+  return heading('Pagos a la academia','Consulta tu matrícula, adjunta el comprobante y revisa qué meses ya están pagados.')+
     `<section class="card"><div class="row"><h2>Mis pagos de ${year}</h2><div><button class="link" data-fee-year="${year-1}" aria-label="Año anterior">←</button><button class="link" data-fee-year="${year+1}" aria-label="Año siguiente">→</button></div></div><div class="fee-months">${months}</div></section>
     <div class="columns fee-detail"><section class="card"><small class="eyebrow">Mes seleccionado</small><h2>${dateLabel(feeMonth+'-01',{month:'long',year:'numeric'})}</h2><span class="badge">${status==='Pagado'?'✓ ':''}${status}</span><div class="metric">${row.amount?esc(Number(row.amount).toLocaleString('es-MX',{style:'currency',currency:'MXN'})):'Por definir'} <small>MXN</small></div>
     ${row.receipt?`<p class="hint">Comprobante · ${esc(row.receipt.name)}</p>${row.receipt.path?`<button type="button" class="link" data-receipt="${esc(row.receipt.path)}">Ver comprobante ↗</button>`:`<a href="${esc(row.receipt.data)}" download="${esc(row.receipt.name)}">Descargar comprobante ↗</a>`}`:''}

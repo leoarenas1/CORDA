@@ -118,7 +118,8 @@ function playerPrivateCard(){
   if(role==='Coach'||!state.profile?.memberId)return '';
   const list=privateSent(state.profile.memberId).slice().sort((a,b)=>b.at-a.at);
   return `<section class="card private-lessons" id="private-lessons"><small class="eyebrow">Clases particulares</small><h2>Pagos a tu coach</h2>
-    <p class="hint">¿Tomas clases particulares y le pagas directo a tu coach? Sube aquí el comprobante. Solo lo verá ese coach; no cuenta para la mensualidad de la academia.</p>
+    <p class="hint">Para las clases particulares que le pagas directo a tu coach. No cuentan para la mensualidad de la academia.</p>
+    <ol class="fee-steps private-steps"><li>Pídele a tu coach su cuenta o CLABE y transfiérele el importe de la clase.</li><li>En el concepto escribe <strong>tu nombre y la fecha de la clase</strong>.</li><li>Sube aquí el comprobante. Solo lo verá ese coach.</li></ol>
     ${role==='Jugador'?'<button class="btn lime" id="private-send">Subir comprobante de clase particular</button>':''}
     ${list.length?`<div class="private-sent">${list.map(item=>`<div class="private-receipt"><div><b>${esc(item.coachName)}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}</div></div>`).join('')}</div>`:''}
   </section>`;

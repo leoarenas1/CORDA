@@ -173,6 +173,12 @@ Tu matrícula personal|Your enrollment code|Votre matricule personnel
 Número de cuenta|Account number|Numéro de compte
 Solicita a administración los datos pendientes antes de transferir.|Ask administration for the missing details before transferring.|Demandez à l’administration les informations manquantes avant de virer.
 Pagos a tu coach|Payments to your coach|Paiements à votre coach
+Pagos a la academia|Academy payments|Paiements à l’académie
+Para las clases particulares que le pagas directo a tu coach. No cuentan para la mensualidad de la academia.|For private lessons you pay directly to your coach. They do not count toward the academy’s monthly fee.|Pour les cours particuliers que vous payez directement à votre coach. Ils ne comptent pas dans la mensualité de l’académie.
+Pídele a tu coach su cuenta o CLABE y transfiérele el importe de la clase.|Ask your coach for their account or CLABE and transfer the lesson amount.|Demandez à votre coach son compte ou sa CLABE et virez-lui le montant du cours.
+En el concepto escribe|In the concept, write|Dans le motif, écrivez
+tu nombre y la fecha de la clase|your name and the lesson date|votre nom et la date du cours
+Sube aquí el comprobante. Solo lo verá ese coach.|Upload the receipt here. Only that coach will see it.|Téléversez le justificatif ici. Seul ce coach le verra.
 ¿Tomas clases particulares y le pagas directo a tu coach? Sube aquí el comprobante. Solo lo verá ese coach; no cuenta para la mensualidad de la academia.|Do you take private lessons and pay your coach directly? Upload the receipt here. Only that coach will see it; it does not count toward the academy’s monthly fee.|Vous prenez des cours particuliers et payez directement votre coach ? Téléversez le justificatif ici. Seul ce coach le verra ; il ne compte pas pour la mensualité de l’académie.
 Tu juego tiene identidad.|Your game has an identity.|Votre jeu a une identité.
 Información que ayuda a tu coach a conocerte mejor.|Information that helps your coach get to know you better.|Des informations qui aident votre coach à mieux vous connaître.
