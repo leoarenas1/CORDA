@@ -44,7 +44,7 @@ function pickRole(mode){
   const descriptions={Jugador:'Training, goals and progress.',Coach:'Plan sessions and support your players.',Tutor:'View your player’s schedule and progress.'};
   accessScene('access-screen',`${coverSelector()}<section class="access-panel"><small class="eyebrow">CORDA · ${t('Acceso local','Local demo','Démo locale')}</small><h1>${t('¿Cómo vas a entrar?','Choose your role','Choisissez votre profil')}</h1><p>${t('Elige el perfil que usarás en la academia.','Choose your academy profile.','Choisissez le profil que vous utiliserez à l’académie.')}</p><div class="access-roles">${roleNames.map(r=>`<button data-enter-role="${r}"><strong>${t(r,labels[r],{Jugador:'Joueur',Coach:'Coach',Tutor:'Parent'}[r])}</strong><small>${t(roleDescriptions[r],descriptions[r],{Jugador:'Entraînements, objectifs et progression.',Coach:'Planifiez les séances et accompagnez vos joueurs.',Tutor:'Consultez le programme et les progrès de votre joueur.'}[r])}</small>${state.lastRole&&r===last?`<small>${t('Último perfil utilizado','Last profile used','Dernier profil utilisé')}</small>`:''}</button>`).join('')}</div><button class="access-back">← ${t('Inicio','Home','Accueil')}</button></section>`);
   bindCoverLanguage(()=>pickRole(mode));
-  $('.access-back').onclick=()=>mode==='register'?pickRole('register'):signInScreen();
+  $('.access-back').onclick=()=>{if(mode==='register'){pendingAccount=null;entry='welcome';render();window.scrollTo(0,0)}else signInScreen()};
   document.querySelectorAll('[data-enter-role]').forEach(button=>button.onclick=()=>createAccessScreen(button.dataset.enterRole,mode==='register'?'register':'signin'));
 }
 function chooseRole(selected,mode){
