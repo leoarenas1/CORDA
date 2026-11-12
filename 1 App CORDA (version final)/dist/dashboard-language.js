@@ -185,7 +185,7 @@ Información que ayuda a tu coach a conocerte mejor.|Information that helps your
 Por añadir|To add|À ajouter
 Sin indicar|Not specified|Non indiqué
 Sin preferencias añadidas.|No preferences added.|Aucune préférence ajoutée.
-Tu espacio de prueba|Your test space|Votre espace de test
+Tu cuenta|Your account|Votre compte
 Puedes recorrer las vistas Jugador y Coach desde arriba. Son vistas de demostración, no roles con permisos reales.|You can browse the Player and Coach views from the top. They are demo views, not roles with real permissions.|Vous pouvez parcourir les vues Joueur et Coach en haut. Ce sont des vues de démonstration, pas des rôles avec de vraies autorisations.
 Tu perfil se guarda en tu cuenta CORDA y solo lo ven las personas que tu rol y tu academia permiten. Consulta el Aviso de privacidad en «Privacidad y términos».|Your profile is saved in your CORDA account and only the people your role and academy allow can see it. Read the Privacy Notice under “Privacy and terms”.|Votre profil est enregistré dans votre compte CORDA et seules les personnes autorisées par votre rôle et votre académie peuvent le voir. Consultez l’avis de confidentialité dans « Confidentialité et conditions ».
 Dentro de la cancha.|On the court.|Sur le court.
