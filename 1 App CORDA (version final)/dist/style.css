@@ -769,8 +769,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   .shell main .tournament h2{font-size:20px;line-height:26px}
 }
 @media(min-width:681px){
-  /* La foto baja un poco más que el título: solo la tarjeta del torneo deja ese espacio */
-  .main:has(.heading-avatar) .portal-grid>.tournament{margin-top:var(--space-6)}
+  /* La foto baja un poco más que el título: la tarjeta de la derecha (torneo o avisos) deja ese espacio */
+  .main:has(.heading-avatar) .portal-grid>:nth-child(2){margin-top:var(--space-8)}
 }
 @media(min-width:1001px){
   /* Foto centrada sobre la columna de la tarjeta del torneo (columna derecha = 1/2.5 del ancho) */
