@@ -9,8 +9,8 @@
 const LEGAL={
   version:'2026-11-09b',
   fecha:'9 de noviembre de 2026',
-  responsable:'Leonardo Arenas, fundador de CORDA',
-  domicilio:'',                         // por completar: calle, número, colonia, Guadalajara, Jalisco
+  responsable:'Leonardo Dominic Arenas Valencia, fundador de CORDA',
+  domicilio:'Calle Durero 5260, Eucalipto Vallarta, C.P. 45020, Zapopan, Jalisco',
   correo:'info@cordatenis.com',       // el mismo que ya aparece en el pie de la app
   whatsapp:'33 1862 1604'
 };
