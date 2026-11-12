@@ -330,7 +330,13 @@ async function cloudSignUp(email,password,remember,migrating=false,code=''){
     emailRedirectTo:location.origin+location.pathname,
     data:{name:snapshot?.name||'',role,academy:snapshot?.academy||'',details:snapshot?.details||{},code}
   }});
-  if(error){toast(cloudError(error));return}
+  if(error){
+    toast(cloudError(error));
+    // Aviso que no se pierde: sin cuenta en la nube, el perfil queda solo en este navegador.
+    modal(t('No se pudo crear tu cuenta en la nube','Your cloud account could not be created','Impossible de créer votre compte dans le cloud'),
+      '<div class="full"><p>'+esc(cloudError(error))+'</p><p class="hint">'+t('Tu perfil quedó guardado solo en este navegador. Vuelve a intentarlo más tarde o escribe a info@cordatenis.com.','Your profile was saved only in this browser. Try again later or write to info@cordatenis.com.','Votre profil n’est enregistré que dans ce navigateur. Réessayez plus tard ou écrivez à info@cordatenis.com.')+'</p><p class="hint">'+t('Detalle técnico: ','Technical detail: ','Détail technique : ')+esc([error.status,error.code,error.message].filter(Boolean).join(' · '))+'</p></div>',null);
+    return;
+  }
   // Con "Confirm email", Supabase no avisa si el correo ya existía: lo delata identities vacío.
   if(data.user&&!data.user.identities?.length){
     if(!migrating)toast(t('Ese correo ya tenía una cuenta. Cierra sesión y entra con ella.','That email already had an account. Sign out and sign in with it.','Cet e-mail avait déjà un compte. Déconnectez-vous et connectez-vous avec.'));
@@ -487,7 +493,9 @@ function askDeleteAccount(){
     go.disabled=true;input.disabled=true;
     msg.textContent=t('Borrando…','Deleting…','Suppression…');
     try{
-      if(cloud&&currentAccount){
+      // Solo se llama a la nube si hay una sesión real; una cuenta que quedó solo en este navegador se borra localmente.
+      const session=cloud?(await cloud.auth.getSession()).data?.session:null;
+      if(session){
         await removeMyFiles();
         const {error}=await cloud.rpc('delete_my_account');
         if(error)throw error;
