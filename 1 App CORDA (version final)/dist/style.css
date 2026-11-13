@@ -948,3 +948,18 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Cerrar sesión y Borrar mi cuenta, lado a lado en el perfil */
 .account-links{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4) var(--space-8)}
+
+/* Video de canchas como fondo de toda la interfaz, muy oscurecido para que el texto se lea */
+.shell>.app-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.app-backdrop video,.app-backdrop img{width:100%;height:100%;object-fit:cover}
+.app-backdrop:after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--verde-noche) 82%,transparent)}
+.shell>aside{z-index:5}
+.shell>div:not(.app-backdrop){position:relative;z-index:1}
+
+/* Pantallas medianas: la foto de perfil (con su texto curvo) no debe montarse sobre la tarjeta de abajo */
+@media(min-width:681px) and (max-width:1000px){
+  .heading:has(.heading-avatar){min-height:150px}
+}
+
+/* La tarjeta de la sesión de hoy se separa del fondo con borde arena y sombra */
+.shell main .card.next-photo,.shell main .next-card.next-photo{border:1.5px solid color-mix(in srgb,var(--arena) 70%,transparent);box-shadow:0 12px 32px rgb(0 0 0 / .5),0 0 0 1px rgb(0 0 0 / .25)}
