@@ -285,8 +285,8 @@ function coachTournaments(){
   for(const m of mine)for(const c of (state.playerTournaments||{})[m.id]||[]){
     if(String(c.date)<today)continue;
     const key=[c.name,c.date,c.place].map(x=>String(x||'').trim().toLowerCase()).join('|');
-    if(!groups.has(key))groups.set(key,{...c,names:[]});
-    groups.get(key).names.push(m.name);
+    if(!groups.has(key))groups.set(key,{...c,names:[],members:[]});
+    groups.get(key).names.push(m.name);groups.get(key).members.push(m);
   }
   const list=[...groups.values()].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   if(!list.length)return '<section class="card plan-competitions">'+head+'<p class="hint">Tus jugadores no tienen torneos próximos.</p></section>';
@@ -294,8 +294,8 @@ function coachTournaments(){
   const rows=shown.map((c,i)=>{
     const days=Math.round((Date.parse(c.date)-Date.parse(today))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';
     const fade=days<=7?1:Math.max(.35,1-(days-7)/60);
-    const who=c.names.length>1?c.names.slice(0,-1).join(', ')+' y '+c.names[c.names.length-1]:c.names[0];
-    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who">'+(c.names.length>1?'Van: ':'Va: ')+esc(who)+'</p><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>';
+    const who=c.members.map(m=>'<span class="who-chip"><span class="who-photo">'+avatar(m)+'</span>'+esc(m.name)+'</span>').join('');
+    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who"><span class="who-label">'+(c.names.length>1?'Van':'Va')+'</span>'+who+'</p><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>';
   }).join('');
   return '<section class="card plan-competitions">'+head+'<ol class="comp-list">'+rows+'</ol>'+(list.length>5?'<button class="link" id="coach-tour-more">'+(coachTourAll?'Ver menos':'Ver todos ('+list.length+')')+'</button>':'')+'</section>';
 }

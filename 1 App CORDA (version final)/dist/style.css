@@ -1047,3 +1047,9 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .athlete-backdrop::before{content:'';position:absolute;inset:0;z-index:1;background:#1f6b4f;mix-blend-mode:color;opacity:.55}
 /* Menos difuminado, con el mismo tono verde */
 .athlete-backdrop .club-background{filter:blur(2.5px) grayscale(.6) contrast(1.05);transform:scale(1.04)}
+
+/* Jugador que va al torneo: foto en círculo y nombre en verde fosforescente */
+.comp-who{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);margin:var(--space-2) 0!important}
+.who-label{font-size:var(--small-size);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted)}
+.who-chip{display:inline-flex;align-items:center;gap:var(--space-2);padding:4px 14px 4px 4px;border-radius:var(--radius-pill);background:#C8F03C;color:#0E2A20;font-weight:700;font-size:var(--body-size);line-height:1.2;box-shadow:0 0 0 2px rgba(200,240,60,.35)}
+.who-photo .avatar{width:32px;height:32px;font-size:12px;border:2px solid #0E2A20;background:#0E2A20;color:#C8F03C;object-fit:cover}
