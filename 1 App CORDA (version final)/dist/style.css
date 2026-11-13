@@ -1041,6 +1041,3 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Fondo con la foto del jugador: un poco difuminada para que no se vea pixelada */
 .athlete-backdrop .club-background{object-position:center 30%;filter:blur(8px) saturate(.9);transform:scale(1.08)}
-/* Fondo del jugador: casi nítido, con el verde de CORDA más ligero para que se reconozca la foto */
-.athlete-backdrop .club-background{filter:blur(1.5px) saturate(1);transform:scale(1.03)}
-.athlete-backdrop::after{background:color-mix(in srgb,var(--verde-noche) 50%,transparent)}
