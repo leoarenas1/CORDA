@@ -1045,3 +1045,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .athlete-backdrop .club-background{filter:blur(8px) grayscale(.6) contrast(1.05)}
 .athlete-backdrop::after{background:color-mix(in srgb,var(--verde-noche) 76%,transparent)}
 .athlete-backdrop::before{content:'';position:absolute;inset:0;z-index:1;background:#1f6b4f;mix-blend-mode:color;opacity:.55}
+/* Menos difuminado, con el mismo tono verde */
+.athlete-backdrop .club-background{filter:blur(2.5px) grayscale(.6) contrast(1.05);transform:scale(1.04)}
