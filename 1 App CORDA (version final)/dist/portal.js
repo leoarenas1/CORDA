@@ -21,9 +21,49 @@ function dateAfter(date, days) {
 function dateLabel(date, options) {
   return new Date(date+'T12:00:00').toLocaleDateString(({es:'es-MX',en:'en-US',fr:'fr-FR'})[coverLanguage],options);
 }
-function birthInput(value) {
-  return '<label>Fecha de nacimiento<input type="date" name="birthDate" required autocomplete="bday" min="1900-01-01" max="'+localDay()+'" value="'+esc(value||'')+'"></label>';
+// Fecha de nacimiento: tres listas grandes (día, mes, año) en vez del calendario del navegador.
+// El valor final viaja en un campo oculto «birthDate» (AAAA-MM-DD), igual que antes.
+function birthDaysIn(month, year) { return month ? new Date(year || 2000, month, 0).getDate() : 31; }
+function birthAgeNote(iso) {
+  if (!iso || typeof ageFrom !== 'function') return '';
+  const age = ageFrom(iso);
+  return age >= 0 && age < 120 ? coverText('Tienes ' + age + ' años.', 'You are ' + age + ' years old.', 'Vous avez ' + age + ' ans.') : '';
 }
+function birthInput(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
+  const y = m ? +m[1] : 0, mo = m ? +m[2] : 0, d = m ? +m[3] : 0;
+  const lang = ({es:'es-MX',en:'en-US',fr:'fr-FR'})[coverLanguage] || 'es-MX';
+  const top = new Date().getFullYear();
+  const days = Array.from({length: birthDaysIn(mo, y)}, (_, i) => i + 1);
+  const months = Array.from({length: 12}, (_, i) => { const n = new Date(2000, i, 1).toLocaleDateString(lang, {month:'long'}); return n.charAt(0).toUpperCase() + n.slice(1); });
+  const years = Array.from({length: top - 1920 + 1}, (_, i) => top - i);
+  const opts = (list, selected, label, val = x => x) => '<option value="">' + label + '</option>' + list.map((x, i) => '<option value="' + val(x, i) + '"' + (val(x, i) === selected ? ' selected' : '') + '>' + x + '</option>').join('');
+  return '<div class="birth-wrap" data-birth role="group" aria-label="Fecha de nacimiento">'
+    + '<span class="birth-title">Fecha de nacimiento</span>'
+    + '<input type="hidden" name="birthDate" value="' + esc(m ? value : '') + '">'
+    + '<div class="birth-picker">'
+    + '<label><span>Día</span><select data-birth-d required>' + opts(days, d, 'Día') + '</select></label>'
+    + '<label><span>Mes</span><select data-birth-m required>' + opts(months, mo, 'Mes', (_, i) => i + 1) + '</select></label>'
+    + '<label><span>Año</span><select data-birth-y required autocomplete="bday-year">' + opts(years, y, 'Año') + '</select></label>'
+    + '</div><p class="birth-age" aria-live="polite">' + esc(birthAgeNote(m ? value : '')) + '</p></div>';
+}
+function birthSync(box) {
+  const ds = box.querySelector('[data-birth-d]'), ms = box.querySelector('[data-birth-m]'), ys = box.querySelector('[data-birth-y]');
+  const hid = box.querySelector('input[name="birthDate"]'), note = box.querySelector('.birth-age');
+  const y = +ys.value, mo = +ms.value, max = birthDaysIn(mo, y);
+  if (ds.options.length - 1 !== max) {
+    const keep = Math.min(+ds.value || 0, max);
+    ds.innerHTML = '<option value="">' + (coverText('Día', 'Day', 'Jour')) + '</option>' + Array.from({length: max}, (_, i) => '<option value="' + (i + 1) + '"' + (i + 1 === keep ? ' selected' : '') + '>' + (i + 1) + '</option>').join('');
+  }
+  const d = +ds.value;
+  let iso = '';
+  if (y && mo && d) iso = y + '-' + String(mo).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  const future = iso && iso > localDay();
+  ys.setCustomValidity(future ? coverText('La fecha no puede ser futura.', 'The date cannot be in the future.', 'La date ne peut pas être dans le futur.') : '');
+  hid.value = future ? '' : iso;
+  note.textContent = future ? '' : birthAgeNote(iso);
+}
+document.addEventListener('change', e => { const box = e.target.closest?.('[data-birth]'); if (box) birthSync(box); });
 function utrInput(value) {
   return '<label class="utr-field">UTR individual <span class="optional">(opcional)</span><input name="utr" inputmode="decimal" type="number" min="1" max="16.5" step="0.01" value="'+esc(value??'')+'" placeholder="Ej. 3.00" aria-describedby="utr-tip"></label><small id="utr-tip">De 1.00 a 16.50. Puedes dejarlo en blanco.</small>';
 }

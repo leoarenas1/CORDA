@@ -1,5 +1,9 @@
 // Localize interface copy only; preserve member-entered names, notes and records.
 const dashboardLabels=new Map(`Inicio|Home|Accueil
+Fecha de nacimiento|Date of birth|Date de naissance
+Día|Day|Jour
+Mes|Month|Mois
+Año|Year|Année
 Borrar mi cuenta|Delete my account|Supprimer mon compte
 Cerrar sesión|Sign out|Se déconnecter
 Plan|Plan|Programme
