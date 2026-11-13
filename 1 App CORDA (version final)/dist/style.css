@@ -1176,3 +1176,16 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .workspace-logo{max-width:92%!important;max-height:140px!important;margin:0 auto var(--space-4)!important}
 .club-identity.has-logo .club-mark{max-width:min(560px,86%)!important;max-height:300px!important;margin-bottom:var(--space-5)!important}
 .club-identity.has-logo h1{margin-top:0}
+
+/* ---- Alineación: la línea bajo CORDA coincide con la línea de la barra superior (escritorio) ---- */
+:root{--bar-h:80px}
+@media(min-width:681px){
+  .topbar{box-sizing:border-box;min-height:var(--bar-h)}
+  .shell>.sidebar{padding-top:0}
+  .shell>.sidebar>.brand{display:flex;align-items:center;height:calc(var(--bar-h) - 1px);margin:0}
+}
+/* El video / foto de fondo llega hasta arriba: la barra del idioma y «Academia» queda transparente encima */
+.shell:has(.academy-backdrop,.app-backdrop) .topbar{background:transparent;border-bottom-color:rgba(244,239,227,.16)}
+/* Logo del menú más compacto para no empujar los botones */
+.workspace.has-logo{padding-top:var(--space-3);padding-bottom:var(--space-3)}
+.workspace-logo{max-height:72px!important;max-width:78%!important;margin:0 auto var(--space-2)!important}
