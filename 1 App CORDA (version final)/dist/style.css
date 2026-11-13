@@ -1041,3 +1041,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 /* Fondo con la foto del jugador: un poco difuminada para que no se vea pixelada */
 .athlete-backdrop .club-background{object-position:center 30%;filter:blur(8px) saturate(.9);transform:scale(1.08)}
+/* Mismo tono verde de los otros fondos: se apaga un poco el color de la foto y se cubre con el verde de CORDA */
+.athlete-backdrop .club-background{filter:blur(8px) grayscale(.6) contrast(1.05)}
+.athlete-backdrop::after{background:color-mix(in srgb,var(--verde-noche) 76%,transparent)}
+.athlete-backdrop::before{content:'';position:absolute;inset:0;z-index:1;background:#1f6b4f;mix-blend-mode:color;opacity:.55}
