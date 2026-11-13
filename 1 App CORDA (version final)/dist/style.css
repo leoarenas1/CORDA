@@ -1004,3 +1004,6 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .roster-bar{display:block;height:6px;border-radius:999px;background:rgb(0 0 0 / .12);overflow:hidden}
 .roster-fill{display:block;height:100%;border-radius:999px;background:#1E6B4F}
 .roster-card .btn{align-self:flex-start;margin-top:var(--space-2)}
+
+/* Botón «+ Crear sesión» dentro del encabezado del coach */
+.heading-cta{margin-top:var(--space-4)}

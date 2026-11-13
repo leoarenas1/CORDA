@@ -163,13 +163,13 @@ function coachRosterCard(members){
 }
 function coachHome(){
   const academy=actor().academy,members=academyPlayers(academy),today=localDay();
-  return heading('Panel del coach',esc(academy),'<button class="btn lime" id="newsession">+ Crear sesión</button>')+calendarBanner()+
+  return '<div class="heading"><div><h1>Panel del coach</h1><p class="muted">'+esc(academy)+'</p><button class="btn lime heading-cta" id="newsession">+ Crear sesión</button></div><div class="heading-actions">'+headingAvatar()+'</div></div>'+calendarBanner()+
     `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+meetingCard();
 }
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
   const note=latestPlayerNote(athleteFor(member));
-  return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy))+calendarBanner()+
+  return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy),'<div class="heading-actions">'+headingAvatar()+'</div>')+calendarBanner()+
     '<div class="portal-grid">'+nextSessionCard()+'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section></div>'+
     '<div class="flow-week"><section class="card"><small class="eyebrow">Seguimiento de '+esc(member.name)+'</small><h2>Último avance</h2><p>'+esc(note.good||'Aún no hay evaluación del coach.')+'</p><p>'+esc(note.focus||'')+'</p><button class="link" data-page="goals">Ver avances ↗</button></section>'+meetingCard()+'</div>'+rainNotice();
 }
