@@ -1068,3 +1068,43 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .who-chip{font-size:12px;gap:5px;padding:2px 9px 2px 2px;font-weight:600}
 .who-photo .avatar{width:18px;height:18px;font-size:8px}
 @media(max-width:680px){.comp-row{flex-direction:column;align-items:flex-start}.comp-place{max-width:100%;text-align:left}}
+
+/* Plan de preparación física del año: curva interactiva con la burbuja del jugador */
+.season-plan{margin-bottom:var(--space-6);overflow:hidden}
+.season-pills{display:flex;gap:6px;margin:var(--space-4) 0 var(--space-3)}
+.season-pill{min-width:0;padding:10px 4px;border:0;border-radius:999px;cursor:pointer;font:inherit;font-weight:800;font-size:var(--small-size);color:#0E2A20;transition:transform .2s,box-shadow .2s,filter .2s}
+.season-pill:hover{transform:translateY(-2px);filter:brightness(1.05)}
+.season-pill.is-picked{box-shadow:0 0 0 3px var(--ink);transform:translateY(-2px)}
+.season-pill b{font-weight:800;white-space:nowrap}.season-pill .sm{display:none}
+.is-f1{background:#C5D4B0}.is-f2{background:#8FBF6E}.is-f3{background:#C8F03C}.is-comp{background:#0F3B2C;color:#F4EFE3}.is-trans{background:#D8C79A}
+.season-chart{position:relative;height:200px;border-radius:var(--radius-md);background:var(--surface-deep);overflow:hidden}
+.season-svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.season-bands rect{opacity:.28}
+.season-bands .is-comp{fill:#0F3B2C;opacity:.16}.season-bands .is-f1{fill:#C5D4B0}.season-bands .is-f2{fill:#8FBF6E}.season-bands .is-f3{fill:#C8F03C}.season-bands .is-trans{fill:#D8C79A}
+.season-grid line{stroke:rgba(14,42,32,.12);stroke-width:1;vector-effect:non-scaling-stroke}
+.season-curves{animation:season-reveal 1.8s ease-out both}
+.season-area{fill:rgba(46,107,31,.18);stroke:none}
+.season-vol,.season-int{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.season-vol{stroke:#2E6B1F;stroke-width:3;stroke-dasharray:1 7}
+.season-int{stroke:#0E2A20;stroke-width:4}
+.season-today{stroke:#0E2A20;stroke-width:1.5;stroke-dasharray:4 5;vector-effect:non-scaling-stroke;opacity:.5}
+@keyframes season-reveal{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+.season-bubble{position:absolute;z-index:3;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:#0E2A20;border:3px solid #C8F03C;display:grid;place-items:center;box-shadow:0 6px 16px rgba(0,0,0,.35);animation:season-ride 2.4s linear both}
+.season-bubble .avatar{width:100%;height:100%;border:0;object-fit:cover;font-size:14px;background:#0E2A20;color:#C8F03C}
+.season-bubble.is-today{width:auto;height:auto;min-width:48px;margin:-15px 0 0 -24px;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:800;color:#0E2A20;background:#C8F03C}
+.season-pulse{position:absolute;inset:-6px;border-radius:50%;border:2px solid #C8F03C;opacity:0;animation:season-pulse 2.2s ease-out 2.4s infinite;pointer-events:none}
+@keyframes season-pulse{0%{transform:scale(.8);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+.season-months{display:grid;grid-template-columns:repeat(12,1fr);margin-top:var(--space-2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted);text-align:center}
+.season-months .is-now{color:var(--ink);font-weight:800}
+.season-key-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4);margin:var(--space-3) 0;font-size:var(--small-size);color:var(--ink-muted)}
+.season-key-row i{display:inline-block;width:22px;height:0;margin-right:6px;vertical-align:middle;border-top:4px solid #0E2A20;border-radius:2px}
+.season-key-row i.k-vol{border-top:3px dotted #2E6B1F}
+.season-key-row small{margin-left:auto}
+.season-now{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-4);border-radius:var(--radius-md);background:var(--surface-deep);border:1px solid var(--line)}
+.season-now>div{flex:1;min-width:0}
+.season-now h3{margin:2px 0 4px}.season-now p{margin:0 0 6px}
+.season-swatch{flex:0 0 14px;align-self:stretch;border-radius:8px}
+.season-next{display:inline-block;padding:3px 10px;border-radius:999px;background:var(--ink);color:var(--surface);font-size:12px;font-weight:700}
+.season-add{margin:0 0 var(--space-6)}
+@media(max-width:680px){.season-chart{height:150px}.season-bubble{width:42px;height:42px;margin:-21px 0 0 -21px}.season-pill{padding:9px 0}.season-pill .lg{display:none}.season-pill .sm{display:inline}.season-months span{font-size:9px}.season-key-row small{margin-left:0;width:100%}}
+@media(prefers-reduced-motion:reduce){.season-curves,.season-bubble,.season-pulse{animation:none}}

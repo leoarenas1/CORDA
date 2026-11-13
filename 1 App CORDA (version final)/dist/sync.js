@@ -55,7 +55,7 @@ function collectItems(){
   const group=syncGroup();
   Object.entries(group.officeHours).forEach(([host,rules])=>put('','office_hours',host,rules));
   if(syncCtx.staff)Object.entries(state.coachPlayers||{}).forEach(([coach,players])=>put('','coach_players',coach,{players}));
-  put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null});
+  put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null,season:group.season||null});
   (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||'',photo:m.photoRef||null}));
   (state.privateLessons||[]).forEach(book=>put('','private_book',book.coachId,book));
   for(const id of syncPlayers()){
@@ -179,7 +179,7 @@ function applyRows(rows){
   const group=syncGroup();
   fillMap(group.officeHours,Object.fromEntries(rowsOf('','office_hours').map(r=>[r.key,r.data])));
   const settings=rowsOf('','group_settings')[0]?.data;
-  if(settings){group.address=settings.address||group.address;if(settings.brand)group.brand=settings.brand;if(settings.feeBank)group.feeBank=settings.feeBank}
+  if(settings){group.address=settings.address||group.address;if(settings.brand)group.brand=settings.brand;if(settings.feeBank)group.feeBank=settings.feeBank;if(settings.season)group.season=settings.season}
   for(const r of rowsOf('','member_card')){
     const member=state.directory.find(m=>m.id===r.key&&m.academy===syncCtx.academyName);
     if(!member)continue;
@@ -234,7 +234,7 @@ async function pullItems({first=false}={}){
       if(extra.length)all=rows.concat(extra);
       if(syncCtx.staff&&!rows.some(r=>r.kind==='group_settings')){
         const g=syncGroup();
-        await cloud.from('items').upsert({academy_id:syncCtx.academyId,member_id:'',kind:'group_settings',key:'main',data:{address:g.address||'',brand:g.brand||null,feeBank:g.feeBank||null}},{onConflict:'academy_id,member_id,kind,key'});
+        await cloud.from('items').upsert({academy_id:syncCtx.academyId,member_id:'',kind:'group_settings',key:'main',data:{address:g.address||'',brand:g.brand||null,feeBank:g.feeBank||null,season:g.season||null}},{onConflict:'academy_id,member_id,kind,key'});
       }
     }
     applyRows(all);
