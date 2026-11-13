@@ -135,7 +135,7 @@ function playerList(){
       const list=members.map(m=>({m,st:typeof playerStatus==='function'?playerStatus(m.id):{level:'none',reason:'Sin chequeos',score:null}}))
         .sort((a,b)=>order[a.st.level]-order[b.st.level]||a.m.name.localeCompare(b.m.name));
       const sym={red:'!',yellow:'!',green:'✓',none:''};
-      return `<div class="status-legend" aria-label="Significado de los colores"><span class="lg-red">Atender hoy</span><span class="lg-yellow">Vigilar</span><span class="lg-green">Bien</span><span class="lg-none">Sin datos</span></div><ul class="player-circles">${list.map(({m,st})=>{
+      return `<div class="status-legend" aria-label="Significado de los colores"><span class="lg-red">Hablar hoy</span><span class="lg-yellow">Revisar</span><span class="lg-green">Listo para entrenar</span><span class="lg-none">Pedir chequeo</span></div><ul class="player-circles">${list.map(({m,st})=>{
         const parts=String(m.name||'').trim().split(/\s+/),first=parts.shift()||'',rest=parts.join(' ');
         return `<li><button type="button" class="player-circle ring-${st.level}" data-athlete="${esc(m.id)}" aria-label="Ver seguimiento de ${esc(m.name)}. ${esc(st.reason)}"><span class="pc-photo">${avatar(m)}${sym[st.level]?`<i class="pc-badge badge-${st.level}">${sym[st.level]}</i>`:''}</span><b>${esc(first)}</b><span class="pc-last">${esc(rest)}</span><small class="pc-reason reason-${st.level}">${esc(st.reason)}</small><span class="pc-go">Ver seguimiento ↗</span></button></li>`;
       }).join('')}</ul>`;
