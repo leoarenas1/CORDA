@@ -1202,3 +1202,18 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .coach-payments-alert{margin:0 0 var(--space-3);padding:8px 12px;border-radius:var(--radius-sm,8px);background:var(--surface-deep);border:1px dashed var(--line)}
 /* Los cuadros de sede de los torneos quedan alineados entre sí */
 @media(min-width:681px){.comp-place{min-width:230px}}
+
+/* Lista de jugadores: círculos de perfil con el color de su preparación de hoy */
+.player-circles{list-style:none;margin:var(--space-6) 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--space-8) var(--space-4)}
+.player-circle{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;padding:0;border:0;background:none;color:var(--ink);text-align:center;cursor:pointer;font:inherit}
+.pc-photo{position:relative;display:grid;place-items:center;width:124px;height:124px;margin-bottom:var(--space-3);padding:6px;border-radius:50%;background:var(--ring,var(--line));transition:transform .25s ease,box-shadow .25s ease}
+.pc-photo .avatar{width:100%;height:100%;font-size:32px;object-fit:cover;border:4px solid var(--verde-noche,#0F2A20)}
+.ring-ok{--ring:#7CCB5E}.ring-mid{--ring:#E2B24A}.ring-low{--ring:#D9674F}.ring-none{--ring:rgba(244,239,227,.28)}
+.player-circle b{font-size:var(--body-size);line-height:1.2}
+.pc-last{font-size:var(--small-size);color:var(--ink-muted)}
+.player-circle small{margin-top:4px;font-size:12px;opacity:.8}
+.pc-go{margin-top:6px;font-size:12px;font-weight:700;color:var(--accent-text,#C8F03C);opacity:0;transform:translateY(-4px);transition:opacity .2s ease,transform .2s ease}
+.pc-alert{position:absolute;right:2px;top:2px;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#D9674F;color:#fff;font-style:normal;font-weight:800;border:3px solid var(--verde-noche,#0F2A20)}
+.player-circle:hover .pc-photo,.player-circle:focus-visible .pc-photo{transform:scale(1.06);box-shadow:0 0 0 4px color-mix(in srgb,var(--ring) 35%,transparent)}
+.player-circle:hover .pc-go,.player-circle:focus-visible .pc-go{opacity:1;transform:none}
+@media(hover:none){.pc-go{opacity:.9;transform:none}}

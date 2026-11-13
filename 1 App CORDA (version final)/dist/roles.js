@@ -129,10 +129,13 @@ function latestPlayerNote(record){
 function playerList(){
   const members=academyPlayers(actor().academy);
   return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn lime" id="roster-add">+ Jugador</button>')+
-    (members.length?`<div class="athlete-list">${members.map(m=>{
-      const record=athleteFor(m),note=latestPlayerNote(record);
-      return `<article class="card"><div class="row">${avatar(m)}<h2><button class="athlete-name" data-athlete="${esc(m.id)}">${esc(m.name)}</button></h2></div>${wellnessBadge(m.id)}<small>Fortaleza observada</small><p>${esc(note.good||'Por evaluar')}</p><small>Siguiente ajuste</small><p>${esc(note.focus||'Por evaluar')}</p><button class="link" data-athlete="${esc(m.id)}">Ver seguimiento ↗</button></article>`;
-    }).join('')}</div>`:'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
+    (members.length?`<ul class="player-circles">${members.map(m=>{
+      const today=localDay(),rec=typeof wellPeek==='function'?wellPeek(m.id)[today]:null,score=rec&&typeof readiness==='function'?readiness(rec):null;
+      const cls=typeof wellClass==='function'?wellClass(score):'none',alerts=typeof wellnessAlerts==='function'?wellnessAlerts(m.id):[];
+      const parts=String(m.name||'').trim().split(/\s+/),first=parts.shift()||'',rest=parts.join(' ');
+      const caption=score===null?'Sin chequeo hoy':'Preparación '+score;
+      return `<li><button type="button" class="player-circle ring-${cls}" data-athlete="${esc(m.id)}" aria-label="Ver seguimiento de ${esc(m.name)}"><span class="pc-photo">${avatar(m)}${alerts.length?`<i class="pc-alert" title="${esc(alerts[0].text)}">!</i>`:''}</span><b>${esc(first)}</b><span class="pc-last">${esc(rest)}</span><small>${caption}</small><span class="pc-go">Ver seguimiento ↗</span></button></li>`;
+    }).join('')}</ul>`:'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
 }
 function athleteDetail(record,name){
   const note=latestPlayerNote(record);
