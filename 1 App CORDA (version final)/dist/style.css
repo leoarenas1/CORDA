@@ -1217,3 +1217,6 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .player-circle:hover .pc-photo,.player-circle:focus-visible .pc-photo{transform:scale(1.06);box-shadow:0 0 0 4px color-mix(in srgb,var(--ring) 35%,transparent)}
 .player-circle:hover .pc-go,.player-circle:focus-visible .pc-go{opacity:1;transform:none}
 @media(hover:none){.pc-go{opacity:.9;transform:none}}
+/* La foto del jugador se queda dentro del círculo, sin importar su proporción */
+.pc-photo{flex:0 0 124px;overflow:visible}
+.pc-photo .avatar{position:absolute!important;inset:6px;width:calc(100% - 12px)!important;height:calc(100% - 12px)!important;max-width:none;border-radius:50%!important;object-fit:cover;object-position:center top;aspect-ratio:1/1}
