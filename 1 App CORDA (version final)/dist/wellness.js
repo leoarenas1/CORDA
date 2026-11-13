@@ -166,10 +166,20 @@ function wellnessPanel(id,name,self){
     ${self&&role==='Jugador'?'<button type="button" class="link" data-report-pain>Reportar una molestia</button>':''}
     <p class="hint">UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
 }
+// Cuando ya hiciste el chequeo de hoy: anillo de preparación que se llena y racha de días seguidos.
+function wellnessDoneCard(score){
+  const rec=wellPeek(state.profile.memberId);let streak=0;
+  for(let i=0;i<400;i++){const d=dateAfter(localDay(),-i),r=rec[d];if(r&&readiness(r)!==null)streak++;else break}
+  const cls=wellClass(score),title=cls==='ok'?'Listo para entrenar':cls==='mid'?'Ve con calma hoy':'Hoy toca cuidarte';
+  const text=cls==='ok'?'Tu cuerpo viene bien. Aprovecha la sesión.':cls==='mid'?'Escucha tu cuerpo y avisa si algo te molesta.':'Tu coach ya lo sabe y ajustará la carga.';
+  return `<section class="card well-done"><div class="well-ring is-${cls}" style="--score:${score}" role="img" aria-label="Preparación de hoy: ${score} de 100"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><div><b data-count>${score}</b><small>/ 100</small></div></div>
+    <div class="well-done-text"><small class="eyebrow">Chequeo de hoy ✓</small><h2>${title}</h2><p class="hint">${text}</p>${streak>1?`<span class="well-streak"><i class="flame">🔥</i> ${streak} días seguidos</span>`:'<span class="well-streak">Primer chequeo de la racha</span>'}</div>
+    <button class="link" data-open-wellness>Editar</button></section>`;
+}
 function wellnessBanner(){
   if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
   const done=wellPeek(state.profile.memberId)[localDay()];
-  if(done&&readiness(done)!==null)return '';
+  if(done&&readiness(done)!==null)return wellnessDoneCard(readiness(done));
   return `<section class="card checkin-banner calendar-banner wellness-banner"><div><small class="eyebrow">Chequeo diario</small><h2>¿Cómo amaneces hoy?</h2><p class="hint">30 segundos: sueño, energía y si te duele algo. Tu coach lo ve y ajusta la carga.</p></div><div class="calendar-actions"><button class="btn lime" data-open-wellness>Hacer chequeo</button></div></section>`;
 }
 // Etiqueta corta para la lista de jugadores del coach.
