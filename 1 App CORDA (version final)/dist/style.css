@@ -1108,3 +1108,32 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .season-add{margin:0 0 var(--space-6)}
 @media(max-width:680px){.season-chart{height:150px}.season-bubble{width:42px;height:42px;margin:-21px 0 0 -21px}.season-pill{padding:9px 0}.season-pill .lg{display:none}.season-pill .sm{display:inline}.season-months span{font-size:9px}.season-key-row small{margin-left:0;width:100%}}
 @media(prefers-reduced-motion:reduce){.season-curves,.season-bubble,.season-pulse{animation:none}}
+
+/* ---------- Movimiento (se apaga con «reducir movimiento») ---------- */
+@media (prefers-reduced-motion:no-preference){
+  /* Al cambiar de página, las tarjetas suben una tras otra */
+  .motion-enter main>*{animation:motion-rise .55s cubic-bezier(.2,.7,.2,1) both}
+  .motion-enter main>*:nth-child(2){animation-delay:.07s}.motion-enter main>*:nth-child(3){animation-delay:.14s}
+  .motion-enter main>*:nth-child(4){animation-delay:.21s}.motion-enter main>*:nth-child(5){animation-delay:.28s}
+  .motion-enter main>*:nth-child(6){animation-delay:.35s}.motion-enter main>*:nth-child(n+7){animation-delay:.42s}
+  @keyframes motion-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  /* Barras que se llenan */
+  .motion-enter .progress i,.motion-enter .well-meter i,.motion-enter .roster-fill{animation:motion-grow 1s cubic-bezier(.2,.7,.2,1) .25s both}
+  @keyframes motion-grow{from{width:0}}
+  /* Detalles al pasar el cursor o tocar */
+  .btn,.link,.next-confirm,.season-pill,.nav button{transition:transform .18s ease,box-shadow .18s ease,filter .18s ease,background-color .18s ease}
+  .btn:active,.next-confirm:active{transform:scale(.96)}
+  .nav button:active{transform:scale(.97)}
+  .nav button svg{transition:transform .25s ease}
+}
+@media (prefers-reduced-motion:no-preference) and (hover:hover){
+  .shell main .card{transition:transform .25s ease,box-shadow .25s ease}
+  .shell main .card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(0,0,0,.22)}
+  .btn:hover,.next-confirm:hover{transform:translateY(-1px);filter:brightness(1.04)}
+  .nav button:hover svg{transform:translateX(3px) scale(1.12)}
+  .roster-row{transition:transform .2s ease,background-color .2s ease}.roster-row:hover{transform:translateX(4px)}
+}
+/* Confeti */
+.confetti{position:fixed;z-index:9999;width:0;height:0;pointer-events:none}
+.confetti i{position:absolute;left:0;top:0;width:8px;height:12px;border-radius:2px;opacity:0;animation:confetti-pop .95s cubic-bezier(.15,.8,.3,1) forwards}
+@keyframes confetti-pop{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),calc(var(--dy) + 60px)) rotate(var(--r))}}
