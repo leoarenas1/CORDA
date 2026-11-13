@@ -1160,3 +1160,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   @keyframes flame-flicker{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.18) rotate(4deg)}}
 }
 .well-ring svg{overflow:visible}
+/* Espacio entre la tarjeta de sesiones de físico y el plan del año */
+.shell main .card+.season-plan,.shell main .card+.season-exercises,.shell main .season-plan+.season-exercises{margin-top:var(--space-6)}
