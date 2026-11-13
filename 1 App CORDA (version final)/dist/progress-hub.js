@@ -237,7 +237,7 @@ function openPlayerCheckin(fromNotice=false){
     <label class="full hub-range">Esfuerzo de la sesión<span class="hub-range-value"><output id="hub-rpe-out">${old.rpe??5} / 10</output></span><input type="range" name="rpe" min="1" max="10" step="1" value="${old.rpe??5}"><small class="hub-range-scale"><span>1 · Muy suave</span><span>10 · Máximo esfuerzo</span></small></label>
     <label class="full">¿Qué te salió bien? <span class="optional">(opcional)</span><textarea name="good" maxlength="300">${esc(old.good)}</textarea></label>
     <label class="full">¿Qué te faltó? <span class="optional">(opcional)</span><textarea name="missing" maxlength="300">${esc(old.missing)}</textarea></label></div>`,
-    data=>{store.player[today]=data.attended==='no'?{attended:false,reason:data.reason||'',at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),rpe:Number(data.rpe)||5,good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};hubPick=null},
+    data=>{store.player[today]=data.attended==='no'?{attended:false,reason:data.reason||'',at:Date.now()}:{attended:true,score:Number(data.score),mood:Number(data.mood),rpe:Number(data.rpe)||5,good:data.good.trim(),missing:data.missing.trim(),at:Date.now()};if(typeof markAttendanceFromSurvey==='function')markAttendanceFromSurvey(data.attended!=='no');hubPick=null},
     'Enviar');
   bindScoreField();bindAttendance();
   const rpe=$('#modalform [name="rpe"]'),rpeOut=$('#hub-rpe-out');

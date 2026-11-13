@@ -176,6 +176,34 @@ function tournamentCard() {
   return '<section class="card tournament"><div class="row"><small class="eyebrow">Próximo torneo'+(demo?' · Ejemplo':'')+'</small><button id="competition" class="link">Añadir torneo +</button></div><h2>'+esc(c.name)+'</h2><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long'})+tournamentDetails(c)+'</p><div class="countdown">'+(days?days+' <small>días para competir</small>':'Hoy compites')+'</div><ol class="tourney-road">'+phases.map(([name,date],i)=>'<li class="'+(i<=current?'reached ':'')+(i===current?'current':'')+'"><i></i><b>'+name+'</b><small>'+dateLabel(date,{day:'numeric',month:'short'})+'</small></li>').join('')+'</ol></section>';
 }
 let agendaDate=localDay();
+// Asistencia por jugador y sesión: 'going' (confirmó que va), 'attended' (fue), 'absent' (no fue).
+// El jugador responde por sí mismo; el tutor puede responder por su jugador a cargo. El coach lo ve en la sesión.
+function attendanceMine(){
+  if(typeof syncCtx==='undefined'||!syncCtx||syncCtx.staff)return '';
+  return (syncCtx.players||[])[0]||'';
+}
+function attendanceMap(id){return id&&syncCtx?(syncAthlete(id).attendance??={}):null}
+function attendanceOf(session){const m=attendanceMap(attendanceMine());return m?m[String(session.id)]||null:null}
+function setAttendance(session,status){
+  const m=attendanceMap(attendanceMine());if(!m)return false;
+  if(status)m[String(session.id)]={status,by:role==='Tutor'?'Tutor':'Jugador',name:actor()?.name||'',at:Date.now()};
+  else delete m[String(session.id)];
+  return true;
+}
+// Al contestar «¿Fuiste hoy?» se marcan las sesiones de hoy que ya empezaron.
+function markAttendanceFromSurvey(went){
+  const now=Date.now();
+  sessionsFor(localDay()).filter(s=>!s.cancelled&&new Date(s.date+'T'+s.time).getTime()<=now).forEach(s=>setAttendance(s,went?'attended':'absent'));
+}
+function sessionAttendance(s){
+  if(role!=='Coach'||typeof syncCtx==='undefined'||!syncCtx)return '';
+  const ids=s.players?.length?s.players:(syncCtx.players||[]);
+  const name=id=>(state.directory||[]).find(m=>m.id===id)?.name||'Jugador';
+  const groups={going:[],attended:[],absent:[]},none=[];
+  ids.forEach(id=>{const a=(syncAthlete(id).attendance||{})[String(s.id)];if(a&&groups[a.status])groups[a.status].push(name(id)+(a.by==='Tutor'?' (por su tutor)':''));else none.push(name(id))});
+  const line=(label,list)=>list.length?'<p><b>'+label+' ('+list.length+'):</b> '+list.map(esc).join(', ')+'</p>':'';
+  return '<hr class="divider"><h3>Asistencia</h3>'+line('Confirmaron que van',groups.going)+line('Asistieron',groups.attended)+line('No asistieron',groups.absent)+'<p class="hint">Sin respuesta: '+none.length+'</p>';
+}
 function nearestSession(now = new Date()){
   return state.sessions.filter(s=>{
     const start=new Date(s.date+'T'+s.time);
@@ -189,11 +217,12 @@ function sessionGear(session){
 function nextSessionCard(){
   const session=nearestSession();
   if(!session)return '<section class="next-card"><small>Mi agenda</small><h3>Sin próximas sesiones</h3><p>Revisa tu plan para ver otras fechas.</p><div class="next-actions"><button class="next-confirm" data-page="calendar">Abrir mi plan</button></div></section>';
+  const att=attendanceOf(session),st=attendanceMine()?(att?att.status:''):(session.confirmed?'going':'');
   const live=new Date(session.date+'T'+session.time)<=new Date();
   const day=live?'Sesión en curso':dateLabel(session.date,{weekday:'long',day:'numeric',month:'long'});
   return `<section class="next-card next-photo"><img class="activity-photo" src="assets/${sessionPhoto(session)}" alt="" onerror="this.hidden=true"><small>${esc(day)}</small><h3>${esc(session.type)} · ${esc(session.title)}</h3>
   <p class="next-meta">${esc(session.time)} · ${esc(session.place)} · ${esc(sessionCoach(session))}</p>${session.players?.length?`<p class="private-note">${esc(sessionPrivateNote(session))}</p>`:''}<p>Lleva: ${esc(sessionGear(session))}</p>
-  <div class="next-actions"><button class="next-confirm" data-confirm-session="${session.id}" aria-pressed="${!!session.confirmed}">${session.confirmed?'Asistencia confirmada':'Confirmar asistencia'}</button><button class="link" data-session="${session.id}">Ver sesión ↗</button></div></section>`;
+  <div class="next-actions"><button class="next-confirm" data-confirm-session="${session.id}" aria-pressed="${st==='going'||st==='attended'}">${st==='attended'?'Asististe ✓':st==='absent'?'No asististe':st==='going'?'Asistencia confirmada':'Confirmar asistencia'}</button><button class="link" data-session="${session.id}">Ver sesión ↗</button></div>${att&&att.status==='going'&&att.name?`<p class="confirm-by">Confirmada por ${esc(att.name)}</p>`:''}</section>`;
 }
 function playerHome(){
   const today=localDay(),sessions=sessionsFor(agendaDate);
@@ -231,6 +260,12 @@ function bindPortal() {
   };
   document.querySelectorAll('[data-confirm-session]').forEach(button=>button.onclick=()=>{
     const session=state.sessions.find(s=>String(s.id)===button.dataset.confirmSession);if(!session)return;
+    if(attendanceMine()){
+      const cur=attendanceOf(session);
+      if(cur&&cur.status!=='going'){toast('La asistencia de esta sesión ya quedó registrada.');return}
+      setAttendance(session,cur?null:'going');save();render();
+      toast(cur?'Confirmación retirada.':'Asistencia confirmada · '+session.time+' · '+session.place+'.');return;
+    }
     session.confirmed=!session.confirmed;save();render();
     toast(session.confirmed?'Asistencia confirmada · '+session.time+' · '+session.place+'.':'Confirmación retirada.');
   });

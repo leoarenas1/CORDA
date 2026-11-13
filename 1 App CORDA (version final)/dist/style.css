@@ -1024,3 +1024,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .goal-box p{color:#e8e4d4;margin:0}
 
 .comp-who{color:var(--ink)!important;font-weight:600}
+
+.confirm-by{margin:6px 0 0;font-size:var(--small-size);color:var(--ink-muted)}

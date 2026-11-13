@@ -6,8 +6,8 @@
 // Quién puede ver o editar cada cosa lo deciden las reglas RLS de supabase/03_datos_compartidos.sql.
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
-const PLAYER_KINDS=new Set(['wellness','checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
-const DELETABLE=new Set(['wellness','session','player_session','coach_players','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
+const PLAYER_KINDS=new Set(['attendance','wellness','checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
+const DELETABLE=new Set(['wellness','session','player_session','coach_players','attendance','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -40,7 +40,8 @@ const ACADEMY_LISTS=[
 const PLAYER_MAPS=[
   ['wellness',id=>checkinStore(id).wellness??={}],['checkin_player',id=>checkinStore(id).player],['checkin_coach',id=>checkinStore(id).coach],
   ['review',id=>syncAthlete(id).reviews??={}],['monthly_review',id=>syncAthlete(id).profile.monthlyReviews??={}],
-  ['fee_month',id=>syncLedger(id).months],['video_seen',id=>videoSeenStore(id)]
+  ['fee_month',id=>syncLedger(id).months],['video_seen',id=>videoSeenStore(id)],
+  ['attendance',id=>syncAthlete(id).attendance??={}]
 ];
 function syncPlayers(){return syncCtx?.players||[]}
 
@@ -69,7 +70,7 @@ function collectItems(){
 function canWrite({member_id,kind,key}){
   const c=syncCtx;
   if(c.staff)return true;
-  if(member_id)return c.role==='Jugador'&&member_id===c.memberId&&PLAYER_KINDS.has(kind);
+  if(member_id)return (c.role==='Jugador'&&member_id===c.memberId&&PLAYER_KINDS.has(kind))||(c.role==='Tutor'&&kind==='attendance'&&(c.players||[]).includes(member_id));
   if(kind==='comment'||kind==='meeting')return true;
   return kind==='member_card'&&key===c.memberId;
 }
