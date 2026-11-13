@@ -150,10 +150,21 @@ function staffProgress(){
   if(!member)return playerList();
   return '<button class="link" id="all-players">← Mis jugadores</button>'+athleteDetail(athleteFor(member),member.name);
 }
+// Tarjeta «Mis jugadores» del panel del coach: cada jugador con su foto, su nombre, cómo viene y la última nota del coach.
+function coachRosterCard(members){
+  const rows=members.slice(0,5).map(m=>{
+    const record=athleteFor(m),note=latestPlayerNote(record)||{};
+    const reviewed=Object.keys(record.reviews||{}).length||Object.keys(record.profile?.monthlyReviews||{}).length;
+    const trend=reviewed&&note.good?['is-up','↗ Mejorando']:note.good?['is-start','Punto de partida']:['is-none','Por evaluar'];
+    const goal=(record.goals||[])[0];
+    return `<li><button type="button" class="roster-row" data-athlete="${esc(m.id)}">${avatar(m)}<span class="roster-body"><span class="roster-top"><b>${esc(m.name)}</b><span class="trend-chip ${trend[0]}">${trend[1]}</span></span>${wellnessBadge(m.id)}<span class="roster-note">${esc(note.good||'Aún sin evaluación. Abre la ficha para escribir la primera.')}</span>${goal?`<span class="roster-goal"><small>Objetivo · ${esc(goal.title)}</small><span class="roster-bar"><span class="roster-fill" style="width:${Math.max(0,Math.min(100,Number(goal.progress)||0))}%"></span></span></span>`:''}</span></button></li>`;
+  }).join('');
+  return `<section class="card roster-card"><small class="eyebrow">Seguimiento</small><h2>Mis jugadores · ${members.length}</h2>${members.length?`<ul class="roster-list">${rows}</ul>`:'<p class="hint">Todavía no hay jugadores. Crea un código de acceso para invitar al primero.</p>'}<button class="btn small" data-page="goals">Revisar jugadores</button></section>`;
+}
 function coachHome(){
   const academy=actor().academy,members=academyPlayers(academy),today=localDay();
   return heading('Panel del coach',esc(academy),'<button class="btn lime" id="newsession">+ Crear sesión</button>')+calendarBanner()+
-    `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section><section class="card"><small class="eyebrow">Seguimiento</small><h2>Mis jugadores · ${members.length}</h2><p class="hint">Abre una ficha para revisar el objetivo y escribir una corrección individual.</p><button class="btn small" data-page="goals">Revisar jugadores</button></section></div>`+coachCheckinCard()+meetingCard();
+    `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+meetingCard();
 }
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);

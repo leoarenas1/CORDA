@@ -4,6 +4,9 @@ Fecha de nacimiento|Date of birth|Date de naissance
 Día|Day|Jour
 Mes|Month|Mois
 Año|Year|Année
+↗ Mejorando|↗ Improving|↗ En progrès
+Punto de partida|Starting point|Point de départ
+Por evaluar|To evaluate|À évaluer
 Borrar mi cuenta|Delete my account|Supprimer mon compte
 Cerrar sesión|Sign out|Se déconnecter
 Plan|Plan|Programme
