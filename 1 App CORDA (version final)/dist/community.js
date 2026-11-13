@@ -162,11 +162,46 @@ function clubCover(group){
   // El video (o la foto) de la academia queda de fondo en toda la página de Mi academia.
   return `<div class="academy-backdrop" aria-hidden="true"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video>`:''}</div>
   <section class="club-cover">
-  <div class="club-identity${brand.logo?' has-logo':''}">${brand.logo?`<img class="club-mark" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
+  <div class="club-identity${brand.logo?' has-logo':''}">${brand.logo?`<img class="club-mark${brand.logoDark?' is-dark':''}" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
   <div class="club-actions">${brand.invite?`<a class="btn lime" href="${esc(brand.invite)}" target="_blank" rel="noopener noreferrer">Grupo de WhatsApp ↗</a>`:''}
   ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board" aria-label="Ver anuncios" title="Ver anuncios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></a></section>`;
 }
 // Logo de la academia: el coach sube un PNG (de preferencia sin fondo). Se reduce y se guarda con la marca de la academia.
+// Quita el fondo blanco (si lo tiene) conservando los colores y los bordes suaves, y detecta si el logo es oscuro.
+// Un logo oscuro (por ejemplo negro) se muestra en blanco sobre los fondos verdes de la app.
+function cleanLogo(url){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
+      const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0);
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height),px=data.data,W=canvas.width,H=canvas.height;
+      const at=(x,y)=>{const k=(y*W+x)*4;return [px[k],px[k+1],px[k+2],px[k+3]]};
+      const corners=[at(0,0),at(W-1,0),at(0,H-1),at(W-1,H-1)];
+      const whiteBg=corners.every(([r,g,b,a])=>a>=250&&Math.min(r,g,b)>=235);
+      if(whiteBg){
+        // «Color a transparencia» con el blanco: la tinta queda con su color y el blanco desaparece.
+        for(let k=0;k<px.length;k+=4){
+          const r=px[k],g=px[k+1],b=px[k+2],a=1-Math.min(r,g,b)/255;
+          if(a<=0.01){px[k+3]=0;continue}
+          px[k]=Math.max(0,Math.min(255,Math.round((r-255*(1-a))/a)));
+          px[k+1]=Math.max(0,Math.min(255,Math.round((g-255*(1-a))/a)));
+          px[k+2]=Math.max(0,Math.min(255,Math.round((b-255*(1-a))/a)));
+          px[k+3]=Math.round(px[k+3]*a);
+        }
+        ctx.putImageData(data,0,0);
+      }
+      // ¿Es un logo oscuro? Se promedia la luminosidad de lo que se ve.
+      // Solo los logos oscuros y sin color (negros o grises) pasan a blanco; uno de color conserva sus colores.
+      let sum=0,chroma=0,weight=0;
+      for(let k=0;k<px.length;k+=4){const a=px[k+3];if(a<40)continue;sum+=(0.2126*px[k]+0.7152*px[k+1]+0.0722*px[k+2])*a;chroma+=(Math.max(px[k],px[k+1],px[k+2])-Math.min(px[k],px[k+1],px[k+2]))*a;weight+=a}
+      const dark=weight>0&&sum/weight<80&&chroma/weight<35;
+      resolve({url:canvas.toDataURL('image/png'),dark,removed:whiteBg});
+    };
+    img.onerror=()=>reject(Error('No pude leer esa imagen.'));
+    img.src=url;
+  });
+}
 function readLogo(file){
   return new Promise((resolve,reject)=>{
     if(!/^image\/(png|webp|jpeg)$/.test(file.type))return reject(Error('Sube una imagen PNG (mejor sin fondo).'));
@@ -180,29 +215,30 @@ function readLogo(file){
         canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
         out=canvas.toDataURL('image/png');max=Math.round(max*.75);
       }while(out.length>350000&&max>160);
-      URL.revokeObjectURL(url);resolve(out);
+      URL.revokeObjectURL(url);
+      cleanLogo(out).then(resolve,reject);
     };
     img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('No pude leer esa imagen.'))};
     img.src=url;
   });
 }
 function workspaceLogo(){
-  const logo=typeof groupData==='function'?groupData().brand?.logo:'';
-  return logo?`<img class="workspace-logo" alt="" src="${esc(logo)}">`:'';
+  const brand=typeof groupData==='function'?groupData().brand:null,logo=brand?.logo;
+  return logo?`<img class="workspace-logo${brand.logoDark?' is-dark':''}" alt="" src="${esc(logo)}">`:'';
 }
 function editClub(group){
   const old=group.brand||{};
-  let logo=old.logo||'';
+  let logo=old.logo||'',logoDark=!!old.logoDark;
   const input=(name,label,value)=>`<label class="full">${label}<input type="url" name="${name}" placeholder="https://…" value="${esc(value||'')}"></label>`;
   const preview=()=>logo?`<img src="${esc(logo)}" alt="Logo actual">`:'<small>Sin logo todavía</small>';
-  modal('Personalizar academia',`<div class="full logo-field"><b>Logo de la academia</b><p class="hint">Sube un PNG sin fondo. Se verá grande en «Mi academia» para todos (jugadores, tutores y coaches), con el nombre abajo.</p><div class="logo-preview" id="club-logo-preview">${preview()}</div><input type="file" id="club-logo-file" accept="image/png,image/webp,image/jpeg"><button type="button" class="link danger" id="club-logo-clear">Quitar logo</button></div>`+input('cover','Foto de portada · enlace a la imagen',old.cover)+input('video','Video de portada · enlace directo al video (opcional)',old.video)+input('invite','Invitación al grupo de WhatsApp',old.invite),data=>{
+  modal('Personalizar academia',`<div class="full logo-field"><b>Logo de la academia</b><p class="hint">Sube un PNG sin fondo. Se verá grande en «Mi academia» para todos (jugadores, tutores y coaches), con el nombre abajo.</p><div class="logo-preview" id="club-logo-preview">${preview()}</div><input type="file" id="club-logo-file" accept="image/png,image/webp,image/jpeg"><div class="logo-actions"><button type="button" class="link" id="club-logo-clean">Quitar fondo blanco</button><button type="button" class="link danger" id="club-logo-clear">Quitar logo</button></div></div>`+input('cover','Foto de portada · enlace a la imagen',old.cover)+input('video','Video de portada · enlace directo al video (opcional)',old.video)+input('invite','Invitación al grupo de WhatsApp',old.invite),data=>{
     try{
       const brand={};
       for(const key of ['cover','video']){
         const value=data[key].trim();if(value&&new URL(value).protocol!=='https:')throw Error('Usa enlaces HTTPS para la portada.');
         brand[key]=value;
       }
-      brand.logo=logo;
+      brand.logo=logo;brand.logoDark=logo?logoDark:false;
       brand.invite=groupInvite(data.invite.trim());
       group.brand=brand;if(!save()){group.brand=old;return false}
     }catch(error){toast(error.message);return false}
@@ -210,9 +246,13 @@ function editClub(group){
   const box=$('#club-logo-preview');
   $('#club-logo-file').onchange=async event=>{
     const file=event.target.files[0];if(!file)return;
-    try{logo=await readLogo(file);box.innerHTML=preview()}catch(error){toast(error.message);event.target.value=''}
+    try{const r=await readLogo(file);logo=r.url;logoDark=r.dark;box.innerHTML=preview();toast(r.removed?'Listo: quité el fondo blanco del logo.':'Logo cargado.')}catch(error){toast(error.message);event.target.value=''}
   };
-  $('#club-logo-clear').onclick=()=>{logo='';$('#club-logo-file').value='';box.innerHTML=preview()};
+  $('#club-logo-clear').onclick=()=>{logo='';$('#club-logo-file').value='';box.innerHTML=preview()}
+  $('#club-logo-clean').onclick=async()=>{
+    if(!logo){toast('Primero sube un logo.');return}
+    try{const r=await cleanLogo(logo);logo=r.url;logoDark=r.dark;box.innerHTML=preview();toast(r.removed?'Listo: quité el fondo blanco.':'Ese logo ya no tiene fondo blanco.')}catch(error){toast(error.message)}
+  };
 }
 
 // ---------- Saludo del día (recuadro de abajo a la izquierda) ----------

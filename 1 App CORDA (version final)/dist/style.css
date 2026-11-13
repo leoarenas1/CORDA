@@ -1164,3 +1164,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .shell main .card+.season-plan,.shell main .card+.season-exercises,.shell main .season-plan+.season-exercises{margin-top:var(--space-6)}
 /* Toda tarjeta que viene justo después de otro bloque lleva su espacio (los márgenes no se suman: se toma el mayor) */
 .shell main>*+:is(.card,.agenda-main){margin-top:var(--space-6)}
+
+/* Logo sin fondo: los oscuros se ven en blanco sobre los fondos verdes; el del menú va centrado */
+.club-mark.is-dark{filter:brightness(0) invert(1) drop-shadow(0 4px 18px rgba(0,0,0,.35))!important}
+.workspace-logo.is-dark{filter:brightness(0) invert(1)}
+.workspace.has-logo{text-align:center}
+.workspace-logo{max-width:80%!important;max-height:84px!important;margin:0 auto var(--space-3)!important;object-position:center!important}
+.logo-actions{display:flex;gap:var(--space-4);flex-wrap:wrap}
