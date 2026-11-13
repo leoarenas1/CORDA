@@ -138,10 +138,14 @@ function athleteDetail(record,name){
   const note=latestPlayerNote(record);
   const history=Object.entries(record.reviews||{}).sort(([a],[b])=>b.localeCompare(a));
   const months=Object.entries(record.profile.monthlyReviews||{}).sort(([a],[b])=>b.localeCompare(a));
-  return heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+wellnessTrend(record.profile.memberId,false,name)+
+  // Fondo personalizado: la foto del jugador, oscurecida como los demás fondos de la app.
+  const mem=(state.directory||[]).find(m=>m.id===record.profile.memberId),photo=(mem&&mem.photo)||record.profile.photo||'';
+  const backdrop=photo?'<div class="academy-backdrop athlete-backdrop" aria-hidden="true"><img class="club-background" src="'+esc(photo)+'" alt=""></div>':'';
+  return backdrop+heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+
     `<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
     ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>
+    <div class="trend-gap">${wellnessTrend(record.profile.memberId,false,name)}</div>
     <section class="card"><div class="sectiontitle"><h2>Evaluaciones</h2>${role==='Coach'?'<button class="btn small" id="student-review">Evaluar jugador</button>':''}</div>
     ${[...history,...months].sort(([a],[b])=>b.localeCompare(a)).map(([date,n])=>`<article class="progress-entry"><small>${esc(date)}</small><h3>${esc(n.good)}</h3><p>${esc(n.focus)}</p></article>`).join('')||'<p class="hint">Las observaciones de este jugador aparecerán aquí.</p>'}</section>`;
 }
