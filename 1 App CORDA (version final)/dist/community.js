@@ -162,24 +162,57 @@ function clubCover(group){
   // El video (o la foto) de la academia queda de fondo en toda la página de Mi academia.
   return `<div class="academy-backdrop" aria-hidden="true"><img class="club-background" src="${esc(poster)}" alt="" onerror="this.hidden=true">${film?`<video class="club-background" muted loop playsinline preload="metadata" poster="${esc(poster)}" src="${esc(film)}"></video>`:''}</div>
   <section class="club-cover">
-  <div class="club-identity">${brand.logo?`<img class="club-mark" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
+  <div class="club-identity${brand.logo?' has-logo':''}">${brand.logo?`<img class="club-mark" alt="Logo de la academia" src="${esc(brand.logo)}">`:''}<small class="eyebrow">Mi academia</small><h1>${esc(group.academy)}</h1>
   <div class="club-actions">${brand.invite?`<a class="btn lime" href="${esc(brand.invite)}" target="_blank" rel="noopener noreferrer">Grupo de WhatsApp ↗</a>`:''}
   ${role==='Coach'?'<button id="club-edit" class="btn light small">Personalizar academia</button>':''}</div></div><a class="club-scroll" href="#academic-board" aria-label="Ver anuncios" title="Ver anuncios"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg></a></section>`;
 }
+// Logo de la academia: el coach sube un PNG (de preferencia sin fondo). Se reduce y se guarda con la marca de la academia.
+function readLogo(file){
+  return new Promise((resolve,reject)=>{
+    if(!/^image\/(png|webp|jpeg)$/.test(file.type))return reject(Error('Sube una imagen PNG (mejor sin fondo).'));
+    if(file.size>5e6)return reject(Error('La imagen pesa demasiado. Usa una de menos de 5 MB.'));
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{
+      let max=640,out='';
+      do{
+        const k=Math.min(1,max/Math.max(img.width,img.height)),canvas=document.createElement('canvas');
+        canvas.width=Math.max(1,Math.round(img.width*k));canvas.height=Math.max(1,Math.round(img.height*k));
+        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+        out=canvas.toDataURL('image/png');max=Math.round(max*.75);
+      }while(out.length>350000&&max>160);
+      URL.revokeObjectURL(url);resolve(out);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('No pude leer esa imagen.'))};
+    img.src=url;
+  });
+}
+function workspaceLogo(){
+  const logo=typeof groupData==='function'?groupData().brand?.logo:'';
+  return logo?`<img class="workspace-logo" alt="" src="${esc(logo)}">`:'';
+}
 function editClub(group){
   const old=group.brand||{};
+  let logo=old.logo||'';
   const input=(name,label,value)=>`<label class="full">${label}<input type="url" name="${name}" placeholder="https://…" value="${esc(value||'')}"></label>`;
-  modal('Personalizar academia',input('logo','Logo · enlace a la imagen',old.logo)+input('cover','Foto de portada · enlace a la imagen',old.cover)+input('video','Video de portada · enlace directo al video (opcional)',old.video)+input('invite','Invitación al grupo de WhatsApp',old.invite),data=>{
+  const preview=()=>logo?`<img src="${esc(logo)}" alt="Logo actual">`:'<small>Sin logo todavía</small>';
+  modal('Personalizar academia',`<div class="full logo-field"><b>Logo de la academia</b><p class="hint">Sube un PNG sin fondo. Se verá grande en «Mi academia» para todos (jugadores, tutores y coaches), con el nombre abajo.</p><div class="logo-preview" id="club-logo-preview">${preview()}</div><input type="file" id="club-logo-file" accept="image/png,image/webp,image/jpeg"><button type="button" class="link danger" id="club-logo-clear">Quitar logo</button></div>`+input('cover','Foto de portada · enlace a la imagen',old.cover)+input('video','Video de portada · enlace directo al video (opcional)',old.video)+input('invite','Invitación al grupo de WhatsApp',old.invite),data=>{
     try{
       const brand={};
-      for(const key of ['logo','cover','video']){
+      for(const key of ['cover','video']){
         const value=data[key].trim();if(value&&new URL(value).protocol!=='https:')throw Error('Usa enlaces HTTPS para la portada.');
         brand[key]=value;
       }
+      brand.logo=logo;
       brand.invite=groupInvite(data.invite.trim());
       group.brand=brand;if(!save()){group.brand=old;return false}
     }catch(error){toast(error.message);return false}
   });
+  const box=$('#club-logo-preview');
+  $('#club-logo-file').onchange=async event=>{
+    const file=event.target.files[0];if(!file)return;
+    try{logo=await readLogo(file);box.innerHTML=preview()}catch(error){toast(error.message);event.target.value=''}
+  };
+  $('#club-logo-clear').onclick=()=>{logo='';$('#club-logo-file').value='';box.innerHTML=preview()};
 }
 
 // ---------- Saludo del día (recuadro de abajo a la izquierda) ----------
