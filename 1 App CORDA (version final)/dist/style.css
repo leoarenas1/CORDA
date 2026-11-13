@@ -939,3 +939,12 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .photo-edit-av .avatar{width:72px;height:72px;font-size:1.4rem}
 .photo-edit-actions{display:grid;gap:var(--space-2);justify-items:start}
 .photo-pick{cursor:pointer}
+
+/* Texto curvo «Mi perfil» siguiendo la burbuja de la foto (para que se vea dónde está el perfil y cerrar sesión) */
+.heading-avatar{position:relative}
+.avatar-ring{position:absolute;left:50%;top:50%;width:133.33%;height:133.33%;transform:translate(-50%,-50%);overflow:visible;pointer-events:none}
+.avatar-ring text{text-transform:uppercase;font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:4px;fill:var(--arena)}
+.heading-avatar:hover .avatar-ring text{fill:var(--lima)}
+
+/* Cerrar sesión y Borrar mi cuenta, lado a lado en el perfil */
+.account-links{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4) var(--space-8)}

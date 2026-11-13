@@ -512,3 +512,4 @@ function askDeleteAccount(){
   };
 }
 document.addEventListener('click',e=>{if(e.target.closest?.('#delete-account'))askDeleteAccount()});
+document.addEventListener('click',e=>{if(e.target.closest?.('#profile-signout'))signOut()});
