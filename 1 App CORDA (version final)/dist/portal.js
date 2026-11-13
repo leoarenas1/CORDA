@@ -236,11 +236,50 @@ function bindPortal() {
   });
   bindMeetingCard();
 }
+// Torneos de los jugadores que sigue este coach (cada coach elige los suyos, para no llenarse de avisos).
+let coachTourAll=false;
+function coachMyPlayers(){
+  const me=state.profile.memberId,ids=(state.coachPlayers||{})[me]||[];
+  return (state.directory||[]).filter(m=>m.academy===state.profile.academy&&m.role==='Jugador'&&ids.includes(m.id));
+}
+function coachTournaments(){
+  const mine=coachMyPlayers(),today=localDay();
+  const head='<div class="sectiontitle"><h2>Torneos de mis jugadores</h2><button class="link" id="coach-players">'+(mine.length?'Mis jugadores ('+mine.length+')':'Elegir mis jugadores')+'</button></div>';
+  if(!mine.length)return '<section class="card plan-competitions">'+head+'<p class="hint">Elige los jugadores que sigues y aquí verás solo sus torneos, del más cercano al más lejano.</p></section>';
+  const groups=new Map();
+  for(const m of mine)for(const c of (state.playerTournaments||{})[m.id]||[]){
+    if(String(c.date)<today)continue;
+    const key=[c.name,c.date,c.place].map(x=>String(x||'').trim().toLowerCase()).join('|');
+    if(!groups.has(key))groups.set(key,{...c,names:[]});
+    groups.get(key).names.push(m.name);
+  }
+  const list=[...groups.values()].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  if(!list.length)return '<section class="card plan-competitions">'+head+'<p class="hint">Tus jugadores no tienen torneos próximos.</p></section>';
+  const shown=coachTourAll?list:list.slice(0,5);
+  const rows=shown.map((c,i)=>{
+    const days=Math.round((Date.parse(c.date)-Date.parse(today))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';
+    const fade=days<=7?1:Math.max(.35,1-(days-7)/60);
+    const who=c.names.length>1?c.names.slice(0,-1).join(', ')+' y '+c.names[c.names.length-1]:c.names[0];
+    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who">'+(c.names.length>1?'Van: ':'Va: ')+esc(who)+'</p><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>';
+  }).join('');
+  return '<section class="card plan-competitions">'+head+'<ol class="comp-list">'+rows+'</ol>'+(list.length>5?'<button class="link" id="coach-tour-more">'+(coachTourAll?'Ver menos':'Ver todos ('+list.length+')')+'</button>':'')+'</section>';
+}
+function openCoachPlayers(){
+  const members=(state.directory||[]).filter(m=>m.academy===state.profile.academy&&m.role==='Jugador').sort((a,b)=>a.name.localeCompare(b.name));
+  const mine=(state.coachPlayers||{})[state.profile.memberId]||[];
+  if(!members.length){toast('Todavía no hay jugadores registrados.');return}
+  modal('Mis jugadores','<fieldset class="full session-for"><p class="hint">Marca los jugadores que tú sigues. Solo verás los torneos de ellos. Cada coach elige los suyos.</p><div class="session-for-list">'+members.map(m=>'<label class="check-row"><input type="checkbox" name="cp_'+esc(m.id)+'" value="1"'+(mine.includes(m.id)?' checked':'')+'> <span>'+esc(m.name)+'</span></label>').join('')+'</div></fieldset>',
+    d=>{(state.coachPlayers??={})[state.profile.memberId]=Object.keys(d).filter(k=>k.startsWith('cp_')).map(k=>k.slice(3))},'Guardar');
+}
+document.addEventListener('click',event=>{
+  if(event.target.closest?.('#coach-players'))openCoachPlayers();
+  if(event.target.closest?.('#coach-tour-more')){coachTourAll=!coachTourAll;render()}
+});
 function calendarPage() {
   const events=sessionsFor(agendaDate);
   const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date))),upcoming=tournaments.filter(c=>String(c.date)>=localDay());
   return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),'<div class="heading-actions">'+calendarButton()+(role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+'</div>')+
-    '<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-head"><h3>'+esc(c.name)+'</h3><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>'+
+    (role==='Coach'?coachTournaments():'<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-head"><h3>'+esc(c.name)+'</h3><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>')+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>';
 }
 

@@ -1022,3 +1022,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .goal-box small{color:var(--lima);letter-spacing:.08em}
 .goal-box h3{color:#fff;margin:6px 0 8px}
 .goal-box p{color:#e8e4d4;margin:0}
+
+.comp-who{color:var(--ink)!important;font-weight:600}

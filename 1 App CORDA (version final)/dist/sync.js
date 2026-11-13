@@ -7,7 +7,7 @@
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
 const PLAYER_KINDS=new Set(['wellness','checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
-const DELETABLE=new Set(['wellness','session','player_session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
+const DELETABLE=new Set(['wellness','session','player_session','coach_players','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -53,6 +53,7 @@ function collectItems(){
   (state.sessions||[]).forEach(item=>{if(!isDemoItem(item)&&item.players?.length)item.players.forEach(pid=>put(pid,'player_session',syncId(item),item))});
   const group=syncGroup();
   Object.entries(group.officeHours).forEach(([host,rules])=>put('','office_hours',host,rules));
+  if(syncCtx.staff)Object.entries(state.coachPlayers||{}).forEach(([coach,players])=>put('','coach_players',coach,{players}));
   put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null});
   (state.directory||[]).filter(m=>m.academy===syncCtx.academyName&&m.id).forEach(m=>put('','member_card',m.id,{bio:m.bio||'',email:m.email||'',phone:m.phone||'',photo:m.photoRef||null}));
   (state.privateLessons||[]).forEach(book=>put('','private_book',book.coachId,book));
@@ -192,6 +193,12 @@ function applyRows(rows){
     fillList(goals,cloudGoals.length?cloudGoals.sort(byOrder):goals.filter(isDemoItem));
     syncLedger(id).code=rowsOf(id,'fee_code')[0]?.data?.code||syncLedger(id).code||'';
     fillList(privateSent(id),rowsOf(id,'private_receipt').map(r=>r.data).sort((a,b)=>a.at-b.at));
+  }
+  // Torneos de todos los jugadores (solo lectura para coaches) y qué jugadores sigue cada coach.
+  if(syncCtx.staff){
+    state.playerTournaments={};
+    for(const id of syncPlayers())state.playerTournaments[id]=rowsOf(id,'competition').map(r=>r.data);
+    fillMap(state.coachPlayers??={},Object.fromEntries(rowsOf('','coach_players').map(r=>[r.key,r.data?.players||[]])));
   }
   if(syncCtx.role==='Jugador'&&state.competition)fillList(state.competition,rowsOf(syncCtx.memberId,'competition').map(r=>r.data).sort((a,b)=>String(a.date).localeCompare(String(b.date))));
   // Lo que acabamos de bajar ya está "sincronizado".
