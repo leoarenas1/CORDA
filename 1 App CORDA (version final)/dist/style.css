@@ -1182,7 +1182,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 @media(min-width:681px){
   .topbar{box-sizing:border-box;min-height:var(--bar-h)}
   .shell>.sidebar{padding-top:0}
-  .shell>.sidebar>.brand{display:flex;align-items:center;height:calc(var(--bar-h) - 1px);margin:0}
+  .shell>.sidebar>.brand{display:flex;align-items:center;height:calc(var(--bar-h) - 1px);margin:0;padding:0 var(--space-3)}
 }
 /* El video / foto de fondo llega hasta arriba: la barra del idioma y «Academia» queda transparente encima */
 .shell:has(.academy-backdrop,.app-backdrop) .topbar{background:transparent;border-bottom-color:rgba(244,239,227,.16)}
