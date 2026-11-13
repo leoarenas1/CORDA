@@ -1194,3 +1194,9 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .workspace.has-logo{display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:var(--space-2);padding-bottom:var(--space-2)}
 .workspace-logo{max-height:96px!important;max-width:92%!important;margin:0 auto var(--space-1)!important}
 .workspace.has-logo>.badge{margin:0;padding:3px 12px;font-size:12px;line-height:18px}
+
+/* Panel del coach: citas a la izquierda y pagos privados a la derecha */
+.coach-pair{align-items:start}
+.coach-pair>.card{margin:0!important}
+.coach-payments .private-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--space-3);margin:var(--space-4) 0}
+.coach-payments-alert{margin:0 0 var(--space-3);padding:8px 12px;border-radius:var(--radius-sm,8px);background:var(--surface-deep);border:1px dashed var(--line)}

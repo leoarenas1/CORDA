@@ -165,10 +165,24 @@ function coachRosterCard(members){
   }).join('');
   return `<section class="card roster-card"><small class="eyebrow">Seguimiento</small><h2>Mis jugadores · ${members.length}</h2>${members.length?`<ul class="roster-list">${rows}</ul>`:'<p class="hint">Todavía no hay jugadores. Crea un código de acceso para invitar al primero.</p>'}<button class="btn small" data-page="goals">Revisar jugadores</button></section>`;
 }
+// Resumen de la semana de los pagos privados del coach (clases particulares). Solo lee: no crea nada.
+function coachPaymentsCard(){
+  const me=actor()?.memberId,week=typeof weekOf==='function'?weekOf(localDay()):localDay();
+  const book=(state.privateLessons||[]).find(b=>b.coachId===me)||{students:[]};
+  const students=book.students.filter(s=>s.start<=week),row=s=>s.weeks?.[week]||{amount:s.rate,paid:false};
+  const paid=students.filter(s=>row(s).paid),sum=list=>list.reduce((t,s)=>t+Number(row(s).amount||0),0);
+  let toConfirm=0;for(const list of Object.values(state.privateSent||{}))for(const item of list)if(item.coachId===me&&item.status!=='Pagado')toConfirm++;
+  const money=n=>typeof mxn==='function'?mxn(n):'$'+n;
+  return `<section class="card coach-payments"><small class="eyebrow">Pagos privados · esta semana</small><h2>Clases particulares</h2>
+    ${students.length?`<div class="private-totals"><div><small>Cobrado</small><b>${money(sum(paid))}</b></div><div><small>Pendiente</small><b>${money(sum(students)-sum(paid))}</b></div><div><small>Al corriente</small><b>${paid.length} de ${students.length}</b></div></div>`
+      :'<p class="hint">Aquí verás lo que cobras por tus clases particulares. Añade a quienes toman clases contigo.</p>'}
+    ${toConfirm?`<p class="coach-payments-alert"><strong>${toConfirm}</strong> ${toConfirm===1?'comprobante por confirmar':'comprobantes por confirmar'}</p>`:''}
+    <button class="btn small" data-page="private-payments">${students.length?'Ver pagos privados':'Añadir jugadores'}</button></section>`;
+}
 function coachHome(){
   const academy=actor().academy,members=academyPlayers(academy),today=localDay();
   return '<div class="heading"><div><h1>Panel del coach</h1><p class="muted">'+esc(academy)+'</p><button class="btn lime heading-cta" id="newsession">+ Crear sesión</button></div><div class="heading-actions">'+headingAvatar()+'</div></div>'+calendarBanner()+
-    `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+meetingCard();
+    `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+`<div class="flow-week coach-pair">${meetingCard()}${coachPaymentsCard()}</div>`;
 }
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
