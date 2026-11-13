@@ -140,10 +140,22 @@ function scheduleAgendaClock(){
 document.addEventListener('visibilitychange',()=>{
   if(!document.hidden&&typeof render==='function'&&typeof state!=='undefined'&&entry==='app'&&['home','calendar','training','gym'].includes(page))render();
 });
+// Clases particulares: sesiones que solo les tocan a ciertos jugadores.
+function sessionPrivateNote(s){
+  if(!s.players?.length)return '';
+  if(role==='Jugador')return 'Clase particular · solo para ti';
+  const names=s.players.map(id=>(state.directory||[]).find(m=>m.id===id)?.name||'Jugador');
+  return 'Clase particular · '+(role==='Tutor'?'para '+names[0]:names.join(', '));
+}
+function sessionPlayerPicker(){
+  const members=typeof academyPlayers==='function'&&actor()?academyPlayers(actor().academy):[];
+  if(!members.length)return '';
+  return '<fieldset class="full session-for"><legend>Clase particular <span class="optional">(opcional)</span></legend><p class="hint">Marca a quién le toca. Solo esos jugadores y sus tutores verán la sesión. Si no marcas a nadie, es para todo el grupo.</p><div class="session-for-list">'+members.map(m=>'<label class="check-row"><input type="checkbox" name="pl_'+esc(m.id)+'" value="1"> <span>'+esc(m.name)+'</span></label>').join('')+'</div></fieldset>';
+}
 function sessionSummary(s) {
   const status=sessionStatus(s);
   const tone=s.cancelled?'is-cancelled':s.done||status==='Terminada'?'is-done':status==='En curso'?'is-live':'is-planned';
-  return '<article class="agenda-event"><div class="event-clock"><b>'+esc(s.time)+'</b><small>'+esc(s.duration)+' min</small></div><div><span class="badge '+(s.type==='Físico'?'clay':'')+'">'+esc(s.type)+'</span><h3 class="event-title">'+sessionTitle(s)+'<span class="status-chip '+tone+'">'+esc(status)+'</span></h3><p>'+esc(s.place)+' · '+esc(sessionCoach(s))+'</p><button class="link" data-session="'+s.id+'">'+(s.done?'Ver resumen':'Ver indicaciones')+' ↗</button></div></article>';
+  return '<article class="agenda-event"><div class="event-clock"><b>'+esc(s.time)+'</b><small>'+esc(s.duration)+' min</small></div><div><span class="badge '+(s.type==='Físico'?'clay':'')+'">'+esc(s.type)+'</span><h3 class="event-title">'+sessionTitle(s)+'<span class="status-chip '+tone+'">'+esc(status)+'</span></h3>'+(s.players?.length?'<p class="private-note">'+esc(sessionPrivateNote(s))+'</p>':'')+'<p>'+esc(s.place)+' · '+esc(sessionCoach(s))+'</p><button class="link" data-session="'+s.id+'">'+(s.done?'Ver resumen':'Ver indicaciones')+' ↗</button></div></article>';
 }
 function calendarStrip(date) {
   const monday=dateAfter(date,-((new Date(date+'T12:00:00').getDay()+6)%7));
@@ -180,7 +192,7 @@ function nextSessionCard(){
   const live=new Date(session.date+'T'+session.time)<=new Date();
   const day=live?'Sesión en curso':dateLabel(session.date,{weekday:'long',day:'numeric',month:'long'});
   return `<section class="next-card next-photo"><img class="activity-photo" src="assets/${sessionPhoto(session)}" alt="" onerror="this.hidden=true"><small>${esc(day)}</small><h3>${esc(session.type)} · ${esc(session.title)}</h3>
-  <p class="next-meta">${esc(session.time)} · ${esc(session.place)} · ${esc(sessionCoach(session))}</p><p>Lleva: ${esc(sessionGear(session))}</p>
+  <p class="next-meta">${esc(session.time)} · ${esc(session.place)} · ${esc(sessionCoach(session))}</p>${session.players?.length?`<p class="private-note">${esc(sessionPrivateNote(session))}</p>`:''}<p>Lleva: ${esc(sessionGear(session))}</p>
   <div class="next-actions"><button class="next-confirm" data-confirm-session="${session.id}" aria-pressed="${!!session.confirmed}">${session.confirmed?'Asistencia confirmada':'Confirmar asistencia'}</button><button class="link" data-session="${session.id}">Ver sesión ↗</button></div></section>`;
 }
 function playerHome(){

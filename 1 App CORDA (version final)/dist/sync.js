@@ -7,7 +7,7 @@
 let syncCtx=null,syncedItems=new Map(),syncTimer=null,syncBusy=false,syncAgain=false,syncPoll=null,syncWarned=false;
 const DEMO_MAX_ID=1e6; // ids chicos = datos de ejemplo de la app: no se suben
 const PLAYER_KINDS=new Set(['wellness','checkin_player','competition','goal','fee_month','fee_code','private_receipt','video_seen']);
-const DELETABLE=new Set(['wellness','session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
+const DELETABLE=new Set(['wellness','session','player_session','exercise','video','comment','post','meeting','office_hours','private_book','goal','competition','checkin_player','checkin_coach','review','monthly_review','fee_month','private_receipt','video_seen']);
 const isDemoItem=item=>typeof item?.id==='number'&&item.id<DEMO_MAX_ID;
 const syncId=item=>String(item.id??(item._k??=newMemberId()));
 const syncSlot=(member,kind,key)=>member+'|'+kind+'|'+key;
@@ -48,7 +48,9 @@ function syncPlayers(){return syncCtx?.players||[]}
 function collectItems(){
   const out=new Map(),put=(member_id,kind,key,data)=>{if(data!=null)out.set(syncSlot(member_id,kind,String(key)),{member_id,kind,key:String(key),data})};
   rememberPlayer();
-  for(const [kind,get] of ACADEMY_LISTS)(get()||[]).forEach(item=>{if(!isDemoItem(item))put('',kind,syncId(item),item)});
+  for(const [kind,get] of ACADEMY_LISTS)(get()||[]).forEach(item=>{if(isDemoItem(item)||(kind==='session'&&item.players?.length))return;put('',kind,syncId(item),item)});
+  // Clases particulares: la sesión se guarda en la carpeta de cada jugador, así solo la ven él, su tutor y los coaches.
+  (state.sessions||[]).forEach(item=>{if(!isDemoItem(item)&&item.players?.length)item.players.forEach(pid=>put(pid,'player_session',syncId(item),item))});
   const group=syncGroup();
   Object.entries(group.officeHours).forEach(([host,rules])=>put('','office_hours',host,rules));
   put('','group_settings','main',{address:group.address||'',brand:group.brand||null,feeBank:group.feeBank||null});
@@ -170,6 +172,8 @@ function applyRows(rows){
     // Si la academia aún no tiene nada de este tipo, se quedan los ejemplos de la app.
     fillList(list,cloudItems.length?cloudItems.sort(byOrder):list.filter(isDemoItem));
   }
+  // Clases particulares que le tocan a este jugador (o a todos, si eres coach).
+  {const seen=new Set((state.sessions||[]).map(x=>x.id));for(const pid of syncPlayers())for(const r of rowsOf(pid,'player_session'))if(r.data&&!seen.has(r.data.id)){seen.add(r.data.id);state.sessions.push(r.data)}}
   const group=syncGroup();
   fillMap(group.officeHours,Object.fromEntries(rowsOf('','office_hours').map(r=>[r.key,r.data])));
   const settings=rowsOf('','group_settings')[0]?.data;
