@@ -790,7 +790,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 @media(max-width:680px){.calendar-actions{width:100%}.calendar-actions .btn{flex:1 1 100%}}
 @media(min-width:681px){
   /* La foto de perfil ocupa un poco más que el título: el aviso baja para no chocar con ella */
-  .heading:has(.heading-avatar)+.calendar-banner{margin-top:calc(var(--space-8) + var(--space-6))}
+  .heading:has(.heading-avatar)+.calendar-banner{margin-top:0}
 }
 
 /* ---------- Avisos legales: lector, casillas de aceptación y aceptación pendiente ---------- */
@@ -957,8 +957,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .shell>div:not(.app-backdrop){position:relative;z-index:1}
 
 /* Pantallas medianas: la foto de perfil (con su texto curvo) no debe montarse sobre la tarjeta de abajo */
-@media(min-width:681px) and (max-width:1000px){
-  .heading:has(.heading-avatar){min-height:150px}
+@media(min-width:681px){
+  .heading:has(.heading-avatar){min-height:124px}
 }
 
 /* La tarjeta de la sesión de hoy se separa del fondo con borde arena y sombra */
