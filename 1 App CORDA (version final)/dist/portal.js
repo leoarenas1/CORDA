@@ -101,7 +101,9 @@ document.addEventListener('visibilitychange',()=>{
   if(!document.hidden&&typeof render==='function'&&typeof state!=='undefined'&&entry==='app'&&['home','calendar','training','gym'].includes(page))render();
 });
 function sessionSummary(s) {
-  return '<article class="agenda-event"><div class="event-clock"><b>'+esc(s.time)+'</b><small>'+esc(s.duration)+' min</small></div><div><span class="badge '+(s.type==='Físico'?'clay':'')+'">'+esc(s.type)+'</span><h3>'+sessionTitle(s)+'</h3><small>'+esc(sessionStatus(s))+'</small><p>'+esc(state.profile.academy)+' · '+esc(s.place)+' · '+esc(sessionCoach(s))+'</p><p><strong>'+(s.type==='Físico'?'Enfoque físico':'Drills')+'</strong> · '+esc(s.summary||s.notes.split('. ')[0])+'</p><button class="link" data-session="'+s.id+'">'+(s.done?'Ver resumen':'Ver indicaciones')+' ↗</button></div></article>';
+  const status=sessionStatus(s);
+  const tone=s.cancelled?'is-cancelled':s.done||status==='Terminada'?'is-done':status==='En curso'?'is-live':'is-planned';
+  return '<article class="agenda-event"><div class="event-clock"><b>'+esc(s.time)+'</b><small>'+esc(s.duration)+' min</small></div><div><span class="badge '+(s.type==='Físico'?'clay':'')+'">'+esc(s.type)+'</span><h3 class="event-title">'+sessionTitle(s)+'<span class="status-chip '+tone+'">'+esc(status)+'</span></h3><p>'+esc(s.place)+' · '+esc(sessionCoach(s))+'</p><button class="link" data-session="'+s.id+'">'+(s.done?'Ver resumen':'Ver indicaciones')+' ↗</button></div></article>';
 }
 function calendarStrip(date) {
   const monday=dateAfter(date,-((new Date(date+'T12:00:00').getDay()+6)%7));
