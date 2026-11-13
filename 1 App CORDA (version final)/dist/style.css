@@ -1016,3 +1016,9 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .session-for-list{display:grid;gap:var(--space-2)}
 .check-row{display:flex;align-items:center;gap:var(--space-3);margin:0;font-weight:500}
 .check-row input{width:22px;height:22px;min-height:0;margin:0;flex:none}
+
+/* Objetivo de la sesión: recuadro verde para que el jugador vea qué mejorar */
+.goal-box{background:var(--verde-noche);color:#f4f1e6;border-radius:var(--radius-card,16px);padding:18px 20px;margin:6px 0}
+.goal-box small{color:var(--lima);letter-spacing:.08em}
+.goal-box h3{color:#fff;margin:6px 0 8px}
+.goal-box p{color:#e8e4d4;margin:0}
