@@ -295,7 +295,7 @@ function coachTournaments(){
     const days=Math.round((Date.parse(c.date)-Date.parse(today))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';
     const fade=days<=7?1:Math.max(.35,1-(days-7)/60);
     const who=c.members.map(m=>'<span class="who-chip"><span class="who-photo">'+avatar(m)+'</span>'+esc(m.name)+'</span>').join('');
-    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who"><span class="who-label">'+(c.names.length>1?'Van':'Va')+'</span>'+who+'</p><p>'+esc(c.place)+' · '+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></li>';
+    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-row"><div class="comp-main"><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who"><span class="who-label">'+(c.names.length>1?'Van':'Va')+'</span>'+who+'</p><p>'+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></div><div class="comp-place" title="Sede del torneo"><small>Sede</small><b>'+esc(c.place)+'</b></div></div></li>';
   }).join('');
   return '<section class="card plan-competitions">'+head+'<ol class="comp-list">'+rows+'</ol>'+(list.length>5?'<button class="link" id="coach-tour-more">'+(coachTourAll?'Ver menos':'Ver todos ('+list.length+')')+'</button>':'')+'</section>';
 }
