@@ -1053,3 +1053,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .who-label{font-size:var(--small-size);font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-muted)}
 .who-chip{display:inline-flex;align-items:center;gap:var(--space-2);padding:4px 14px 4px 4px;border-radius:var(--radius-pill);background:#C8F03C;color:#0E2A20;font-weight:700;font-size:var(--body-size);line-height:1.2;box-shadow:0 0 0 2px rgba(200,240,60,.35)}
 .who-photo .avatar{width:32px;height:32px;font-size:12px;border:2px solid #0E2A20;background:#0E2A20;color:#C8F03C;object-fit:cover}
+/* Pastilla del jugador más chica: que el nombre del torneo siga siendo lo principal */
+.comp-who{gap:6px;margin:4px 0 6px!important}
+.who-label{font-size:11px}
+.who-chip{gap:6px;padding:2px 10px 2px 2px;font-size:var(--small-size);font-weight:600;box-shadow:none}
+.who-photo .avatar{width:20px;height:20px;font-size:9px;border-width:1.5px}
