@@ -129,13 +129,17 @@ function latestPlayerNote(record){
 function playerList(){
   const members=academyPlayers(actor().academy);
   return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn lime" id="roster-add">+ Jugador</button>')+
-    (members.length?`<ul class="player-circles">${members.map(m=>{
-      const today=localDay(),rec=typeof wellPeek==='function'?wellPeek(m.id)[today]:null,score=rec&&typeof readiness==='function'?readiness(rec):null;
-      const cls=typeof wellClass==='function'?wellClass(score):'none',alerts=typeof wellnessAlerts==='function'?wellnessAlerts(m.id):[];
-      const parts=String(m.name||'').trim().split(/\s+/),first=parts.shift()||'',rest=parts.join(' ');
-      const caption=score===null?'Sin chequeo hoy':'Preparación '+score;
-      return `<li><button type="button" class="player-circle ring-${cls}" data-athlete="${esc(m.id)}" aria-label="Ver seguimiento de ${esc(m.name)}"><span class="pc-photo">${avatar(m)}${alerts.length?`<i class="pc-alert" title="${esc(alerts[0].text)}">!</i>`:''}</span><b>${esc(first)}</b><span class="pc-last">${esc(rest)}</span><small>${caption}</small><span class="pc-go">Ver seguimiento ↗</span></button></li>`;
-    }).join('')}</ul>`:'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
+    (members.length?(()=>{
+      // Primero quien necesita atención: rojo, amarillo, sin datos y al final los que van bien.
+      const order={red:0,yellow:1,none:2,green:3};
+      const list=members.map(m=>({m,st:typeof playerStatus==='function'?playerStatus(m.id):{level:'none',reason:'Sin chequeos',score:null}}))
+        .sort((a,b)=>order[a.st.level]-order[b.st.level]||a.m.name.localeCompare(b.m.name));
+      const sym={red:'!',yellow:'!',green:'✓',none:''};
+      return `<div class="status-legend" aria-label="Significado de los colores"><span class="lg-red">Atender hoy</span><span class="lg-yellow">Vigilar</span><span class="lg-green">Bien</span><span class="lg-none">Sin datos</span></div><ul class="player-circles">${list.map(({m,st})=>{
+        const parts=String(m.name||'').trim().split(/\s+/),first=parts.shift()||'',rest=parts.join(' ');
+        return `<li><button type="button" class="player-circle ring-${st.level}" data-athlete="${esc(m.id)}" aria-label="Ver seguimiento de ${esc(m.name)}. ${esc(st.reason)}"><span class="pc-photo">${avatar(m)}${sym[st.level]?`<i class="pc-badge badge-${st.level}">${sym[st.level]}</i>`:''}</span><b>${esc(first)}</b><span class="pc-last">${esc(rest)}</span><small class="pc-reason reason-${st.level}">${esc(st.reason)}</small><span class="pc-go">Ver seguimiento ↗</span></button></li>`;
+      }).join('')}</ul>`;
+    })():'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
 }
 function athleteDetail(record,name){
   const note=latestPlayerNote(record);

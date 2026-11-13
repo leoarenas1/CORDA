@@ -1220,3 +1220,13 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* La foto del jugador se queda dentro del círculo, sin importar su proporción */
 .pc-photo{flex:0 0 124px;overflow:visible}
 .pc-photo .avatar{position:absolute!important;inset:6px;width:calc(100% - 12px)!important;height:calc(100% - 12px)!important;max-width:none;border-radius:50%!important;object-fit:cover;object-position:center top;aspect-ratio:1/1}
+
+/* Semáforo de los jugadores: rojo atender, amarillo vigilar, verde bien, gris sin datos */
+.ring-green{--ring:#7CCB5E}.ring-yellow{--ring:#F0C23B}.ring-red{--ring:#E5604A}
+.pc-badge{position:absolute;right:0;top:0;z-index:2;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;font-style:normal;font-weight:800;color:#0E2A20;border:3px solid var(--verde-noche,#0F2A20)}
+.badge-red{background:#E5604A;color:#fff}.badge-yellow{background:#F0C23B}.badge-green{background:#7CCB5E}
+.pc-reason{font-size:12px;line-height:1.3;max-width:15ch;margin-top:4px}
+.reason-red{color:#FF9A88;font-weight:700}.reason-yellow{color:#F5D36B;font-weight:700}.reason-green{color:#A8E08E}
+.status-legend{display:flex;flex-wrap:wrap;gap:var(--space-4);margin:var(--space-4) 0 0;font-size:var(--small-size);color:var(--ink-muted)}
+.status-legend span:before{content:'';display:inline-block;width:12px;height:12px;margin-right:6px;border-radius:50%;background:var(--c);vertical-align:-1px}
+.lg-red{--c:#E5604A}.lg-yellow{--c:#F0C23B}.lg-green{--c:#7CCB5E}.lg-none{--c:rgba(244,239,227,.35)}

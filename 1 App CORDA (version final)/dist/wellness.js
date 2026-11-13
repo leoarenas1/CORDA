@@ -57,6 +57,25 @@ function wellnessAlerts(id,self=false){
   return alerts.sort((a,b)=>(a.sev==='high'?0:1)-(b.sev==='high'?0:1));
 }
 
+// ---------- Semáforo del jugador (lista de jugadores del coach) ----------
+// Rojo = atender hoy · Amarillo = vigilar · Verde = bien · Gris = sin datos.
+// Se toma el chequeo más reciente de los últimos 3 días, las alertas ya calculadas y las molestias activas.
+function playerStatus(id){
+  const records=wellPeek(id),days=wellDays(3);
+  let day=null,score=null;
+  for(let i=days.length-1;i>=0;i--){const s=readiness(records[days[i]]||{});if(s!==null){day=days[i];score=s;break}}
+  const ago=day===null||day===localDay()?'':day===dateAfter(localDay(),-1)?' · ayer':' · hace 2 días';
+  const alerts=wellnessAlerts(id),pains=wellPains(id);
+  const high=alerts.find(x=>x.sev==='high'),mid=alerts.find(x=>x.sev==='mid');
+  if(high)return {level:'red',reason:high.text,score};
+  if(score!==null&&score<50)return {level:'red',reason:'Preparación baja · '+score+ago,score};
+  if(mid)return {level:'yellow',reason:mid.text,score};
+  if(pains.length&&pains[0].level>=3)return {level:'yellow',reason:'Molestia '+pains[0].level+'/10 · '+pains[0].area,score};
+  if(score!==null&&score<70)return {level:'yellow',reason:'Preparación '+score+ago,score};
+  if(score===null)return {level:'none',reason:'Sin chequeos en 3 días',score};
+  return {level:'green',reason:'Preparación '+score+ago,score};
+}
+
 // ---------- Datos de ejemplo (mientras el jugador no ha hecho ningún chequeo) ----------
 function wellExample(){
   const records={},today=localDay(),clamp=v=>Math.max(1,Math.min(5,Math.round(v)));
