@@ -1200,3 +1200,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .coach-pair>.card{margin:0!important}
 .coach-payments .private-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:var(--space-3);margin:var(--space-4) 0}
 .coach-payments-alert{margin:0 0 var(--space-3);padding:8px 12px;border-radius:var(--radius-sm,8px);background:var(--surface-deep);border:1px dashed var(--line)}
+/* Los cuadros de sede de los torneos quedan alineados entre sí */
+@media(min-width:681px){.comp-place{min-width:230px}}
