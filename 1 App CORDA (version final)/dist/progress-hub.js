@@ -279,7 +279,7 @@ function coachPending(){
 }
 function checkinBanner(){
   if(!playerCheckinDue())return '';
-  return '<section class="card checkin-banner"><div><small class="eyebrow">Notificación</small><h2>¿Cómo te fue hoy?</h2><p class="hint">Tu entrenamiento terminó. Cuéntanos cómo te sentiste para calcular tu avance del día.</p></div><button class="btn" data-open-checkin>Responder</button></section>';
+  return '<section class="card quick-card is-evening"><div class="quick-icon" aria-hidden="true"><svg viewBox="0 0 64 64"><ellipse class="ball-shadow" cx="32" cy="58" rx="14" ry="3"/><g class="ball"><circle cx="32" cy="30" r="20"/><path d="M14 22c9 4 9 18 0 22M50 22c-9 4-9 18 0 22"/></g></svg></div><div class="quick-text"><small class="eyebrow">Terminó tu entrenamiento · 20 segundos</small><h2>¿Cómo te fue hoy?</h2><div class="quick-steps"><span>✅ Asistencia</span><span>🔥 Esfuerzo</span><span>🎯 Tu meta</span><span>📝 Qué salió bien</span></div></div><button class="btn lime quick-cta" data-open-checkin>Responder <span aria-hidden="true">→</span></button></section>';
 }
 function coachCheckinCard(){
   const pending=coachPending();

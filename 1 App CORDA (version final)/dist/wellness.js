@@ -185,21 +185,23 @@ function wellnessPanel(id,name,self){
     ${self&&role==='Jugador'?'<button type="button" class="link" data-report-pain>Reportar una molestia</button>':''}
     <p class="hint">UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
 }
-// Cuando ya hiciste el chequeo de hoy: anillo de preparación que se llena y racha de días seguidos.
-function wellnessDoneCard(score){
-  const rec=wellPeek(state.profile.memberId);let streak=0;
+// Cuando ya hiciste el chequeo de hoy: solo queda un anillo chico con tu preparación y la racha, junto a tu foto de perfil.
+function wellnessMini(){
+  if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
+  const rec=wellPeek(state.profile.memberId),done=rec[localDay()],score=done?readiness(done):null;
+  if(score===null)return '';
+  let streak=0;
   for(let i=0;i<400;i++){const d=dateAfter(localDay(),-i),r=rec[d];if(r&&readiness(r)!==null)streak++;else break}
   const cls=wellClass(score),title=cls==='ok'?'Listo para entrenar':cls==='mid'?'Ve con calma hoy':'Hoy toca cuidarte';
-  const text=cls==='ok'?'Tu cuerpo viene bien. Aprovecha la sesión.':cls==='mid'?'Escucha tu cuerpo y avisa si algo te molesta.':'Tu coach ya lo sabe y ajustará la carga.';
-  return `<section class="card well-done"><div class="well-ring is-${cls}" style="--score:${score}" role="img" aria-label="Preparación de hoy: ${score} de 100"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><div><b data-count>${score}</b><small>/ 100</small></div></div>
-    <div class="well-done-text"><small class="eyebrow">Chequeo de hoy ✓</small><h2>${title}</h2><p class="hint">${text}</p>${streak>1?`<span class="well-streak"><i class="flame">🔥</i> ${streak} días seguidos</span>`:'<span class="well-streak">Primer chequeo de la racha</span>'}</div>
-    <button class="link" data-open-wellness>Editar</button></section>`;
+  return `<button type="button" class="well-mini" data-open-wellness title="${title} · toca para editar tu chequeo de hoy" aria-label="Chequeo de hoy: ${score} de 100. ${title}. Toca para editarlo."><span class="well-ring is-${cls}" style="--score:${score}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><span><b data-count>${score}</b></span></span>${streak>1?`<span class="well-streak"><i class="flame">🔥</i> ${streak}</span>`:''}</button>`;
 }
 function wellnessBanner(){
   if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
   const done=wellPeek(state.profile.memberId)[localDay()];
-  if(done&&readiness(done)!==null)return wellnessDoneCard(readiness(done));
-  return `<section class="card checkin-banner calendar-banner wellness-banner"><div><small class="eyebrow">Chequeo diario</small><h2>¿Cómo amaneces hoy?</h2><p class="hint">30 segundos: sueño, energía y si te duele algo. Tu coach lo ve y ajusta la carga.</p></div><div class="calendar-actions"><button class="btn lime" data-open-wellness>Hacer chequeo</button></div></section>`;
+  if(done&&readiness(done)!==null)return '';
+  return `<section class="card quick-card is-morning wellness-banner"><div class="quick-icon" aria-hidden="true"><svg viewBox="0 0 64 64"><g class="sun-rays">${Array.from({length:8},(_,k)=>`<line x1="32" y1="4" x2="32" y2="11" transform="rotate(${k*45} 32 32)"/>`).join('')}</g><circle class="sun-core" cx="32" cy="32" r="14"/></svg></div>
+    <div class="quick-text"><small class="eyebrow">Chequeo diario · 30 segundos</small><h2>¿Cómo amaneces hoy?</h2><div class="quick-steps"><span>😴 Sueño</span><span>⚡ Energía</span><span>🙂 Ánimo</span><span>💪 Músculos</span><span>🧘 Estrés</span></div></div>
+    <button class="btn lime quick-cta" data-open-wellness>Empezar <span aria-hidden="true">→</span></button></section>`;
 }
 // Etiqueta corta para la lista de jugadores del coach.
 function wellnessBadge(id){
