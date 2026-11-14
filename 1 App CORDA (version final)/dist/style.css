@@ -1268,3 +1268,13 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   .quick-card:hover .quick-steps span{transform:translateY(-2px)}
   .quick-steps span{transition:transform .2s ease}
 }
+
+/* Carga (UA) destacada en verde y su explicación */
+.well-metrics>.is-key{background:#2F6B3A;border-color:#2F6B3A;color:#F4EFE3;box-shadow:0 8px 22px rgba(47,107,58,.35)}
+.well-metrics>.is-key small,.well-metrics>.is-key .hint{color:#D8EBC9;opacity:1}
+.well-metrics>.is-key b{color:#fff}
+.ua-note{margin:var(--space-4) 0;padding:var(--space-4) var(--space-5);border-radius:var(--radius-md);background:var(--surface-deep);border-left:5px solid #2F6B3A}
+.ua-note h3{margin:0 0 var(--space-2);font-size:var(--body-size)}
+.ua-line{margin:0 0 var(--space-2);font-size:var(--small-size);line-height:1.5;color:var(--ink)}
+.ua-line:last-child{margin-bottom:0}
+.ua-note a{color:inherit;text-decoration:underline}

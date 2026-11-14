@@ -159,6 +159,16 @@ function redrawWellTrend(){
 }
 
 // ---------- Panel ----------
+// Explicación corta de las UA (unidades de carga), con la semana de la persona y una referencia.
+function uaNote(load,self){
+  const s=load.any?Math.round(load.acute/540*10)/10:null;
+  const sessions=s===null?'':(s>=0.9&&s<=1.1?'1 sesión':s.toLocaleString('es-MX')+' sesiones');
+  return `<section class="ua-note"><h3>¿Qué son las UA?</h3>
+    <p class="ua-line">🧮 <b>Esfuerzo (1 a 10) × minutos.</b> Ejemplo: 90 min a esfuerzo 6 = <b>540 UA</b>.</p>
+    ${s!==null?`<p class="ua-line">🎾 ${self?'Tu semana':'Su semana'}: <b>${Math.round(load.acute)} UA</b>, como ${sessions} de 90 min a esfuerzo 6.</p>`:''}
+    <p class="ua-line">🎯 <b>¿Cuánto es lo normal?</b> Cambia con cada jugador. Como referencia, en un <a href="https://lida.sport-iat.de/ta/Record/4070615?lng=en" target="_blank" rel="noopener noreferrer">estudio de la ITF</a>, una persona de 16 años en una academia promedió <b>unas 2,100 UA por semana</b>.</p>
+    <p class="ua-line">⚠️ <b>Lo importante es que no suba de golpe.</b> En <a href="https://lida.sport-iat.de/ta/Record/4056737?lng=en" target="_blank" rel="noopener noreferrer">juniors de tenis con lesión</a>, la semana anterior traía casi 1.5 veces la carga de las 4 semanas previas. Por eso avisamos desde +50 %.</p></section>`;
+}
 function wellnessPanel(id,name,self){
   const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
   const today=localDay(),days=wellDays(7);
@@ -178,12 +188,13 @@ function wellnessPanel(id,name,self){
     <div class="well-metrics">
       <div><small>Preparación · 7 días</small><b>${avg===null?'—':avg}</b></div>
       <div><small>Sueño · promedio</small><b>${sleepAvg===null?'—':wellNum(sleepAvg)+' h'}</b></div>
-      <div><small>Carga de la semana</small><b>${load.any?Math.round(load.acute)+' UA':'—'}</b><span class="hint">${trend}</span></div>
+      <div class="is-key"><small>Carga de la semana</small><b>${load.any?Math.round(load.acute)+' UA':'—'}</b><span class="hint">${trend}</span></div>
     </div>
     ${pains.length?`<div class="well-pains"><small class="eyebrow">Molestias activas</small><ul>${pains.map(p=>`<li><b>${esc(p.area)}</b> · ${p.level}/10${self&&role==='Jugador'&&!example?` <button type="button" class="link" data-pain-clear="${esc(p.area)}">Ya no me duele</button>`:''}</li>`).join('')}</ul></div>`:''}
     ${Object.keys(absences).length?`<p class="hint well-absences"><b>Ausencias · 30 días:</b> ${Object.entries(absences).map(([r,n])=>esc(r)+' '+n).join(' · ')}</p>`:''}
     ${self&&role==='Jugador'?'<button type="button" class="link" data-report-pain>Reportar una molestia</button>':''}
-    <p class="hint">UA = esfuerzo (1 a 10) × minutos. Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
+    ${uaNote(load,self)}
+    <p class="hint">Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
 }
 // Cuando ya hiciste el chequeo de hoy: solo queda un anillo chico con tu preparación y la racha, junto a tu foto de perfil.
 function wellnessMini(){
