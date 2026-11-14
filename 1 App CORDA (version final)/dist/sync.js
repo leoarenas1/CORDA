@@ -70,7 +70,7 @@ function collectItems(){
 function canWrite({member_id,kind,key}){
   const c=syncCtx;
   if(c.staff)return true;
-  if(member_id)return (c.role==='Jugador'&&member_id===c.memberId&&PLAYER_KINDS.has(kind))||(c.role==='Tutor'&&kind==='attendance'&&(c.players||[]).includes(member_id));
+  if(member_id)return (c.role==='Jugador'&&member_id===c.memberId&&PLAYER_KINDS.has(kind))||(c.role==='Tutor'&&(kind==='attendance'||kind==='private_receipt')&&(c.players||[]).includes(member_id));
   if(kind==='comment'||kind==='meeting')return true;
   return kind==='member_card'&&key===c.memberId;
 }

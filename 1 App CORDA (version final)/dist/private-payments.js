@@ -117,17 +117,17 @@ function privateReceiptLink(item){
 function playerPrivateCard(){
   if(role==='Coach'||!state.profile?.memberId)return '';
   const list=privateSent(state.profile.memberId).slice().sort((a,b)=>b.at-a.at);
-  return `<section class="card private-lessons" id="private-lessons"><small class="eyebrow">Clases particulares</small><h2>Pagos a tu coach</h2>
-    <p class="hint">Para las clases particulares que le pagas directo a tu coach. No cuentan para la mensualidad de la academia.</p>
-    <ol class="fee-steps private-steps"><li>Pídele a tu coach su cuenta o CLABE y transfiérele el importe de la clase.</li><li>En el concepto escribe <strong>tu nombre y la fecha de la clase</strong>.</li><li>Sube aquí el comprobante. Solo lo verá ese coach.</li></ol>
-    ${role==='Jugador'?'<button class="btn lime" id="private-send">Subir comprobante de clase particular</button>':''}
+  return `<section class="card private-lessons" id="private-lessons"><small class="eyebrow">Clases particulares</small><h2>${role==='Tutor'?'Pagos al coach de '+esc(String(state.profile.name||'tu jugador').split(' ')[0]):'Pagos a tu coach'}</h2>
+    <p class="hint">${role==='Tutor'?'Para las clases particulares que pagas directo al coach.':'Para las clases particulares que le pagas directo a tu coach.'} No cuentan para la mensualidad de la academia.</p>
+    <ol class="fee-steps private-steps"><li>Pídele al coach su cuenta o CLABE y transfiérele el importe de la clase.</li><li>En el concepto escribe <strong>el nombre del jugador y la fecha de la clase</strong>.</li><li>Sube aquí el comprobante. Solo lo verá ese coach.</li></ol>
+    ${role!=='Coach'?'<button class="btn lime" id="private-send">Subir comprobante de clase particular</button>':''}
     ${list.length?`<div class="private-sent">${list.map(item=>`<div class="private-receipt"><div><b>${esc(item.coachName)}</b><small>${esc(weekLabel(item.week))}${item.amount?' · '+mxn(item.amount):''}</small></div><div>${privateStatusBadge(item)}${privateReceiptLink(item)}</div></div>`).join('')}</div>`:''}
   </section>`;
 }
 function openPrivateSend(){
   const coaches=academyCoaches();
   if(!coaches.length){toast('Todavía no hay coaches registrados en tu academia.');return}
-  modal('Comprobante de clase particular',`<label class="full">¿A qué coach le pagaste?<select name="coach" required><option value="">Elige a tu coach</option>${coaches.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
+  modal('Comprobante de clase particular',`<label class="full">¿A qué coach se le pagó?<select name="coach" required><option value="">Elige al coach</option>${coaches.map(c=>`<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></label>
     <label>Fecha de la clase<input type="date" name="date" required value="${localDay()}"></label>
     <label>Importe pagado (MXN, opcional)<input type="number" name="amount" min="0" max="999999" step="0.01"></label>
     <label class="full">Comprobante<input type="file" name="file" required accept="image/jpeg,image/png,application/pdf"></label>
@@ -138,7 +138,7 @@ function openPrivateSend(){
     if(!['image/jpeg','image/png','application/pdf'].includes(file.type)||file.size>3*1024*1024){toast('Elige un JPG, PNG o PDF de hasta 3 MB.');return false}
     const button=$('#modalform .formactions .btn');if(button)button.disabled=true;
     readFile(file).then(url=>{
-      privateSent(state.profile.memberId).push({id:newMemberId(),coachId:coach.id,coachName:coach.name,week:weekOf(data.date||localDay()),date:data.date,amount:data.amount?Number(data.amount):'',receipt:{name:file.name,data:url},status:'En revisión',at:Date.now()});
+      privateSent(state.profile.memberId).push({id:newMemberId(),coachId:coach.id,coachName:coach.name,week:weekOf(data.date||localDay()),date:data.date,amount:data.amount?Number(data.amount):'',receipt:{name:file.name,data:url},status:'En revisión',by:role,at:Date.now()});
       if(!save())return;
       $('#modal').close();render();toast('Comprobante enviado a '+coach.name+'.');
     }).catch(()=>{toast('No se pudo leer el comprobante.');if(button)button.disabled=false});
