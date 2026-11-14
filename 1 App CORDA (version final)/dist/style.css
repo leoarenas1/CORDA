@@ -1282,3 +1282,21 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* Torneos del jugador: la sede en un cuadro a la derecha, igual que en la vista del coach */
 .comp-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 @media(max-width:680px){.comp-side{align-items:flex-start}}
+
+/* Importancia del torneo (estrellas): la marca el jugador, la ven jugador, tutor y coach */
+.imp-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:999px;background:#0F3B2C;color:#F4EFE3;font-weight:800;font-size:var(--small-size);letter-spacing:.02em;white-space:nowrap}
+.imp-badge i{font-style:normal;color:#F2C14E;letter-spacing:1px}
+.imp-badge.is-low{background:#E9DFC6;color:#0E2A20;border:1px solid var(--line)}.imp-badge.is-low i{color:#B58A22}
+.imp-badge.is-mid{background:#2F6B3A}
+.imp-badge.is-high{background:#0F3B2C;box-shadow:0 0 0 2px #F2C14E}
+.imp-pick{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.imp-ask{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-muted)}
+.imp-buttons{display:inline-flex;gap:4px;padding:3px;border-radius:999px;background:var(--surface-deep);border:1px solid var(--line)}
+.imp-btn{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border:0;border-radius:999px;background:transparent;color:var(--ink-muted);font:inherit;font-size:var(--small-size);font-weight:600;cursor:pointer;transition:background .2s ease,color .2s ease,transform .15s ease}
+.imp-btn i{font-style:normal;color:#B58A22;letter-spacing:1px;font-size:12px}
+.imp-btn:hover{background:rgba(15,59,44,.08);color:var(--ink)}
+.imp-btn:active{transform:scale(.95)}
+.imp-btn[aria-pressed=true]{background:#0F3B2C;color:#F4EFE3;font-weight:800}
+.imp-btn[aria-pressed=true] i{color:#F2C14E}
+.who-imp{font-style:normal;color:#B58A22;letter-spacing:1px;font-size:11px}
+@media(max-width:680px){.imp-pick{align-items:flex-start}}

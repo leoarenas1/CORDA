@@ -271,6 +271,22 @@ function bindPortal() {
   });
   bindMeetingCard();
 }
+// Importancia de cada torneo: la marca el jugador y la ven él, su tutor y su coach.
+const IMPORTANCE={low:['★','Baja'],mid:['★★','Media'],high:['★★★','Alta']};
+const IMP_ORDER={high:3,mid:2,low:1};
+const impBadge=k=>k&&IMPORTANCE[k]?'<span class="imp-badge is-'+k+'"><i>'+IMPORTANCE[k][0]+'</i> Importancia '+IMPORTANCE[k][1].toLowerCase()+'</span>':'';
+function impPicker(c){
+  const pr=c.priority||'',key=esc(tournamentKey(c));
+  return '<div class="imp-pick" role="group" aria-label="Importancia del torneo">'+(pr?'':'<small class="imp-ask">¿Qué tan importante es?</small>')+'<div class="imp-buttons">'+
+    ['low','mid','high'].map(k=>'<button type="button" class="imp-btn is-'+k+'" data-imp="'+k+'" data-imp-key="'+key+'" aria-pressed="'+(pr===k)+'"><i>'+IMPORTANCE[k][0]+'</i> '+IMPORTANCE[k][1]+'</button>').join('')+'</div></div>';
+}
+document.addEventListener('click',event=>{
+  const b=event.target.closest?.('[data-imp]');if(!b||role!=='Jugador')return;
+  const c=(state.competition||[]).find(x=>tournamentKey(x)===b.dataset.impKey);if(!c)return;
+  c.priority=c.priority===b.dataset.imp?'':b.dataset.imp;
+  save();render();
+  toast(c.priority?'Importancia '+IMPORTANCE[c.priority][1].toLowerCase()+' para este torneo.':'Importancia quitada.');
+});
 // Torneos de los jugadores que sigue este coach (cada coach elige los suyos, para no llenarse de avisos).
 let coachTourAll=false;
 function coachMyPlayers(){
@@ -285,8 +301,8 @@ function coachTournaments(){
   for(const m of mine)for(const c of (state.playerTournaments||{})[m.id]||[]){
     if(String(c.date)<today)continue;
     const key=[c.name,c.date,c.place].map(x=>String(x||'').trim().toLowerCase()).join('|');
-    if(!groups.has(key))groups.set(key,{...c,names:[],members:[]});
-    groups.get(key).names.push(m.name);groups.get(key).members.push(m);
+    if(!groups.has(key))groups.set(key,{...c,names:[],members:[],prios:[]});
+    groups.get(key).names.push(m.name);groups.get(key).members.push(m);groups.get(key).prios.push(c.priority||'');
   }
   const list=[...groups.values()].sort((a,b)=>String(a.date).localeCompare(String(b.date)));
   if(!list.length)return '<section class="card plan-competitions">'+head+'<p class="hint">Tus jugadores no tienen torneos próximos.</p></section>';
@@ -294,8 +310,8 @@ function coachTournaments(){
   const rows=shown.map((c,i)=>{
     const days=Math.round((Date.parse(c.date)-Date.parse(today))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';
     const fade=days<=7?1:Math.max(.35,1-(days-7)/60);
-    const who=c.members.map(m=>'<span class="who-chip"><span class="who-photo">'+avatar(m)+'</span>'+esc(m.name)+'</span>').join('');
-    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-row"><div class="comp-main"><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who"><span class="who-label">'+(c.names.length>1?'Van':'Va')+'</span>'+who+'</p><p>'+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></div><div class="comp-place" title="Sede del torneo"><small>Sede</small><b>'+esc(c.place)+'</b></div></div></li>';
+    const who=c.members.map((m,k)=>'<span class="who-chip"><span class="who-photo">'+avatar(m)+'</span>'+esc(m.name)+(c.prios[k]&&IMPORTANCE[c.prios[k]]?' <em class="who-imp">'+IMPORTANCE[c.prios[k]][0]+'</em>':'')+'</span>').join(''),top=c.prios.reduce((t,k)=>(IMP_ORDER[k]||0)>(IMP_ORDER[t]||0)?k:t,'');
+    return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+fade.toFixed(2)+'"><small class="eyebrow">'+(i===0?'Lo más cercano · ':'')+when+'</small><div class="comp-row"><div class="comp-main"><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p class="comp-who"><span class="who-label">'+(c.names.length>1?'Van':'Va')+'</span>'+who+'</p><p>'+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></div><div class="comp-side">'+impBadge(top)+'<div class="comp-place" title="Sede del torneo"><small>Sede</small><b>'+esc(c.place)+'</b></div></div></div></li>';
   }).join('');
   return '<section class="card plan-competitions">'+head+'<ol class="comp-list">'+rows+'</ol>'+(list.length>5?'<button class="link" id="coach-tour-more">'+(coachTourAll?'Ver menos':'Ver todos ('+list.length+')')+'</button>':'')+'</section>';
 }
@@ -315,7 +331,7 @@ function calendarPage() {
   const tournaments=[...state.competition].sort((a,b)=>String(a.date).localeCompare(String(b.date))),upcoming=tournaments.filter(c=>String(c.date)>=localDay());
   return heading('Mi plan',dateLabel(agendaDate,{month:'long',year:'numeric'}),'<div class="heading-actions">'+calendarButton()+(role==='Coach'?'<button class="btn lime" id="newsession">+ Crear sesión</button>':'')+'</div>')+
     '<section class="agenda-main"><div class="row"><button class="link" data-agenda-date="'+dateAfter(agendaDate,-7)+'">← Semana anterior</button><button class="link" data-agenda-date="'+localDay()+'">Hoy</button><button class="link" data-agenda-date="'+dateAfter(agendaDate,7)+'">Semana siguiente →</button></div>'+calendarStrip(agendaDate)+'<h2>'+dateLabel(agendaDate,{weekday:'long',day:'numeric',month:'long'})+'</h2>'+(events.map(sessionSummary).join('')||'<p class="empty">Sin sesiones para este día.</p>')+'</section>'+
-    (role==='Coach'?coachTournaments():'<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-row"><div class="comp-main"><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p>'+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></div><div class="comp-side"><div class="comp-place" title="Sede del torneo"><small>Sede</small><b>'+esc(c.place)+'</b></div><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div></div></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>');
+    (role==='Coach'?coachTournaments():'<section class="card plan-competitions"><div class="sectiontitle"><h2>Torneos</h2><button class="link" id="competition">+ Añadir torneo</button></div>'+(upcoming.length?'<ol class="comp-list">'+upcoming.map((c,i)=>{const days=Math.round((Date.parse(c.date)-Date.parse(localDay()))/864e5),when=days===0?'hoy':days===1?'mañana':'en '+days+' días';return '<li class="comp-item'+(i===0?' is-next':'')+'" style="--fade:'+Math.max(.45,1-i*.2)+'">'+(i===0?'<small class="eyebrow">Próximo torneo · '+when+'</small>':'')+'<div class="comp-row"><div class="comp-main"><div class="comp-head"><h3>'+esc(c.name)+'</h3></div><p>'+dateLabel(c.date,{day:'numeric',month:'long',year:'numeric'})+tournamentDetails(c)+'</p></div><div class="comp-side">'+(role==='Jugador'?impPicker(c):impBadge(c.priority))+'<div class="comp-place" title="Sede del torneo"><small>Sede</small><b>'+esc(c.place)+'</b></div><button class="link comp-edit" data-tournament="'+esc(tournamentKey(c))+'">Editar</button></div></div></li>'}).join('')+'</ol>':'<p class="hint">'+(tournaments.length?'No tienes torneos próximos. ':'')+'Añade un torneo para seguir tu preparación.</p>')+'</section>');
 }
 
 // Foto de perfil de quien inició sesión, a la derecha del título de Inicio. Lleva a «Perfil».
