@@ -22,6 +22,9 @@ function isMinor(profile=state.profile){
   return age===null?!!state.consent?.minor:age<18;
 }
 
+// Menores de 18: los pagos (mensualidad y clases particulares) los hace el tutor; el jugador no ve la pestaña.
+function minorPlayer(){return role==='Jugador'&&isMinor()}
+
 // ---------- Estado del tutor (se pregunta a Supabase) ----------
 // 'none' = aún sin cuenta · 'registered' = creó cuenta pero no lo ha vinculado · 'linked' = vinculado, falta la aprobación del administrador · 'active' = listo
 let guardianInfo={state:'unknown',at:0};

@@ -34,7 +34,7 @@ function lockCard(title,text){
 }
 function roleNav(){
   const labels=role==='Coach'?['Panel','Plan','Jugadores','Academia','Pagos']:role==='Tutor'?['Inicio','Agenda','Avances','Academia','Mensualidad']:['Inicio','Plan','Estado','Academia','Mensualidad'];
-  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'private-payments':'payments','wallet']].map(([id,i],n)=>[id,i,labels[n]]);
+  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'private-payments':'payments','wallet']].map(([id,i],n)=>[id,i,labels[n]]).filter(([id])=>!(id==='payments'&&minorPlayer()));
 }
 function pickRole(mode){
   entry='access';
