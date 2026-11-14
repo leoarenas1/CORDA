@@ -1278,3 +1278,7 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .ua-line{margin:0 0 var(--space-2);font-size:var(--small-size);line-height:1.5;color:var(--ink)}
 .ua-line:last-child{margin-bottom:0}
 .ua-note a{color:inherit;text-decoration:underline}
+
+/* Torneos del jugador: la sede en un cuadro a la derecha, igual que en la vista del coach */
+.comp-side{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+@media(max-width:680px){.comp-side{align-items:flex-start}}
