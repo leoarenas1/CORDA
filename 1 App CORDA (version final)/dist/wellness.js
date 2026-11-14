@@ -163,11 +163,11 @@ function redrawWellTrend(){
 function uaNote(load,self){
   const s=load.any?Math.round(load.acute/540*10)/10:null;
   const sessions=s===null?'':(s>=0.9&&s<=1.1?'1 sesión':s.toLocaleString('es-MX')+' sesiones');
-  return `<section class="ua-note"><h3>¿Qué son las UA?</h3>
+  return `<details class="ua-note"><summary><span class="ua-q">?</span> ¿Qué son las UA? <em>Toca para ver</em></summary><div class="ua-body">
     <p class="ua-line">🧮 <b>Esfuerzo (1 a 10) × minutos.</b> Ejemplo: 90 min a esfuerzo 6 = <b>540 UA</b>.</p>
     ${s!==null?`<p class="ua-line">🎾 ${self?'Tu semana':'Su semana'}: <b>${Math.round(load.acute)} UA</b>, como ${sessions} de 90 min a esfuerzo 6.</p>`:''}
     <p class="ua-line">🎯 <b>¿Cuánto es lo normal?</b> Cambia con cada jugador. Como referencia, en un <a href="https://lida.sport-iat.de/ta/Record/4070615?lng=en" target="_blank" rel="noopener noreferrer">estudio de la ITF</a>, una persona de 16 años en una academia promedió <b>unas 2,100 UA por semana</b>.</p>
-    <p class="ua-line">⚠️ <b>Lo importante es que no suba de golpe.</b> En <a href="https://lida.sport-iat.de/ta/Record/4056737?lng=en" target="_blank" rel="noopener noreferrer">juniors de tenis con lesión</a>, la semana anterior traía casi 1.5 veces la carga de las 4 semanas previas. Por eso avisamos desde +50 %.</p></section>`;
+    <p class="ua-line">⚠️ <b>Lo importante es que no suba de golpe.</b> En <a href="https://lida.sport-iat.de/ta/Record/4056737?lng=en" target="_blank" rel="noopener noreferrer">juniors de tenis con lesión</a>, la semana anterior traía casi 1.5 veces la carga de las 4 semanas previas. Por eso avisamos desde +50 %.</p></div></details>`;
 }
 function wellnessPanel(id,name,self){
   const real=wellPeek(id),example=!Object.keys(real).length,records=example?wellExample():real;
