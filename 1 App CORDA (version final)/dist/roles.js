@@ -141,6 +141,37 @@ function playerList(){
       }).join('')}</ul>`;
     })():'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
 }
+// Guía para familias: consejos por momento (sueño según la Academia Americana de Medicina del Sueño; nutrición y rutina según SDA, ITF/WTA/ATP y USTA).
+function famGuide(age){
+  const sleep=age&&age<=12?'9 a 12 h (6 a 12 años)':'8 a 10 h (13 a 18 años)';
+  return [
+    {icon:'🎾',title:'Antes de entrenar',sub:'Comida, agua y mochila',items:[
+      'Una comida con carbohidratos (arroz, pasta, pan, avena, fruta) unas 3 a 4 horas antes; si queda poco tiempo, un snack ligero.',
+      'Que lleve agua y la tome desde antes de empezar: los niños y adolescentes se sobrecalientan y se deshidratan más rápido que los adultos.',
+      'Dejen la mochila lista la noche anterior (raqueta, ropa extra, toalla, agua) para llegar con tiempo a calentar y sin prisas.']},
+    {icon:'🏆',title:'Antes de un partido',sub:'Rutina conocida, cero sorpresas',items:[
+      'Nada nuevo el día del torneo: ni comidas, ni bebidas, ni suplementos que no haya probado en entrenamientos.',
+      'Una rutina siempre igual (comer, calentar, descansar) ayuda a bajar los nervios; los coaches la repiten partido tras partido.',
+      'Limita la cafeína (refrescos de cola, bebidas energéticas) antes y después de jugar.',
+      'Un mensaje corto y sin indicaciones técnicas: «disfruta, me encanta verte jugar».']},
+    {icon:'🍌',title:'Entre partidos',sub:'Pequeñas cargas de energía',items:[
+      'Snacks pequeños y conocidos (plátano, fruta, un sándwich ligero) y agua a sorbos frecuentes, sin esperar a tener sed.',
+      'Busquen sombra y un lugar tranquilo para descansar; evita revisar con él cada punto del partido anterior.',
+      'Desde la grada, aplaude los buenos puntos de ambos y evita dar indicaciones: en la cancha decide el jugador.']},
+    {icon:'🔄',title:'Después de entrenar o jugar',sub:'Recuperar y escuchar',items:[
+      'Pronto después, una comida con proteína y carbohidratos (pollo con arroz, huevo con pan, yogur con fruta) más agua para recuperarse.',
+      'En el camino a casa, primero escucha y deja que sea tu jugador quien decida de qué hablar. El análisis del partido, mejor otro día (muchos expertos sugieren esperar unas 24 horas).',
+      'Después de un mal partido, valora el esfuerzo y la actitud antes que el marcador.']},
+    {icon:'😴',title:'Dormir y descansar',sub:'La mitad del entrenamiento',items:[
+      `Para su edad se recomiendan ${sleep} de sueño al día, según la Academia Americana de Medicina del Sueño.`,
+      'Mantén el mismo horario también en fin de semana, y que la víspera de un torneo sea una noche tranquila.',
+      'Dormir poco se nota en la atención, el ánimo y el rendimiento: si hay varios días seguidos de poco sueño, díselo al coach.']},
+    {icon:'💬',title:'Cómo hablar con tu jugador',sub:'Preguntas que abren la plática',items:[
+      'Mejor «¿qué fue lo que más disfrutaste hoy?» o «¿qué quieres mejorar?» que «¿por qué fallaste esa bola?».',
+      'Reconoce lo que sí depende de él (esfuerzo, actitud, constancia) más que el resultado.',
+      'Deja los consejos técnicos al coach: tu papel es ser la persona que lo apoya pase lo que pase.']}
+  ];
+}
 // Avances para el tutor: el diario de los entrenamientos, su mes y cómo apoyarlo en casa (sin repetir lo de Inicio).
 const FAM_MOOD=['','😞','😕','😐','🙂','😄'];
 function familyProgress(record){
@@ -166,13 +197,16 @@ function familyProgress(record){
   const pains=wellPains(id),next=((state.playerTournaments||{})[id]||[]).filter(c=>String(c.date)>=today).sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
   const nd=next?Math.round((Date.parse(next.date)-Date.parse(today))/864e5):null;
   const focus=(latestPlayerNote(record).focus||'').replace(/[.!]+$/,'');
+  const age=(typeof ageFrom==='function'&&record.profile.birthDate)?ageFrom(record.profile.birthDate):null;
   const tips=[];
-  if(sleepAvg!==null)tips.push(sleepAvg<7?['😴','Ayúdale a descansar',`Ha dormido ${wellNum(sleepAvg)} h en promedio estos días. Para su edad se recomiendan entre 8 y 10 h: acostarse un poco antes ayuda mucho.`]:['😴','Va bien con el sueño',`Promedia ${wellNum(sleepAvg)} h. Ayúdale a mantener su horario también en fin de semana.`]);
+  if(sleepAvg!==null)tips.push(sleepAvg<7?['😴','Ayúdale a descansar',`Ha dormido ${wellNum(sleepAvg)} h en promedio estos días. Para su edad se recomiendan ${age&&age<=12?'entre 9 y 12':'entre 8 y 10'} h: acostarse un poco antes ayuda mucho.`]:['😴','Va bien con el sueño',`Promedia ${wellNum(sleepAvg)} h. Ayúdale a mantener su horario también en fin de semana.`]);
   if(pains.length&&pains[0].level>=3)tips.push(['🩹','Cuidemos su '+pains[0].area.toLowerCase(),`Reporta ${pains[0].level}/10. Evita sumar partidos o entrenamientos extra esta semana y avisa al coach si aumenta.`]);
   if(next)tips.push(['🏆',nd<=1?'Su torneo es '+(nd===0?'hoy':'mañana'):`Su torneo es en ${nd} días`,`${esc(next.name)}${next.place?' · '+esc(next.place):''}. Cuida el descanso, una comida ligera antes de jugar y que lleve su raqueta, ropa y agua listas.`]);
   if(focus)tips.push(['💬','Para platicar en casa',`Pregúntale cómo va con «${esc(focus)}». Escuchar cómo lo vive vale más que corregirlo.`]);
   const tipsHtml=tips.length?tips.map(t=>`<article class="tip-card"><span class="tip-icon">${t[0]}</span><div><h3>${t[1]}</h3><p>${t[2]}</p></div></article>`).join(''):'<p class="hint">Cuando haya más chequeos, aquí verás consejos para apoyarlo en casa.</p>';
-  return `<div class="flow-week fam-progress"><section class="card"><small class="eyebrow">Diario de entrenamientos</small><h2>Sus últimos días</h2><div class="diary">${diary}</div></section><div class="fam-side">${month}<section class="card"><small class="eyebrow">Para ti</small><h2>Cómo apoyarlo en casa</h2><div class="tips">${tipsHtml}</div><p class="hint">Son sugerencias generales, no consejos médicos.</p></section></div></div>`;
+  const guide=famGuide(age).map((g,k)=>`<details class="guide-item"><summary><span class="tip-icon">${g.icon}</span><span class="guide-name"><b>${g.title}</b><small>${g.sub}</small></span></summary><ul>${g.items.map(i=>`<li>${i}</li>`).join('')}</ul></details>`).join('');
+  const sources=`<p class="hint guide-src">Basado en: <a href="https://www.eurekalert.org/news-releases/685231" target="_blank" rel="noopener">Academia Americana de Medicina del Sueño</a> · <a href="https://doi.org/10.1123/ijsnem.2025-0001" target="_blank" rel="noopener">Declaración de expertos ITF/WTA/ATP sobre nutrición en tenis (2025)</a> · <a href="https://www.sportsdietitians.com.au/" target="_blank" rel="noopener">Sports Dietitians Australia</a> · <a href="https://www.usta.com/en/home/stay-current/texas/ask-a-coach-preparing-for-high-performance-junior-tennis-tournaments.html" target="_blank" rel="noopener">USTA, entrevista a un coach</a>. Son sugerencias generales, no consejos médicos; ante molestias o dudas de alimentación, consulta a un profesional.</p>`;
+  return `<div class="flow-week fam-progress"><section class="card"><small class="eyebrow">Diario de entrenamientos</small><h2>Sus últimos días</h2><div class="diary">${diary}</div></section><div class="fam-side">${month}<section class="card"><small class="eyebrow">Para ti</small><h2>Cómo apoyarlo en casa</h2>${tips.length?`<h3 class="guide-h">Esta semana</h3>`:''}<div class="tips">${tipsHtml}</div><h3 class="guide-h">Guía por momento del día</h3><div class="guide">${guide}</div>${sources}</section></div></div>`;
 }
 function athleteDetail(record,name){
   const note=latestPlayerNote(record);

@@ -1391,3 +1391,16 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .ua-body{margin-top:var(--space-3);padding:var(--space-4);border-radius:var(--radius-md);background:var(--surface-deep);border-left:5px solid #2F6B3A}
 .ua-body .ua-line{margin:0 0 var(--space-2);font-size:var(--small-size);line-height:1.5}.ua-body .ua-line:last-child{margin-bottom:0}
 @media (prefers-reduced-motion:no-preference){.ua-note[open] .ua-body{animation:fam-in .3s cubic-bezier(.2,.7,.2,1) both}}
+/* Guía para familias */
+.guide-h{margin:var(--space-4) 0 var(--space-2);font-size:var(--small-size);letter-spacing:.08em;text-transform:uppercase;opacity:.75}
+.guide{display:grid;gap:var(--space-2)}
+.guide-item{border-radius:var(--radius-md);background:var(--surface-deep);border:1px solid var(--line);transition:box-shadow .2s ease}
+.guide-item:hover{box-shadow:0 6px 16px rgba(0,0,0,.12)}
+.guide-item>summary{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);cursor:pointer;list-style:none}
+.guide-item>summary::-webkit-details-marker{display:none}
+.guide-item>summary::after{content:'＋';margin-left:auto;font-weight:800}
+.guide-item[open]>summary::after{content:'－'}
+.guide-name{display:grid;gap:2px}.guide-name b{font-size:var(--body-size)}.guide-name small{font-size:var(--small-size);opacity:.75}
+.guide-item ul{margin:0;padding:0 var(--space-4) var(--space-4) calc(var(--space-4) + 26px);display:grid;gap:var(--space-2);animation:fam-in .3s ease both}
+.guide-item li{font-size:var(--small-size);line-height:1.5}
+.guide-src{margin-top:var(--space-4)}.guide-src a{text-decoration:underline}
