@@ -260,7 +260,7 @@ function coachHome(){
 }
 // Tarjeta de seguimiento para el tutor: cómo va su jugador al entrenar y al competir.
 let famTab='avance';
-const FAM_LEVEL={green:'Buen camino',yellow:'Con detalles a pulir',red:'Corregir aspectos',none:'Falta de datos'};
+const FAM_LEVEL={green:'Buen camino',yellow:'Casi, con detalles',red:'Necesita tu apoyo',none:'Falta de datos'};
 function familyFollowCard(member){
   const id=member.id,today=localDay(),first=esc(String(member.name||'').trim().split(/\s+/)[0]||'tu jugador');
   const record=athleteFor(member),note=latestPlayerNote(record);
