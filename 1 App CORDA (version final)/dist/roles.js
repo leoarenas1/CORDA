@@ -141,6 +141,39 @@ function playerList(){
       }).join('')}</ul>`;
     })():'<section class="card"><h2>Tu primer jugador</h2><p class="hint">Añade un jugador para registrar su punto de partida y seguir sus objetivos.</p></section>');
 }
+// Avances para el tutor: el diario de los entrenamientos, su mes y cómo apoyarlo en casa (sin repetir lo de Inicio).
+const FAM_MOOD=['','😞','😕','😐','🙂','😄'];
+function familyProgress(record){
+  const id=record.profile.memberId,first=esc(String(record.profile.name||'').trim().split(/\s+/)[0]||'Tu jugador'),today=localDay();
+  const pc=peekCheckins(id).player||{},cc=peekCheckins(id).coach||{},rv=record.reviews||{};
+  const dayName=d=>{const s=dateLabel(d,{weekday:'long',day:'numeric',month:'short'});return s.charAt(0).toUpperCase()+s.slice(1)};
+  const entries=wellDays(10).slice().reverse().filter(d=>pc[d]||cc[d]||rv[d]).slice(0,5);
+  const diary=entries.length?entries.map((d,k)=>{
+    const p=pc[d]||{},c=cc[d]||{},v=rv[d]||{},went=p.attended===false?false:(p.attended===true||c.attended===true);
+    const pips=p.rpe?Array.from({length:10},(_,n)=>`<i class="${n<p.rpe?'on':''}"></i>`).join(''):'';
+    const said=p.good||p.missing,saw=c.good||v.good||c.missing||v.focus;
+    return `<details class="diary-day" ${k===0?'open':''}><summary><span class="diary-date">${esc(dayName(d))}</span><span class="diary-chips"><span class="chip ${went?'is-ok':'is-no'}">${went?'✓ Asistió':'✗ No asistió'}</span>${p.rpe?`<span class="chip">Esfuerzo ${p.rpe}/10</span>`:''}${p.mood?`<span class="chip">${FAM_MOOD[p.mood]||''} ${esc((MOODS.find(m=>m[0]===Number(p.mood))||[0,''])[1])}</span>`:''}</span></summary>
+      ${went===false&&p.reason?`<p class="diary-quote">Motivo: ${esc(p.reason)}</p>`:''}
+      ${pips?`<div class="diary-effort" aria-label="Esfuerzo ${p.rpe} de 10">${pips}</div>`:''}
+      ${said?`<blockquote class="diary-quote is-player"><b>${first} dijo</b>${p.good?`<p>👍 ${esc(p.good)}</p>`:''}${p.missing?`<p>🔧 ${esc(p.missing)}</p>`:''}</blockquote>`:''}
+      ${saw?`<blockquote class="diary-quote is-coach"><b>${esc(c.by||'El coach')} vio</b>${(c.good||v.good)?`<p>✓ ${esc(c.good||v.good)}</p>`:''}${(c.missing||v.focus)?`<p>➜ ${esc(c.missing||v.focus)}</p>`:''}</blockquote>`:''}</details>`;
+  }).join(''):`<p class="hint">Aquí aparecerá el diario de cada entrenamiento: cómo se sintió ${first} y qué vio su coach.</p>`;
+  // Su mes: evaluación mensual más reciente
+  const mrs=Object.entries(record.profile.monthlyReviews||{}).sort(([a],[b])=>b.localeCompare(a))[0];
+  const month=mrs?`<section class="card fam-month"><small class="eyebrow">Su mes · ${esc(mrs[0])}</small><div class="fam-month-row"><span class="well-ring is-${mrs[1].score>=70?'ok':mrs[1].score>=50?'mid':'low'}" style="--score:${Number(mrs[1].score)||0}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><span><b data-count>${Number(mrs[1].score)||0}</b></span></span><div><h3>Preparado para su objetivo</h3><p>${esc(mrs[1].goal||'')}</p></div></div><p class="hint">${esc(mrs[1].good||'')}</p></section>`:'';
+  // Cómo apoyarlo en casa (consejos según lo que pasa esta semana)
+  const wr=wellPeek(id),sl=wellDays(4).map(d=>wr[d]?.sleepH).filter(Number.isFinite),sleepAvg=sl.length?sl.reduce((a,b)=>a+b,0)/sl.length:null;
+  const pains=wellPains(id),next=((state.playerTournaments||{})[id]||[]).filter(c=>String(c.date)>=today).sort((a,b)=>String(a.date).localeCompare(String(b.date)))[0];
+  const nd=next?Math.round((Date.parse(next.date)-Date.parse(today))/864e5):null;
+  const focus=(latestPlayerNote(record).focus||'').replace(/[.!]+$/,'');
+  const tips=[];
+  if(sleepAvg!==null)tips.push(sleepAvg<7?['😴','Ayúdale a descansar',`Ha dormido ${wellNum(sleepAvg)} h en promedio estos días. Para su edad se recomiendan entre 8 y 10 h: acostarse un poco antes ayuda mucho.`]:['😴','Va bien con el sueño',`Promedia ${wellNum(sleepAvg)} h. Ayúdale a mantener su horario también en fin de semana.`]);
+  if(pains.length&&pains[0].level>=3)tips.push(['🩹','Cuidemos su '+pains[0].area.toLowerCase(),`Reporta ${pains[0].level}/10. Evita sumar partidos o entrenamientos extra esta semana y avisa al coach si aumenta.`]);
+  if(next)tips.push(['🏆',nd<=1?'Su torneo es '+(nd===0?'hoy':'mañana'):`Su torneo es en ${nd} días`,`${esc(next.name)}${next.place?' · '+esc(next.place):''}. Cuida el descanso, una comida ligera antes de jugar y que lleve su raqueta, ropa y agua listas.`]);
+  if(focus)tips.push(['💬','Para platicar en casa',`Pregúntale cómo va con «${esc(focus)}». Escuchar cómo lo vive vale más que corregirlo.`]);
+  const tipsHtml=tips.length?tips.map(t=>`<article class="tip-card"><span class="tip-icon">${t[0]}</span><div><h3>${t[1]}</h3><p>${t[2]}</p></div></article>`).join(''):'<p class="hint">Cuando haya más chequeos, aquí verás consejos para apoyarlo en casa.</p>';
+  return `<div class="flow-week fam-progress"><section class="card"><small class="eyebrow">Diario de entrenamientos</small><h2>Sus últimos días</h2><div class="diary">${diary}</div></section><div class="fam-side">${month}<section class="card"><small class="eyebrow">Para ti</small><h2>Cómo apoyarlo en casa</h2><div class="tips">${tipsHtml}</div><p class="hint">Son sugerencias generales, no consejos médicos.</p></section></div></div>`;
+}
 function athleteDetail(record,name){
   const note=latestPlayerNote(record);
   const history=Object.entries(record.reviews||{}).sort(([a],[b])=>b.localeCompare(a));
@@ -149,9 +182,9 @@ function athleteDetail(record,name){
   const mem=(state.directory||[]).find(m=>m.id===record.profile.memberId),photo=(mem&&mem.photo)||record.profile.photo||'';
   const backdrop=photo?'<div class="academy-backdrop athlete-backdrop" aria-hidden="true"><img class="club-background" src="'+esc(photo)+'" alt=""></div>':'';
   return backdrop+heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+
-    `<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
+    `${role==='Tutor'?familyProgress(record):`<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
-    ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>
+    ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>`}
     <div class="trend-gap">${wellnessTrend(record.profile.memberId,false,name)}</div>
     <section class="card"><div class="sectiontitle"><h2>Evaluaciones</h2>${role==='Coach'?'<button class="btn small" id="student-review">Evaluar jugador</button>':''}</div>
     ${[...history,...months].sort(([a],[b])=>b.localeCompare(a)).map(([date,n])=>`<article class="progress-entry"><small>${esc(date)}</small><h3>${esc(n.good)}</h3><p>${esc(n.focus)}</p></article>`).join('')||'<p class="hint">Las observaciones de este jugador aparecerán aquí.</p>'}</section>`;
