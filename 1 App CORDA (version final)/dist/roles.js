@@ -191,12 +191,60 @@ function coachHome(){
   return '<div class="heading"><div><h1>Panel del coach</h1><p class="muted">'+esc(academy)+'</p><button class="btn lime heading-cta" id="newsession">+ Crear sesión</button></div><div class="heading-actions">'+headingAvatar()+'</div></div>'+calendarBanner()+
     `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+`<div class="flow-week coach-pair">${meetingCard()}${coachPaymentsCard()}</div>`;
 }
+// Tarjeta de seguimiento para el tutor: cómo va su jugador al entrenar y al competir.
+let famTab='avance';
+const FAM_LEVEL={green:'Buen camino',yellow:'Con detalles a pulir',red:'Corregir aspectos',none:'Falta de datos'};
+function familyFollowCard(member){
+  const id=member.id,today=localDay(),first=esc(String(member.name||'').trim().split(/\s+/)[0]||'tu jugador');
+  const record=athleteFor(member),note=latestPlayerNote(record);
+  const st=typeof playerStatus==='function'?playerStatus(id):{level:'none',reason:'',score:null};
+  // Asistencia de los últimos 14 días (según la encuesta que contesta el jugador)
+  const pc=(typeof peekCheckins==='function'?peekCheckins(id).player:null)||{};let went=0,missed=0;
+  for(const d of (typeof wellDays==='function'?wellDays(14):[])){const c=pc[d];if(!c)continue;if(c.attended===false)missed++;else went++}
+  const total=went+missed,pct=total?Math.round(went/total*100):null;
+  // Racha de chequeos diarios
+  const wr=typeof wellPeek==='function'?wellPeek(id):{};let streak=0;
+  for(let i=0;i<400;i++){const r=wr[dateAfter(today,-i)];if(r&&readiness(r)!==null)streak++;else if(i===0)continue;else break}
+  const pains=typeof wellPains==='function'?wellPains(id):[];
+  const comps=((state.playerTournaments||{})[id]||[]).filter(c=>String(c.date)>=today).sort((a,b)=>String(a.date).localeCompare(String(b.date))).slice(0,3);
+  const goals=(record.goals||[]).slice(0,3);
+  const days=d=>{const n=Math.round((Date.parse(d)-Date.parse(today))/864e5);return n===0?'hoy':n===1?'mañana':'en '+n+' días'};
+  const score=st.score,cls=typeof wellClass==='function'?wellClass(score):'none';
+  const tabs=[['avance','Último avance'],['metas','Objetivos'],['torneos','Torneos']];
+  return `<section class="card fam-card" data-fam>
+    <div class="fam-head"><div>${avatar(member)}</div><div><small class="eyebrow">Seguimiento de ${esc(member.name)}</small><h2>Cómo va ${first}</h2></div><span class="fam-level is-${st.level}">${FAM_LEVEL[st.level]||FAM_LEVEL.none}</span></div>
+    ${pains.length?`<p class="fam-alert">🩹 Molestia: <b>${esc(pains[0].area)} ${pains[0].level}/10</b>. Tu coach la ve en su panel.</p>`:''}
+    <div class="fam-stats">
+      <div class="fam-stat"><small>Asistencia · 14 días</small><b>${pct===null?'—':`<span data-count>${pct}</span>%`}</b><span class="fam-bar"><i style="width:${pct||0}%"></i></span><em>${total?`Fue a ${went} de ${total} entrenamientos`:'Aún sin entrenamientos registrados'}</em></div>
+      <div class="fam-stat"><small>Preparación · último chequeo</small><span class="well-ring is-${cls}" style="--score:${score===null?0:score}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><span>${score===null?'<b>—</b>':`<b data-count>${score}</b>`}</span></span><em>${esc(st.reason||'Sin chequeos recientes')}</em></div>
+      <div class="fam-stat"><small>Racha de chequeos</small><b><i class="flame">🔥</i> <span data-count>${streak}</span></b><em>${streak===1?'día seguido':'días seguidos'} cuidándose</em></div>
+    </div>
+    <div class="fam-tabs" role="tablist">${tabs.map(([k,l])=>`<button type="button" role="tab" data-fam-tab="${k}" aria-selected="${famTab===k}">${l}</button>`).join('')}</div>
+    <div class="fam-panel" data-fam-panel="avance" ${famTab==='avance'?'':'hidden'}>
+      <p class="fam-line is-good"><span>✓</span><span><b>Lo que mejoró</b><br>${esc(note.good||'Aún no hay evaluación del coach.')}</span></p>
+      <p class="fam-line is-next"><span>➜</span><span><b>Siguiente paso</b><br>${esc(note.focus||'Pendiente de evaluación.')}</span></p>
+    </div>
+    <div class="fam-panel" data-fam-panel="metas" ${famTab==='metas'?'':'hidden'}>
+      ${goals.length?goals.map(g=>`<div class="fam-goal"><div><b>${esc(g.title)}</b><small>${esc(Number(g.progress)||0)} %</small></div><span class="fam-bar"><i style="width:${Math.max(0,Math.min(100,Number(g.progress)||0))}%"></i></span></div>`).join(''):'<p class="hint">Todavía no hay objetivos.</p>'}
+    </div>
+    <div class="fam-panel" data-fam-panel="torneos" ${famTab==='torneos'?'':'hidden'}>
+      ${comps.length?comps.map(c=>`<div class="fam-comp"><span class="fam-when">${days(c.date)}</span><div><b>${esc(c.name)}</b><small>${esc(c.place||'')}${c.mode?' · '+esc(c.mode):''}</small></div>${typeof impBadge==='function'?impBadge(c.priority):''}</div>`).join(''):`<p class="hint">${first} no tiene torneos próximos.</p>`}
+    </div>
+    <div class="fam-links"><button class="link" data-page="goals">Ver avances ↗</button><button class="link" data-page="calendar">Ver plan y torneos ↗</button></div></section>`;
+}
+document.addEventListener('click',event=>{
+  const b=event.target.closest?.('[data-fam-tab]');if(!b)return;
+  const box=b.closest('[data-fam]');if(!box)return;
+  famTab=b.dataset.famTab;
+  box.querySelectorAll('[data-fam-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  box.querySelectorAll('[data-fam-panel]').forEach(p=>{p.hidden=p.dataset.famPanel!==famTab});
+});
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
   const note=latestPlayerNote(athleteFor(member));
   return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy),'<div class="heading-actions">'+headingAvatar()+'</div>')+calendarBanner()+
     '<div class="portal-grid">'+nextSessionCard()+'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section></div>'+
-    '<div class="flow-week"><section class="card"><small class="eyebrow">Seguimiento de '+esc(member.name)+'</small><h2>Último avance</h2><p>'+esc(note.good||'Aún no hay evaluación del coach.')+'</p><p>'+esc(note.focus||'')+'</p><button class="link" data-page="goals">Ver avances ↗</button></section>'+meetingCard()+'</div>'+rainNotice();
+    '<div class="flow-week">'+familyFollowCard(member)+meetingCard()+'</div>'+rainNotice();
 }
 function adultProfile(){
   const a=actor();

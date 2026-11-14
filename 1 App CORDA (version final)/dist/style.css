@@ -1300,3 +1300,46 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .imp-btn[aria-pressed=true] i{color:#F2C14E}
 .who-imp{font-style:normal;color:#B58A22;letter-spacing:1px;font-size:11px}
 @media(max-width:680px){.imp-pick{align-items:flex-start}}
+
+/* Seguimiento para el tutor: cómo va su jugador al entrenar y al competir */
+.fam-card{display:flex;flex-direction:column;gap:var(--space-4)}
+.fam-head{display:flex;align-items:center;gap:var(--space-4)}
+.fam-head .avatar{width:56px;height:56px}
+.fam-head>div:nth-child(2){flex:1;min-width:0}
+.fam-head h2{margin:2px 0 0}
+.fam-level{padding:6px 14px;border-radius:999px;font-weight:800;font-size:var(--small-size);white-space:nowrap;background:#E9DFC6;border:1px solid var(--line)}
+.fam-level.is-green{background:#2F6B3A;color:#F4EFE3;border-color:#2F6B3A}
+.fam-level.is-yellow{background:#F0C23B;color:#0E2A20;border-color:#F0C23B}
+.fam-level.is-red{background:#E5604A;color:#fff;border-color:#E5604A}
+.fam-alert{margin:0;padding:10px 14px;border-radius:var(--radius-sm,8px);background:rgba(229,96,74,.12);border:1px dashed #E5604A}
+.fam-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-3)}
+.fam-stat{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--surface-deep);border:1px solid var(--line)}
+.fam-stat small{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-muted)}
+.fam-stat>b{font-family:var(--font-display);font-size:1.9rem;line-height:1.05;margin:0!important}
+.fam-stat em{font-style:normal;font-size:var(--small-size);color:var(--ink-muted);line-height:1.35}
+.fam-stat .well-ring{width:64px;height:64px;flex-basis:64px}
+.fam-stat .well-ring circle{stroke-width:11}
+.fam-stat .well-ring>span{position:absolute;inset:0;display:grid;place-items:center}
+.fam-stat .well-ring b{font-size:1.2rem;margin:0!important}
+.fam-bar{display:block;width:100%;height:8px;border-radius:999px;background:var(--line);overflow:hidden}
+.fam-bar i{display:block;height:100%;border-radius:999px;background:#2F6B3A}
+.fam-tabs{display:inline-flex;gap:4px;padding:4px;border-radius:999px;background:var(--surface-deep);border:1px solid var(--line);align-self:flex-start;flex-wrap:wrap}
+.fam-tabs button{padding:7px 16px;border:0;border-radius:999px;background:transparent;color:var(--ink-muted);font:inherit;font-weight:600;cursor:pointer;transition:background .2s ease,color .2s ease,transform .15s ease}
+.fam-tabs button:hover{color:var(--ink)}
+.fam-tabs button:active{transform:scale(.96)}
+.fam-tabs button[aria-selected=true]{background:#0F3B2C;color:#F4EFE3;font-weight:800}
+.fam-panel[hidden]{display:none}
+.fam-line{display:flex;gap:var(--space-3);margin:0 0 var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--surface-deep)}
+.fam-line>span:first-child{flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:50%;font-weight:800}
+.fam-line.is-good>span:first-child{background:#2F6B3A;color:#fff}.fam-line.is-next>span:first-child{background:#0F3B2C;color:#C8F03C}
+.fam-goal{margin:0 0 var(--space-3)}.fam-goal>div{display:flex;justify-content:space-between;gap:var(--space-3);margin-bottom:6px}
+.fam-comp{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap;margin:0 0 var(--space-3);padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);background:var(--surface-deep)}
+.fam-comp>div{flex:1;min-width:160px}.fam-comp small{display:block;color:var(--ink-muted)}
+.fam-when{padding:4px 12px;border-radius:999px;background:#0F3B2C;color:#C8F03C;font-weight:800;font-size:var(--small-size);white-space:nowrap}
+.fam-links{display:flex;flex-wrap:wrap;gap:var(--space-5);margin-top:auto}
+@media (prefers-reduced-motion:no-preference){
+  .fam-panel:not([hidden]){animation:fam-in .35s cubic-bezier(.2,.7,.2,1) both}
+  @keyframes fam-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .fam-bar i{animation:motion-grow 1.1s cubic-bezier(.2,.7,.2,1) .2s both}
+  .fam-stat{transition:transform .25s ease,box-shadow .25s ease}.fam-stat:hover{transform:translateY(-3px);box-shadow:0 10px 22px rgba(0,0,0,.18)}
+}

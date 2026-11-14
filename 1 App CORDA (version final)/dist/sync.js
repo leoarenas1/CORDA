@@ -196,6 +196,10 @@ function applyRows(rows){
     fillList(privateSent(id),rowsOf(id,'private_receipt').map(r=>r.data).sort((a,b)=>a.at-b.at));
   }
   // Torneos de todos los jugadores (solo lectura para coaches) y qué jugadores sigue cada coach.
+  if(syncCtx.role==='Tutor'){
+    state.playerTournaments={};
+    for(const id of syncPlayers())state.playerTournaments[id]=rowsOf(id,'competition').map(r=>r.data);
+  }
   if(syncCtx.staff){
     state.playerTournaments={};
     for(const id of syncPlayers())state.playerTournaments[id]=rowsOf(id,'competition').map(r=>r.data);
