@@ -221,7 +221,7 @@ function nextSessionCard(){
   const live=new Date(session.date+'T'+session.time)<=new Date();
   const day=live?'Sesión en curso':dateLabel(session.date,{weekday:'long',day:'numeric',month:'long'});
   return `<section class="next-card next-photo"><img class="activity-photo" src="assets/${sessionPhoto(session)}" alt="" onerror="this.hidden=true"><small>${esc(day)}</small><h3>${esc(session.type)} · ${esc(session.title)}</h3>
-  <p class="next-meta">${esc(session.time)} · ${esc(session.place)} · ${esc(sessionCoach(session))}</p>${session.players?.length?`<p class="private-note">${esc(sessionPrivateNote(session))}</p>`:''}<p>Lleva: ${esc(sessionGear(session))}</p>
+  <p class="next-meta">${esc(session.time)} · ${esc(session.place)}</p>${session.players?.length?`<p class="private-note">${esc(sessionPrivateNote(session))}</p>`:''}
   <div class="next-actions"><button class="next-confirm" data-confirm-session="${session.id}" aria-pressed="${st==='going'||st==='attended'}">${st==='attended'?'Asististe ✓':st==='absent'?'No asististe':st==='going'?'Asistencia confirmada':'Confirmar asistencia'}</button><button class="link" data-session="${session.id}">Ver sesión ↗</button></div>${att&&att.status==='going'&&att.name?`<p class="confirm-by">Confirmada por ${esc(att.name)}</p>`:''}</section>`;
 }
 function playerHome(){
