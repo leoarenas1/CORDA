@@ -1416,3 +1416,11 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   .next-card{padding:var(--space-4)}
   .next-card h3{font-size:1.25rem}
 }
+
+.mobile-only{display:none}
+@media (max-width:640px){
+  .mobile-only{display:block}.desk-only{display:none}
+  .portal-grid{display:grid;gap:var(--space-4)}
+  .shell main .card.quick-card,.shell main .next-card{margin-bottom:var(--space-4)}
+  .portal-grid>.next-card{margin-bottom:0}
+}
