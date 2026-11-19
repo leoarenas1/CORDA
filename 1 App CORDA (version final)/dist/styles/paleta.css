@@ -1,0 +1,116 @@
+/* CORDA · Paleta de TRES colores (propuesta, nov 2026)
+   Solo cambia colores y espacios. No toca textos, videos ni fotos.
+   Para volver a la paleta anterior: quitar la línea <link ... paleta.css> de index.html.
+
+   VERDE  (60 %) fondo, barra lateral, textos     #0F3B2C · #0A2920 · #1E6B4F · tintes claros
+   MARFIL (30 %) tarjetas                          #F7F4EC · #EDE7D4
+   LIMA   (10 %) solo la acción principal          #C8F03C
+
+   Escala de estado, solo con esos tres colores:
+     Bien              → verde claro   #D6E8C8
+     Más o menos       → marfil oscuro #EDE7D4
+     Necesita atención → verde intenso #1E6B4F (texto marfil)
+   Sin rojo, amarillo ni beige/arena. */
+
+:root,[data-theme]{
+  --arena:#F4EFE3;        /* antes beige: ahora marfil */
+  --danger:#C8F03C;       /* errores sobre verde: lima */
+}
+:root{
+  --card:#F7F4EC;         /* tarjeta */
+  --card-deep:#EDE7D4;    /* campos y bloques dentro de la tarjeta (marfil más oscuro) */
+  --card-line:rgba(15,59,44,.16);
+  --card-ink-muted:#4F6157;
+  --st-ok:#D6E8C8;  --st-ok-line:#A8D68A;  --st-ok-ink:#1E4D2B;  --st-ok-solid:#A8D68A;
+  --st-mid:#EDE7D4; --st-mid-line:#CFC8B0; --st-mid-ink:#0E2A20; --st-mid-solid:#CFC8B0;
+  --st-low:#1E6B4F; --st-low-ink:#F4EFE3;  --st-low-bright:#3FAE80;
+}
+
+/* ---------- Tarjetas ---------- */
+.shell main :is(.card,.agenda-main):not(.next-photo,.player-banner,.club-cover,.guide-video){
+  --surface:var(--card);--surface-raised:var(--card);--surface-deep:var(--card-deep);
+  --line:var(--card-line);--ink-muted:var(--card-ink-muted);--accent-text:#1E6B4F;
+  --danger:#0F3B2C;--arena:#EDE7D4;
+  --shadow-card:0 6px 20px rgba(4,20,14,.18);
+}
+#modal[data-theme="arena"],[data-theme="arena"]{--surface:var(--card);--surface-raised:var(--card);--surface-deep:var(--card-deep);--line:var(--card-line);--danger:#0F3B2C;--arena:#EDE7D4}
+
+/* ---------- Etiquetas y píldoras base ---------- */
+.fam-level{background:var(--st-mid);border-color:var(--st-mid-line);color:var(--st-mid-ink)}
+.imp-badge.is-low{background:var(--card-deep);border-color:var(--card-line)}
+.badge.clay{background:var(--st-mid);border-color:var(--st-mid-line);color:var(--st-mid-ink)}
+
+/* ---------- Semáforo del tutor ---------- */
+.fam-level.is-green{background:var(--st-ok);color:var(--st-ok-ink);border-color:var(--st-ok-line)}
+.fam-level.is-yellow{background:var(--st-mid);color:var(--st-mid-ink);border-color:var(--st-mid-line)}
+.fam-level.is-red{background:var(--st-low);color:var(--st-low-ink);border-color:var(--st-low)}
+.fam-alert{background:rgba(30,107,79,.08);border-color:var(--st-low)}
+.fam-bar i{background:var(--st-low)}
+.fam-line.is-good>span:first-child{background:var(--st-ok-solid);color:#0E2A20}
+.chip.is-ok{background:var(--st-ok);color:var(--st-ok-ink);border-color:var(--st-ok-line)}
+.chip.is-no{background:var(--st-low);color:var(--st-low-ink);border-color:var(--st-low)}
+
+/* ---------- Chequeo de bienestar del jugador ---------- */
+.well-alert.sev-high{border-color:var(--st-low);color:var(--st-low);background:rgba(30,107,79,.08)}
+.well-alert.sev-mid{border-color:var(--st-mid-line);color:var(--st-mid-ink);background:var(--st-mid)}
+.well-day.ok{background:var(--st-ok);border-color:var(--st-ok-line)}
+.well-day.mid{background:var(--st-mid);border-color:var(--st-mid-line)}
+.well-day.low{background:var(--st-low);border-color:var(--st-low)}
+.well-day.low small,.well-day.low b{color:var(--st-low-ink);opacity:1}
+.well-day.pain{border-color:var(--st-low);border-width:2px}
+.well-badge.sev-high,.well-badge.low{color:var(--st-low);font-weight:800}
+.well-badge.sev-mid,.well-badge.mid{color:var(--st-mid-ink)}
+.well-badge.ok{color:var(--st-ok-ink)}
+.well-bar.ok{fill:var(--st-ok-solid)}.well-bar.mid{fill:var(--st-mid-solid)}.well-bar.low{fill:var(--st-low)}
+.well-meter i.ok{background:var(--st-ok-solid)}.well-meter i.mid{background:var(--st-mid-solid)}.well-meter i.low{background:var(--st-low)}
+.follow-box.is-good{background:rgba(168,214,138,.22);border-color:var(--st-ok-line)}
+.follow-box.is-good .follow-icon{background:var(--st-ok-solid);color:#0E2A20}
+.follow-box.is-next{background:var(--st-mid);border-color:var(--st-mid-line)}
+.follow-box.is-next .follow-icon{background:var(--st-mid-solid);color:#0E2A20}
+.well-metrics>.is-key{background:var(--st-low);border-color:var(--st-low);box-shadow:0 8px 22px rgba(30,107,79,.3)}
+.ua-note,.ua-body{border-left-color:var(--st-low)}
+.ua-q{background:var(--st-low)}
+
+/* Anillos (sobre tarjeta clara) */
+.well-ring.is-ok{--ring:var(--st-ok-solid)}
+.well-ring.is-mid{--ring:var(--st-mid-solid)}
+.well-ring.is-low{--ring:var(--st-low)}
+.well-ring .ring-fg{filter:none}
+
+/* Anillos y chips sobre fondo verde oscuro (lista del coach, perfil) */
+.ring-ok,.ring-green{--ring:#A8D68A}
+.ring-mid,.ring-yellow{--ring:#F4EFE3}
+.ring-low,.ring-red{--ring:var(--st-low-bright)}
+.badge-red{background:var(--st-low-bright);color:#fff}
+.badge-yellow{background:#F4EFE3;color:#0E2A20}
+.badge-green{background:#A8D68A;color:#0E2A20}
+.pc-alert{background:var(--st-low-bright);color:#fff}
+.reason-red{color:#7FD3A5}.reason-yellow{color:#F4EFE3}.reason-green{color:#C5DDB4}
+.lg-red{--c:var(--st-low-bright)}.lg-yellow{--c:#F4EFE3}.lg-green{--c:#A8D68A}
+
+/* ---------- Estados de sesión, estrellas, clima, bitácora ---------- */
+.status-chip.is-cancelled{color:var(--st-mid-ink);background:var(--st-mid);border-color:var(--st-mid-line)}
+.imp-badge i{color:#C8F03C}
+.imp-badge.is-low i,.imp-btn i,.who-imp{color:#1E6B4F}
+.imp-btn[aria-pressed=true] i{color:#1E6B4F}
+.imp-badge.is-mid{background:var(--st-low)}
+.imp-badge.is-high{box-shadow:0 0 0 2px #C8F03C}
+.sun-rays line{stroke:#C8F03C}.sun-core{fill:#C8F03C}
+.diary-effort i.on{background:linear-gradient(90deg,#A8D68A,#1E6B4F)}
+.season-bands .is-trans,.is-trans{background:#EDE7D4;fill:#EDE7D4}
+
+/* Torneos y detalles que usaban café/beige sobre tarjeta: verde medio */
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.hub-down,.hub-tourney-dot,.hub-tourney span){color:#1E6B4F}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .chart-tourney line{stroke:#1E6B4F}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) :is(.chart-tourney circle,.hub-key.is-tourney){fill:#1E6B4F;background:#1E6B4F}
+:is([data-theme="arena"],.shell main .card,.shell main .agenda-main) .fee-dot.review{border-color:#1E6B4F;color:#1E6B4F}
+
+/* Rojo eliminado: borrar cuenta y alertas fuertes van en verde noche */
+.danger-link{color:#0A2920!important;font-weight:800}
+.btn.danger{background:#0A2920;color:#F4EFE3;border-color:#0A2920}
+
+/* ---------- Espacio entre tarjetas ---------- */
+.shell main :is(.card,.agenda-main)+:is(.card,.agenda-main){margin-top:var(--space-6)}
+.shell main :is(.columns,.portal-grid,.flow-week,.fam-progress,.fam-side,.video-grid){gap:var(--space-6)}
+.fam-side>.card{margin:0!important}
+.link.danger{color:#0A2920;font-weight:800}
