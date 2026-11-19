@@ -125,13 +125,31 @@ function academyBoard(){
    `;
 }
 function academyLocation(){
-  const group=groupData(),q=encodeURIComponent(group.address);
-  return `<section class="card" id="academic-map"><div class="row"><div><small class="eyebrow">Dónde entrenamos</small><h2>Ubicación de la academia</h2></div>${role==='Coach'?'<button id="edit-location" class="link">Editar sede</button>':''}</div>
-  ${group.address?`<p>${esc(group.address)}</p><iframe title="Mapa de ${esc(group.academy)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=${q}&amp;z=16&amp;output=embed"></iframe><a class="link" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/search/?api=1&amp;query=${q}">Abrir en Google Maps ↗</a>`:'<p class="hint">La academia aún no ha añadido su sede. El coach puede indicar la dirección para mostrar el mapa.</p>'}</section>`;
+  const group=groupData(),q=encodeURIComponent(group.address||'');
+  const src=t=>`https://maps.google.com/maps?q=${q}&z=17&t=${t}&output=embed`;
+  const pin='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.2A7 7 0 0 1 19 9.8C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.8" r="2.4"/></svg>';
+  const head=`<div class="row"><div><small class="eyebrow">Dónde entrenamos</small><h2>Ubicación de la academia</h2></div>${role==='Coach'?'<button id="edit-location" class="link">Editar sede</button>':''}</div>`;
+  if(!group.address)return `<section class="card" id="academic-map">${head}<p class="hint">La academia aún no ha añadido su sede. El coach puede indicar la dirección para mostrar el mapa.</p></section>`;
+  return `<section class="card place" id="academic-map" data-q="${esc(group.address)}">${head}
+  <div class="place-stage">
+    <iframe id="place-frame" title="Mapa de ${esc(group.academy)}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${src('m')}"></iframe>
+    <button type="button" class="place-wake" id="place-wake" aria-label="Tocar para mover el mapa"><span>Toca para explorar el mapa</span></button>
+    <div class="place-seg" role="group" aria-label="Tipo de mapa"><button type="button" aria-pressed="true" data-t="m">Mapa</button><button type="button" aria-pressed="false" data-t="k">Satélite</button></div>
+    <div class="place-info"><span class="place-pin">${pin}</span><div><strong>${esc(group.academy||'Tu academia')}</strong><small>${esc(group.address)}</small></div></div>
+  </div>
+  <div class="place-actions"><a class="btn lime" target="_blank" rel="noopener noreferrer" href="https://www.google.com/maps/dir/?api=1&destination=${q}">Cómo llegar</a><button type="button" class="btn" id="place-copy">Copiar dirección</button><a class="btn" target="_blank" rel="noopener noreferrer" href="https://maps.apple.com/?q=${q}">Apple Maps</a></div></section>`;
 }
 function bindAcademy(){
   if(page!=='team')return;
   const group=groupData();
+  const pl=$('#academic-map.place');
+  if(pl){
+    const fr=$('#place-frame'),stage=$('.place-stage'),qq=encodeURIComponent(pl.dataset.q);
+    $('#place-wake').onclick=()=>stage.classList.add('is-live');
+    stage.onmouseleave=()=>stage.classList.remove('is-live');
+    pl.querySelectorAll('.place-seg button').forEach(b=>b.onclick=()=>{pl.querySelectorAll('.place-seg button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));fr.src='https://maps.google.com/maps?q='+qq+'&z=17&t='+b.dataset.t+'&output=embed'});
+    $('#place-copy').onclick=()=>{(navigator.clipboard?navigator.clipboard.writeText(pl.dataset.q):Promise.reject()).then(()=>toast('Dirección copiada.')).catch(()=>toast(pl.dataset.q))};
+  }
   if($('#club-edit'))$('#club-edit').onclick=()=>editClub(group);
   const film=$('.academy-backdrop video');
   if(film){
