@@ -34,7 +34,7 @@ function lockCard(title,text){
 }
 function roleNav(){
   const labels=role==='Coach'?['Panel','Plan','Jugadores','Academia','Pagos']:role==='Tutor'?['Inicio','Agenda','Avances','Academia','Mensualidad']:['Inicio','Plan','Estado','Academia','Mensualidad'];
-  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'private-payments':'payments','wallet']].map(([id,i],n)=>[id,i,labels[n]]).filter(([id])=>!(id==='payments'&&minorPlayer()));
+  return [['home','home'],['calendar','calendar'],['goals','target'],['team','user'],[role==='Coach'?'private-payments':'payments','wallet']].map(([id,i],n)=>[id,i,labels[n]]).filter(([id])=>!(id==='payments'&&minorPlayer())).filter(([id])=>!(id==='goals'&&role==='Tutor'));
 }
 function pickRole(mode){
   entry='access';
@@ -301,7 +301,7 @@ function familyFollowCard(member){
     <div class="fam-panel" data-fam-panel="torneos" ${famTab==='torneos'?'':'hidden'}>
       ${comps.length?comps.map(c=>`<div class="fam-comp"><span class="fam-when">${days(c.date)}</span><div><b>${esc(c.name)}</b><small>${esc(c.place||'')}${c.mode?' · '+esc(c.mode):''}</small></div>${typeof impBadge==='function'?impBadge(c.priority):''}</div>`).join(''):`<p class="hint">${first} no tiene torneos próximos.</p>`}
     </div>
-    <div class="fam-links"><button class="link" data-page="goals">Ver avances ↗</button><button class="link" data-page="calendar">Ver plan y torneos ↗</button></div></section>`;
+    <div class="fam-links"><button class="link" data-page="calendar">Ver agenda ↗</button></div></section>`;
 }
 document.addEventListener('click',event=>{
   const b=event.target.closest?.('[data-fam-tab]');if(!b)return;
@@ -310,12 +310,26 @@ document.addEventListener('click',event=>{
   box.querySelectorAll('[data-fam-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
   box.querySelectorAll('[data-fam-panel]').forEach(p=>{p.hidden=p.dataset.famPanel!==famTab});
 });
+// Agenda del Tutor: solo qué días y a qué hora entrena su hijo, y si le toca Tenis o Físico.
+function familyAgenda(){
+  const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId)||{name:'tu jugador'};
+  const first=esc(String(member.name||'').trim().split(/\s+/)[0]||'tu jugador'),today=localDay();
+  const rows=[];
+  for(let i=0;i<14;i++){
+    const d=dateAfter(today,i),ev=sessionsFor(d);if(!ev.length)continue;
+    const label=i===0?'Hoy':i===1?'Mañana':dateLabel(d,{weekday:'long'});
+    rows.push(`<div class="fag-day"><div class="fag-date"><b>${esc(label)}</b><small>${esc(dateLabel(d,{day:'numeric',month:'short'}))}</small></div><div class="fag-list">${ev.map(s=>{
+      const phys=s.type==='Físico',st=sessionStatus(s),off=s.cancelled;
+      return `<button type="button" class="fag-item${off?' is-off':''}" data-session="${s.id}"><span class="fag-kind ${phys?'is-fisico':'is-tenis'}">${phys?'Físico':'Tenis'}</span><span class="fag-time">${esc(s.time)}</span><span class="fag-place">${esc(s.place||'')}</span>${off?`<span class="status-chip is-cancelled">${esc(st)}</span>`:''}</button>`}).join('')}</div></div>`);
+  }
+  return heading('Agenda de '+first,'Próximos 14 días')+`<section class="card fag">${rows.join('')||'<p class="hint">Todavía no hay entrenamientos programados.</p>'}</section>`+rainNotice();
+}
 function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
   const note=latestPlayerNote(athleteFor(member));
   return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy),'<div class="heading-actions">'+headingAvatar()+'</div>')+calendarBanner()+
     '<div class="portal-grid">'+nextSessionCard()+'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section></div>'+
-    '<div class="flow-week">'+familyFollowCard(member)+meetingCard()+'</div>'+rainNotice();
+    '<div class="flow-week">'+familyFollowCard(member)+meetingCard()+'</div>'+famGuideCard(athleteFor(member))+rainNotice();
 }
 function adultProfile(){
   const a=actor();
