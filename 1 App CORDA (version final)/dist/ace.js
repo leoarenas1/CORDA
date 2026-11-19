@@ -98,7 +98,10 @@ function add(who,html,actions=[]){
 }
 function showChips(){
   chips.innerHTML='';
-  suggestions().forEach(text=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=()=>ask(text);chips.appendChild(b)});
+  const track=document.createElement('div');track.className='ace-track';
+  const list=suggestions();
+  [0,1].forEach(copy=>list.forEach(text=>{const b=document.createElement('button');b.type='button';b.textContent=text;b.onclick=()=>ask(text);if(copy){b.tabIndex=-1;b.setAttribute('aria-hidden','true')}track.appendChild(b)}));
+  chips.appendChild(track);
 }
 function ask(text){
   const question=text.trim();if(!question)return;
