@@ -1452,3 +1452,16 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
   .place-pin{width:34px;height:34px}
   .place-actions .btn{flex:1 1 auto}
 }
+
+/* ---------- Racha ---------- */
+.mini-ball{display:inline-block;width:14px;height:14px;border-radius:50%;background:#C8F03C;vertical-align:-2px;box-shadow:inset 0 0 0 1.5px rgba(10,41,32,.55)}
+.heading-avatar{position:relative}
+.streak-badge{position:absolute;right:-6px;bottom:-4px;z-index:3;width:42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;border-radius:50%;background:#0A2920;border:2px solid #F4EFE3;box-shadow:0 4px 12px rgba(4,20,14,.4);color:#B4C4B8;pointer-events:none}
+.streak-badge svg{width:15px;height:15px;fill:currentColor;margin-top:1px;transform-origin:50% 90%}
+.streak-badge b{font-family:var(--font-display);font-size:.95rem;line-height:1;color:#F4EFE3;font-variant-numeric:tabular-nums;margin-top:-1px}
+.streak-badge.is-lit svg{color:#E5483A;filter:drop-shadow(0 0 4px rgba(229,72,58,.6))}
+@media(max-width:680px){.streak-badge{width:36px;height:36px;right:-6px;bottom:-4px}.streak-badge svg{width:13px;height:13px}.streak-badge b{font-size:.85rem}}
+@media (prefers-reduced-motion:no-preference){.streak-badge.is-lit svg{animation:sk-flicker 1.3s ease-in-out infinite}@keyframes sk-flicker{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.2) rotate(4deg)}}}
+/* Racha encendida: aro naranja suave (único toque de color fuera de la paleta) */
+.streak-badge.is-lit{border-color:#F58A2A;box-shadow:0 4px 12px rgba(4,20,14,.4),0 0 9px rgba(245,138,42,.45)}
+.streak-badge.is-lit svg{color:#F2552C;filter:none}

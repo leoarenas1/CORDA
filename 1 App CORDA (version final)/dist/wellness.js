@@ -196,15 +196,30 @@ function wellnessPanel(id,name,self){
     ${uaNote(load,self)}
     <p class="hint">Son datos orientativos para platicar con tu coach, no un diagnóstico médico.</p></section>`;
 }
+// Racha de chequeos: días seguidos respondiendo. Si hoy aún no respondes, no se rompe hasta que pase el día.
+function wellStreak(id){
+  const rec=wellPeek(id),ok=d=>{const r=rec[d];return !!r&&readiness(r)!==null};
+  const today=localDay(),doneToday=ok(today);
+  let cur=0;for(let i=doneToday?0:1;i<400;i++){if(ok(dateAfter(today,-i)))cur++;else break}
+  const days=Object.keys(rec).filter(ok).sort();let best=0,run=0,prev=null;
+  days.forEach(d=>{run=prev&&dateAfter(prev,1)===d?run+1:1;prev=d;if(run>best)best=run});
+  const week=Array.from({length:7},(_,k)=>{const d=dateAfter(today,k-6);return {d,ok:ok(d),today:k===6,label:new Date(d+'T12:00:00').toLocaleDateString('es-MX',{weekday:'narrow'})}});
+  return {cur,best:Math.max(best,cur),doneToday,week};
+}
+const FLAME_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.6 3.2 4.5 5.1 4.5 9.6A4.5 4.5 0 0 1 12 16.2a4.5 4.5 0 0 1-4.5-4.6c0-1.6.7-2.8 1.6-3.8.2 1.2.8 2 1.6 2.3C10.2 7.6 10.6 4.6 12 2zM12 22a6 6 0 0 1-6-6c1.7 1.6 3.6 2.2 6 2.2s4.3-.6 6-2.2a6 6 0 0 1-6 6z"/></svg>';
+// Bola de racha en la esquina inferior derecha de la burbuja de perfil (solo jugadores).
+function streakBadge(){
+  if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
+  const st=wellStreak(state.profile.memberId),label=st.cur===1?'día seguido':'días seguidos';
+  return `<span class="streak-badge${st.cur?' is-lit':''}${st.doneToday?' is-done':''}" title="Racha de chequeos: ${st.cur} ${label}" role="img" aria-label="Racha de chequeos: ${st.cur} ${label}">${FLAME_SVG}<b>${st.cur}</b></span>`;
+}
 // Cuando ya hiciste el chequeo de hoy: solo queda un anillo chico con tu preparación y la racha, junto a tu foto de perfil.
 function wellnessMini(){
   if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
   const rec=wellPeek(state.profile.memberId),done=rec[localDay()],score=done?readiness(done):null;
   if(score===null)return '';
-  let streak=0;
-  for(let i=0;i<400;i++){const d=dateAfter(localDay(),-i),r=rec[d];if(r&&readiness(r)!==null)streak++;else break}
   const cls=wellClass(score),title=cls==='ok'?'Listo para entrenar':cls==='mid'?'Ve con calma hoy':'Hoy toca cuidarte';
-  return `<button type="button" class="well-mini" data-open-wellness title="${title} · toca para editar tu chequeo de hoy" aria-label="Chequeo de hoy: ${score} de 100. ${title}. Toca para editarlo."><span class="well-ring is-${cls}" style="--score:${score}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><span><b data-count>${score}</b></span></span>${streak>1?`<span class="well-streak"><i class="flame">🔥</i> ${streak}</span>`:''}</button>`;
+  return `<button type="button" class="well-mini" data-open-wellness title="${title} · toca para editar tu chequeo de hoy" aria-label="Chequeo de hoy: ${score} de 100. ${title}. Toca para editarlo."><span class="well-ring is-${cls}" style="--score:${score}"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="ring-bg" cx="50" cy="50" r="44"/><circle class="ring-fg" cx="50" cy="50" r="44" pathLength="100"/></svg><span><b data-count>${score}</b></span></span></button>`;
 }
 function wellnessBanner(){
   if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';

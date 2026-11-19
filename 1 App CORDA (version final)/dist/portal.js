@@ -338,7 +338,7 @@ function calendarPage() {
 // Foto de perfil de quien inició sesión, a la derecha del título de Inicio. Lleva a «Perfil».
 function headingAvatar(){
   const me=actor()||state.profile;
-  return `<button type="button" class="heading-avatar" data-page="profile" aria-label="Mi perfil" title="Mi perfil">${avatar(me)}<svg class="avatar-ring" viewBox="-80 -80 160 160" aria-hidden="true" focusable="false"><defs><path id="ring-arc" d="M -69 0 A 69 69 0 0 1 69 0"/></defs><text><textPath href="#ring-arc" startOffset="50%" text-anchor="middle">Mi perfil</textPath></text></svg></button>`;
+  return `<button type="button" class="heading-avatar" data-page="profile" aria-label="Mi perfil" title="Mi perfil">${avatar(me)}<svg class="avatar-ring" viewBox="-80 -80 160 160" aria-hidden="true" focusable="false"><defs><path id="ring-arc" d="M -69 0 A 69 69 0 0 1 69 0"/></defs><text><textPath href="#ring-arc" startOffset="50%" text-anchor="middle">Mi perfil</textPath></text></svg>${typeof streakBadge==='function'?streakBadge():''}</button>`;
 }
 
 // ---------- Torneos: añadir, editar y quitar ----------
