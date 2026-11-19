@@ -114,3 +114,14 @@
 .shell main :is(.columns,.portal-grid,.flow-week,.fam-progress,.fam-side,.video-grid){gap:var(--space-6)}
 .fam-side>.card{margin:0!important}
 .link.danger{color:#0A2920;font-weight:800}
+
+/* ---------- Jugador: tarjetas de chequeo iguales al resto (marfil) ---------- */
+.shell main .card.quick-card:not(.next-photo){
+  --surface:var(--card);--surface-raised:var(--card);--surface-deep:var(--card-deep);
+  --ink:#0E2A20;--ink-muted:var(--card-ink-muted);--line:var(--card-line);--accent-text:#1E6B4F;
+  background:var(--card);color:#0E2A20;border:1px solid var(--card-line);box-shadow:0 6px 20px rgba(4,20,14,.18);
+}
+.quick-card::before{display:none}
+.quick-card .quick-icon{background:#0F3B2C}
+.quick-card .quick-steps span{background:var(--card-deep);border-color:var(--card-line);color:#0E2A20}
+.quick-card .eyebrow{color:var(--card-ink-muted)}
