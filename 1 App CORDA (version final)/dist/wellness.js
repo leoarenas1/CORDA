@@ -207,6 +207,23 @@ function wellStreak(id){
   return {cur,best:Math.max(best,cur),doneToday,week};
 }
 const FLAME_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c.6 3.2 4.5 5.1 4.5 9.6A4.5 4.5 0 0 1 12 16.2a4.5 4.5 0 0 1-4.5-4.6c0-1.6.7-2.8 1.6-3.8.2 1.2.8 2 1.6 2.3C10.2 7.6 10.6 4.6 12 2zM12 22a6 6 0 0 1-6-6c1.7 1.6 3.6 2.2 6 2.2s4.3-.6 6-2.2a6 6 0 0 1-6 6z"/></svg>';
+// Pantalla de celebración al terminar el chequeo: racha en grande, se quita sola a los 4 s o con un toque.
+function showStreakCelebration(id){
+  document.getElementById('streak-cele')?.remove();
+  const st=wellStreak(id),n=st.cur;if(!n)return;
+  const milestones={3:'¡Tres días seguidos!',7:'¡Una semana completa!',14:'¡Dos semanas sin fallar!',30:'¡Un mes entero!',60:'¡Dos meses de constancia!',100:'¡100 días! Leyenda.'};
+  const phrases=['¡Empezó tu racha! Mañana, otra vez.','Sigue así.','Constancia: así se construye un jugador.','Un día más. Tu coach lo nota.','Esto es hábito de campeón.'];
+  const line=milestones[n]||(n===1?phrases[0]:phrases[1+(n%(phrases.length-1))]);
+  const dots=Array.from({length:n in milestones?22:12},(_,i)=>{const a=Math.random()*360,d=90+Math.random()*130;return `<i style="--x:${Math.round(Math.cos(a*Math.PI/180)*d)}px;--y:${Math.round(Math.sin(a*Math.PI/180)*d)}px;--s:${(0.5+Math.random()*0.9).toFixed(2)};--t:${(Math.random()*0.25).toFixed(2)}s"></i>`}).join('');
+  const el=document.createElement('div');el.id='streak-cele';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+  el.innerHTML=`<div class="cele-burst" aria-hidden="true">${dots}</div>
+    <div class="cele-ball" aria-hidden="true">${FLAME_SVG}<b>${n}</b></div>
+    <h2>${n===1?'1 día seguido':n+' días seguidos'}</h2><p>${line}</p><small>Toca para continuar</small>`;
+  const close=()=>{if(!el.isConnected)return;el.classList.add('is-out');setTimeout(()=>el.remove(),350);document.removeEventListener('keydown',esc)};
+  const esc=e=>{if(e.key==='Escape'||e.key==='Enter')close()};
+  el.addEventListener('click',close);document.addEventListener('keydown',esc);
+  document.body.appendChild(el);setTimeout(close,4200);
+}
 // Bola de racha en la esquina inferior derecha de la burbuja de perfil (solo jugadores).
 function streakBadge(){
   if(role!=='Jugador'||entry!=='app'||!state.profile?.memberId)return '';
@@ -274,6 +291,7 @@ function openWellness(){
       if(!(hours>=0&&hours<=14)){toast('Escribe entre 0 y 14 horas de sueño.');return false}
       wellRecords(id)[today]={sleepH:hours,sleepQ:Number(data.sleepQ),energy:Number(data.energy),mood:Number(data.mood),soreness:Number(data.soreness),stress:Number(data.stress),
         pain:data.area?[{area:data.area,level:Number(data.painLevel)||1}]:[],note:data.area?String(data.note||'').trim():'',at:Date.now()};
+      if(!old.at)setTimeout(()=>showStreakCelebration(id),450); // solo la primera vez del día
     },'Guardar chequeo');
   bindPainFields();
 }
