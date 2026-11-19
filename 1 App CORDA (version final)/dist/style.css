@@ -1505,3 +1505,61 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .fag-place{color:var(--ink-muted);font-size:var(--small-size)}
 .fag-item.is-off{opacity:.75}
 @media(max-width:680px){.fag-day{grid-template-columns:78px 1fr}}
+
+/* ---------- Sesión creada: pelota que rebota y aterriza ---------- */
+#sess-cele{position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:var(--space-2);padding:var(--space-6);text-align:center;background:rgba(10,41,32,.92);backdrop-filter:blur(10px);color:#F4EFE3;cursor:pointer;animation:cele-in .3s ease both;overflow:hidden}
+#sess-cele.is-out{animation:cele-out .3s ease both}
+#sess-cele h2{font-size:var(--h1-size);line-height:var(--h1-line);margin-top:var(--space-6)}
+#sess-cele p{margin:0}
+.sc-what{font-size:var(--body-lg-size);font-weight:600}
+.sc-when{color:#B4C4B8}.sc-when::first-letter{text-transform:uppercase}
+.sc-msg{margin-top:var(--space-3)!important;color:#C8F03C;font-weight:600;font-size:var(--body-lg-size)}
+.sc-count{color:#B4C4B8}
+.sc-next{margin-top:var(--space-6)}
+.sc-done{color:#B4C4B8!important;margin-top:var(--space-2)}
+.sc-stage{position:relative;width:min(560px,100%);height:190px}
+.sc-line{position:absolute;left:0;right:0;bottom:34px;height:3px;border-radius:3px;background:linear-gradient(90deg,transparent,rgba(244,239,227,.55) 20%,rgba(244,239,227,.55) 80%,transparent)}
+.sc-fly{position:absolute;left:50%;bottom:34px;width:34px;height:34px;margin:0 0 -3px -17px}
+.sc-ball{display:block;width:100%;height:100%}
+.sc-ball svg{width:100%;height:100%}
+.sc-ball circle{fill:#C8F03C;stroke:#0F3B2C;stroke-width:2}
+.sc-ball path{fill:none;stroke:#0F3B2C;stroke-width:3;stroke-linecap:round;opacity:.6}
+.sc-g1{opacity:.55}.sc-g2{opacity:.3}.sc-g3{opacity:.15}
+.sc-ripple{position:absolute;left:50%;bottom:34px;width:34px;height:34px;margin:0 0 -3px -17px;border-radius:50%;border:2px solid #C8F03C;opacity:0}
+.sc-check{position:absolute;left:50%;bottom:20px;width:62px;height:62px;margin-left:-31px;display:grid;place-items:center;border-radius:50%;background:#C8F03C;opacity:0;transform:scale(.3)}
+.sc-check svg{width:32px;height:32px;fill:none;stroke:#0A2920;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+@media (prefers-reduced-motion:no-preference){
+  .sc-fly{animation:sc-x 1.55s cubic-bezier(.2,.6,.3,1) both,sc-y 1.55s linear both,sc-hide .01s linear 1.5s forwards}
+  .sc-g1{animation-delay:.05s,.05s,1.55s}.sc-g2{animation-delay:.1s,.1s,1.6s}.sc-g3{animation-delay:.15s,.15s,1.65s}
+  .sc-fly .sc-ball{animation:sc-spin 1.55s linear both}
+  .sc-ripple{animation:sc-ripple 1s ease-out 1.45s both}.sc-ripple.r2{animation-delay:1.65s}
+  .sc-check{animation:sc-check .5s cubic-bezier(.2,1.5,.4,1) 1.5s both}
+  #sess-cele h2,.sc-what,.sc-when,.sc-msg,.sc-count,.sc-next,.sc-done{animation:cele-up .5s ease both}
+  #sess-cele h2{animation-delay:1.55s}.sc-what{animation-delay:1.65s}.sc-when{animation-delay:1.7s}.sc-msg{animation-delay:1.85s}.sc-count{animation-delay:1.95s}.sc-next{animation-delay:2.1s}.sc-done{animation-delay:2.2s}
+  .sc-next{animation:cele-up .5s ease 2.1s both,sc-pulse 1.8s ease-in-out 2.7s infinite}
+  @keyframes sc-x{from{transform:translateX(-46vw)}to{transform:translateX(0)}}
+  @keyframes sc-y{0%{transform:translateY(-150px);animation-timing-function:cubic-bezier(.5,0,1,.5)}
+    34%{transform:translateY(0);animation-timing-function:cubic-bezier(0,.5,.5,1)}
+    55%{transform:translateY(-62px);animation-timing-function:cubic-bezier(.5,0,1,.5)}
+    73%{transform:translateY(0);animation-timing-function:cubic-bezier(0,.5,.5,1)}
+    86%{transform:translateY(-20px);animation-timing-function:cubic-bezier(.5,0,1,.5)}
+    100%{transform:translateY(0)}}
+  @keyframes sc-spin{to{transform:rotate(720deg)}}
+  @keyframes sc-hide{to{opacity:0;visibility:hidden}}
+  @keyframes sc-ripple{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(7)}}
+  @keyframes sc-check{to{opacity:1;transform:scale(1)}}
+  @keyframes sc-pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,240,60,.4)}50%{box-shadow:0 0 0 10px rgba(200,240,60,0)}}
+}
+@media (prefers-reduced-motion:reduce){.sc-fly{display:none}.sc-check{opacity:1;transform:none}}
+
+/* ---------- Coach responsable: botones para elegir ---------- */
+.coach-pick{margin:0;padding:0;border:0;min-width:0}
+.coach-pick legend{padding:0;margin-bottom:var(--space-2);font-size:var(--label-size);line-height:var(--label-line);font-weight:var(--label-weight)}
+.coach-pick-list{display:flex;flex-wrap:wrap;gap:var(--space-2)}
+.coach-chip{position:relative;display:block}
+.coach-chip input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.coach-chip span{display:inline-flex;align-items:center;gap:var(--space-1);min-height:48px;padding:0 var(--space-4);border:1px solid var(--line);border-radius:var(--radius-pill);background:var(--surface-deep);font-weight:600;cursor:pointer}
+.coach-chip small{font-weight:400;color:var(--ink-muted)}
+.coach-chip input:checked+span{background:#0F3B2C;border-color:#0F3B2C;color:#F4EFE3}
+.coach-chip input:checked+span small{color:#C8F03C}
+.coach-chip input:focus-visible+span{outline:2px solid var(--focus-ring);outline-offset:2px}

@@ -147,6 +147,14 @@ function sessionPrivateNote(s){
   const names=s.players.map(id=>(state.directory||[]).find(m=>m.id===id)?.name||'Jugador');
   return 'Clase particular · '+(role==='Tutor'?'para '+names[0]:names.join(', '));
 }
+// «Coach responsable»: botones con los coaches registrados en la academia (un toque). Sin lista, queda el campo de texto.
+function sessionCoachPicker(){
+  const academy=state.profile?.academy,me=actor()?.name||'';
+  const names=[...new Set([me,...(state.directory||[]).filter(m=>['Coach','Director'].includes(m.role)&&m.academy===academy).map(m=>m.name)].filter(Boolean))];
+  if(names.length<1)return field('Coach responsable','coach');
+  const first=names.includes(me)?me:names[0];
+  return '<fieldset class="full coach-pick"><legend>Coach responsable</legend><div class="coach-pick-list">'+names.map(n=>'<label class="coach-chip"><input type="radio" name="coach" value="'+esc(n)+'" '+(n===first?'checked':'')+' required><span>'+esc(n)+(n===me?' <small>· Tú</small>':'')+'</span></label>').join('')+'</div></fieldset>';
+}
 function sessionPlayerPicker(){
   const members=typeof academyPlayers==='function'&&actor()?academyPlayers(actor().academy):[];
   if(!members.length)return '';
@@ -381,4 +389,27 @@ document.addEventListener('click',event=>{
 function tennisSessions(){
   const today=localDay(),monday=dateAfter(today,-((new Date(today+'T12:00:00').getDay()+6)%7));
   return state.sessions.filter(s=>s.type==='Tenis'&&String(s.date)>=monday).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+}
+
+// ---------- Sesión creada: una pelota entra de saque, rebota en la línea y aterriza ----------
+function showSessionCelebration(sess){
+  if(role!=='Coach'||!sess)return;
+  document.getElementById('sess-cele')?.remove();
+  const mon=d=>{const x=new Date(d+'T12:00:00');return dateAfter(d,-((x.getDay()+6)%7))};
+  const wk=mon(sess.date),inWeek=state.sessions.filter(x=>x.date&&mon(x.date)===wk&&!x.cancelled).length;
+  const when=dateLabel(sess.date,{weekday:'long',day:'numeric',month:'long'})+' · '+sess.time;
+  const lines=['Tus jugadores ya la ven en su plan.','Lista. Cada sesión cuenta.','Todo en orden: a entrenar.','Buen saque: una más en el plan.'];
+  const line=lines[inWeek%lines.length];
+  const ball='<span class="sc-ball"><svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30"/><path d="M9 14c13 9 13 27 0 36"/><path d="M55 14c-13 9-13 27 0 36"/></svg></span>';
+  const el=document.createElement('div');el.id='sess-cele';el.setAttribute('role','status');el.setAttribute('aria-live','polite');
+  el.innerHTML=`<div class="sc-stage" aria-hidden="true"><i class="sc-line"></i>
+      <span class="sc-fly sc-g3">${ball}</span><span class="sc-fly sc-g2">${ball}</span><span class="sc-fly sc-g1">${ball}</span><span class="sc-fly">${ball}</span>
+      <i class="sc-ripple"></i><i class="sc-ripple r2"></i><span class="sc-check"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+    <h2>Sesión creada</h2><p class="sc-what">${esc(sess.type||'Tenis')} · ${esc(sess.title||'')}</p><p class="sc-when">${esc(when)}</p>
+    <p class="sc-msg">${esc(line)}</p><small class="sc-count">${inWeek===1?'1 sesión':inWeek+' sesiones'} esta semana</small>
+    <button type="button" class="btn lime sc-next">Toca para crear la siguiente</button><button type="button" class="link sc-done">Listo por ahora</button>`;
+  const close=(next)=>{if(!el.isConnected)return;document.removeEventListener('keydown',onKey);el.classList.add('is-out');setTimeout(()=>{el.remove();if(next)document.querySelector('#newsession')?.click()},300)};
+  const onKey=e=>{if(e.key==='Escape')close(false)};
+  el.addEventListener('click',e=>close(!e.target.closest('.sc-done')));
+  document.addEventListener('keydown',onKey);document.body.appendChild(el);
 }
