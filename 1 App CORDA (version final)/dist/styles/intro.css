@@ -1,0 +1,109 @@
+/* CORDA · Intro de la app (4 versiones: web, cancha, pelota, letras). Usa solo verde, marfil y lima. */
+.ci{position:fixed;inset:0;z-index:10000;overflow:hidden;color:#F4EFE3;font-family:"Space Grotesk","Helvetica Neue",Arial,sans-serif;-webkit-tap-highlight-color:transparent;cursor:pointer}
+.ci-bg{position:absolute;inset:0;background:#0A2920}
+.ci-bg::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(30,107,79,.5),transparent 64%)}
+.ci-stage{position:absolute;inset:0;display:grid;place-items:center}
+.ci-center{position:relative;display:grid;justify-items:center;gap:24px}
+.ci-word{display:flex;align-items:baseline;font-weight:700;font-size:clamp(60px,19vw,170px);line-height:1;letter-spacing:-.02em;text-transform:uppercase;color:#F4EFE3}
+.ci-word .cl{display:block;padding-top:.06em;opacity:0;will-change:transform,opacity,filter}
+.cdot{display:block;position:relative;width:.3em;height:.3em;margin-left:.07em;transform-origin:50% 100%}
+.cdot svg,.ci-fly svg{display:block;width:100%;height:100%;overflow:visible}
+.ci-tag{font:500 14px/20px "DM Sans","Helvetica Neue",Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#B4C4B8;opacity:0;text-align:center}
+.ci-skip{position:absolute;z-index:5;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));background:none;border:1px solid rgba(244,239,227,.28);color:#B4C4B8;border-radius:12px;min-height:40px;padding:0 16px;font:600 14px/20px "DM Sans","Helvetica Neue",Arial,sans-serif;cursor:pointer}
+.ci-skip:hover{color:#F4EFE3;border-color:rgba(244,239,227,.6)}
+.ci-ring{position:absolute;pointer-events:none;border:2px solid #C8F03C;border-radius:50%}
+.ci-fly{position:absolute;pointer-events:none;will-change:transform}
+.ci-trail{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.ci-trail path{fill:none;stroke:#C8F03C;stroke-width:2;stroke-linecap:round;opacity:.85}
+.seam{opacity:1}
+.ci-flash{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,#F4EFE3 0%,#E4FF7A 38%,#C8F03C 70%)}
+
+/* ---------- 3D · Cancha ---------- */
+.ci-scene{position:absolute;inset:0;perspective:900px;perspective-origin:50% 38%;overflow:hidden}
+.ci-world{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.ci-court{position:absolute;left:-550px;top:200px;width:1100px;height:2377px;transform-origin:50% 0;transform:rotateX(-90deg);
+  background:linear-gradient(0deg,#25775A 0%,#1E6B4F 50%,#175640 100%);box-shadow:0 0 0 500px #0E3426}
+.ci-court::after{content:'';position:absolute;inset:0;opacity:.32;mix-blend-mode:multiply;background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23n)'/%3E%3C/svg%3E")}
+.ci-court svg{display:block;width:100%;height:100%;position:relative;z-index:1}
+.ci-net{position:absolute;left:-640px;top:109px;width:1280px;height:91px;transform:translateZ(-1188px);
+  background:linear-gradient(#F4EFE3 0 9px,transparent 9px),repeating-linear-gradient(90deg,rgba(244,239,227,.5) 0 2px,transparent 2px 14px),repeating-linear-gradient(0deg,rgba(244,239,227,.5) 0 2px,rgba(10,41,32,.55) 2px 14px)}
+.ci-ball3,.ci-shadow,.ci-bounce{position:absolute;left:0;top:0;will-change:transform}
+.ci-ball3{width:56px;height:56px;margin:-28px 0 0 -28px}
+.ci-ball3 svg{display:block;width:100%;height:100%}
+.ci-shadow{width:60px;height:60px;margin:-30px 0 0 -30px;border-radius:50%;background:radial-gradient(circle,rgba(0,0,0,.55),transparent 70%)}
+.ci-bounce{width:120px;height:120px;margin:-60px 0 0 -60px;border-radius:50%;border:3px solid #C8F03C;opacity:0}
+.ci-final{perspective:800px}
+
+/* ---------- 3D · Pelota ---------- */
+.ci-orb{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
+.ci-orb canvas{position:absolute;left:0;top:0;display:block;transform:translate(-50%,-50%)}
+.ci-glow{position:absolute;left:0;top:0;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(200,240,60,.42),rgba(200,240,60,0) 68%)}
+.ci-orbit{position:absolute;left:0;top:0;border:1.5px solid rgba(200,240,60,.7);border-radius:50%;transform:translate(-50%,-50%) rotateX(72deg)}
+.ci-rush{perspective:700px}
+
+/* ---------- 3D · Letras ---------- */
+.ci-persp{position:absolute;inset:0;display:grid;place-items:center;perspective:900px;perspective-origin:50% 45%}
+.ci-par{transform-style:preserve-3d;will-change:transform}
+.ci-w3{display:flex;align-items:baseline;position:relative;transform-style:preserve-3d;font-weight:700;font-size:clamp(60px,19vw,170px);line-height:1;letter-spacing:-.02em;text-transform:uppercase}
+.l3{position:relative;display:inline-block;padding-top:.06em;transform-style:preserve-3d;opacity:0}
+.l3 i{font-style:normal;display:block;position:absolute;left:0;top:.06em;white-space:nowrap}
+.l3 i.f{position:relative;top:0;color:#F4EFE3;background:linear-gradient(105deg,transparent 0 40%,rgba(255,255,255,.95) 50%,transparent 60% 100%) 120% 0/250% 100% no-repeat,#F4EFE3;-webkit-background-clip:text;background-clip:text}
+.l3 i.f.glint{animation:ci-glint 1.1s ease-out forwards}
+@keyframes ci-glint{to{background-position:-60% 0}}
+.l3 i.f{-webkit-text-fill-color:transparent}
+.ci-w3 .cdot{transform-style:preserve-3d}
+.ci-bit{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);border-radius:50%;background:#C8F03C;opacity:0;box-shadow:0 0 18px rgba(200,240,60,.55)}
+
+/* ---------- Pantalla de demostración ---------- */
+.ci-demo{min-height:100vh;display:grid;place-content:center;gap:20px;justify-items:center;background:#0F3B2C;color:#F4EFE3;font-family:"DM Sans",Arial,sans-serif;padding:24px;text-align:center}
+.ci-demo h1{font:700 2rem/1.1 "Space Grotesk",Arial,sans-serif;margin:0}
+.ci-demo p{margin:0;color:#B4C4B8;max-width:36ch}
+.ci-demo .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.ci-demo button{background:#C8F03C;color:#0A2920;border:0;border-radius:12px;min-height:46px;padding:0 18px;font:700 15px "DM Sans",Arial,sans-serif;cursor:pointer}
+
+/* Cancha realista: red con postes, niebla al fondo, viñeta, polvo y sombra suave */
+.ci-net::before,.ci-net::after{content:'';position:absolute;top:-8px;width:12px;height:104px;background:linear-gradient(90deg,#2a3b33,#5b6b62 50%,#2a3b33);border-radius:3px}
+.ci-net::before{left:0}.ci-net::after{right:0}
+.ci-scene::after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 52%,transparent 52%,rgba(0,0,0,.5) 100%)}
+.ci-court{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 62%,transparent 97%);mask-image:linear-gradient(180deg,#000 0,#000 62%,transparent 97%)}
+.ci-ball3 canvas{display:block;width:100%;height:100%}
+.ci-shadow{background:radial-gradient(circle,rgba(0,0,0,.6),rgba(0,0,0,.25) 45%,transparent 72%)}
+.ci-dustbox{position:absolute;left:0;top:0;transform-style:preserve-3d}
+.ci-dust{position:absolute;left:0;top:0;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:radial-gradient(circle,rgba(244,239,227,.5),rgba(244,239,227,0) 70%);opacity:0}
+.ci-flash{background:radial-gradient(circle at 50% 50%,rgba(244,239,227,.55) 0%,rgba(244,239,227,.18) 38%,transparent 70%)}
+
+/* Marcador de letras que giran */
+.ci-board{display:flex;gap:.05em;font-weight:700;font-size:clamp(52px,16vw,150px);line-height:1;text-transform:uppercase;color:#F4EFE3}
+.fl{position:relative;width:.74em;height:1.1em;perspective:520px}
+.fl-h{position:absolute;left:0;width:100%;height:50%;overflow:hidden;background:#164A38;backface-visibility:hidden;will-change:transform}
+.fl-h b{position:absolute;left:0;width:100%;height:200%;display:grid;place-items:center;font-weight:700}
+.fl-top,.fl-ft{top:0;border-radius:.09em .09em 0 0;box-shadow:inset 0 -1px 0 rgba(0,0,0,.35)}
+.fl-bot,.fl-fb{top:50%;border-radius:0 0 .09em .09em}
+.fl-bot b,.fl-fb b{top:-100%}
+.fl-ft{transform-origin:50% 100%;z-index:3}
+.fl-fb{transform-origin:50% 0;transform:rotateX(90deg);z-index:3}
+.fl-ball{position:absolute;left:50%;top:.6em;width:.3em;height:.3em;margin-left:-.15em;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E4FF7A,#C8F03C 60%,#93B921);display:block}
+
+/* Salida de lujo: persianas que se abren desde una línea de luz */
+.ci-shut{position:absolute;left:0;right:0;height:50%;overflow:hidden;will-change:transform;background:#0A2920}
+.ci-shut.t{top:0;box-shadow:0 1px 0 rgba(200,240,60,.55),0 6px 26px rgba(200,240,60,.18)}
+.ci-shut.b{bottom:0;box-shadow:0 -1px 0 rgba(200,240,60,.55),0 -6px 26px rgba(200,240,60,.18)}
+.ci-shut-in{position:absolute;left:0;right:0;overflow:hidden}
+.ci-shut-in .ci-stage{position:absolute;inset:0}
+.ci-seam{position:absolute;left:0;right:0;top:calc(50% - 1px);height:2px;pointer-events:none;background:linear-gradient(90deg,transparent,#C8F03C 18%,#F4EFE3 50%,#C8F03C 82%,transparent);box-shadow:0 0 18px 2px rgba(200,240,60,.55);opacity:0}
+
+/* Versión clara (Puntos): fondo marfil, canicas y letras en verde */
+.ci.ci-light{color:#0F3B2C}
+.ci-light .ci-bg{background:radial-gradient(ellipse at 50% 44%,#FAF7F0 0%,#F4EFE3 58%,#E9E3D1 100%)}
+.ci-light .ci-bg::after{display:none}
+.ci-light .ci-tag{color:#4F6157}
+.ci-light .ci-skip{color:#1E6B4F;border-color:rgba(15,59,44,.3)}
+.ci-light .ci-skip:hover{color:#0F3B2C;border-color:rgba(15,59,44,.6)}
+.ci-light .ci-ring{border-color:#1E6B4F}
+.ci-light .ci-shut{background:#F4EFE3}
+.ci-light .ci-shut.t{box-shadow:0 1px 0 rgba(15,59,44,.55),0 8px 30px rgba(15,59,44,.16)}
+.ci-light .ci-shut.b{box-shadow:0 -1px 0 rgba(15,59,44,.55),0 -8px 30px rgba(15,59,44,.16)}
+.ci-light .ci-seam{background:linear-gradient(90deg,transparent,#1E6B4F 18%,#0F3B2C 50%,#1E6B4F 82%,transparent);box-shadow:0 0 16px 2px rgba(30,107,79,.35)}
+
+/* Fondo plano (sin brillo en el centro) */
+.ci-flat .ci-bg::after{display:none}
