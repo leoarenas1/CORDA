@@ -255,17 +255,17 @@
     // emparejar por x (canicas en la espiral ↔ lugares en la letra) → trayectorias que casi no se cruzan
     const lt = P.filter(p => !p.t.lima), tl = lt.map(p => p.t).sort((a, b) => a.x - b.x), spiral = [...lt].sort((a, b) => base(a, 2000)[0] - base(b, 2000)[0]);
     spiral.forEach((p, k) => { p.t = tl[k]; });
-    const xs = tl.map(t => t.x), x0 = Math.min(...xs), x1 = Math.max(...xs), WV = [450, 640, 800, 960];
+    const xs = tl.map(t => t.x), x0 = Math.min(...xs), x1 = Math.max(...xs), WV = [450, 680, 900, 1120];
     P.forEach(p => {
       const w = p.t.wave;
-      if (p.t.lima) { p.start = 860 + Math.random() * 100; p.conv = 620; p.spin = (Math.random() < .5 ? -1 : 1) * (2.2 + Math.random() * 1.2); }
-      else { p.start = WV[w] + (w === 0 ? ((p.t.x - x0) / (x1 - x0 || 1)) * 240 : Math.random() * 110); p.conv = 520 + Math.random() * 110; p.sw = (Math.random() < .5 ? -1 : 1) * (40 + Math.random() * 110); }
+      if (p.t.lima) { p.start = 1000 + Math.random() * 120; p.conv = 760; p.spin = (Math.random() < .5 ? -1 : 1) * (2.2 + Math.random() * 1.2); }
+      else { p.start = WV[w] + (w === 0 ? ((p.t.x - x0) / (x1 - x0 || 1)) * 240 : Math.random() * 110); p.conv = 700 + Math.random() * 120; p.sw = (Math.random() < .5 ? -1 : 1) * (40 + Math.random() * 110); }
       p.p1 = base(p, p.start);
       if (!p.t.lima) { const mx = (p.p1[0] + p.t.x) / 2, my2 = (p.p1[1] + p.t.y) / 2, dx = p.t.x - p.p1[0], dy = p.t.y - p.p1[1], dl = Math.hypot(dx, dy) || 1; p.cx = mx - dy / dl * p.sw; p.cy = my2 + dx / dl * p.sw; }
       p.end = p.start + p.conv;
     });
     const bk = u => { const c1 = 1.05, c2 = c1 * 1.525; return u < .5 ? (Math.pow(2 * u, 2) * ((c2 + 1) * 2 * u - c2)) / 2 : (Math.pow(2 * u - 2, 2) * ((c2 + 1) * (2 * u - 2) + c2) + 2) / 2; };
-    const TS = Math.max(...P.map(p => p.end)), POP = TS + 30, TF = POP + 240, FILL = 440, SWP = TF + FILL - 120, SHUT = TF + FILL + 380;
+    const TS = Math.max(...P.map(p => p.end)), POP = TS + 30, TF = POP + 330, FILL = 640, SWP = TF + FILL - 160, SHUT = TF + FILL + 380;
     const rip = (x, y, t) => {
       if (t < POP) return [0, 0];
       const tt = t - POP, dx = x - D.x, dy = y - D.y, r = Math.hypot(dx, dy) || 1, s = clamp((.9 * tt - r) / 40);
@@ -305,7 +305,7 @@
         orb.draw(.6 + t * .0021, .42);                       // gira despacio, como una pelota de verdad
         g.save(); g.globalAlpha = fe; g.shadowColor = 'rgba(0,0,0,.35)'; g.shadowBlur = 8; g.shadowOffsetY = 3; g.drawImage(orb, D.x - ds / 2, D.y - ds / 2, ds, ds); g.restore();
       }
-      const sw = (t - SWP) / 620;                              // brillo suave que cruza las letras
+      const sw = (t - SWP) / 820;                              // brillo suave que cruza las letras
       if (sw > 0 && sw < 1) {
         ly.setTransform(dpr, 0, 0, dpr, 0, 0); ly.clearRect(0, 0, bw, bh); ly.save(); ly.translate(-bx, -by); ly.fillStyle = '#fff'; ly.font = FONT; ly.textBaseline = 'alphabetic';
         LP.forEach(l => ly.fillText(l.ch, l.x, l.y)); ly.restore(); ly.globalCompositeOperation = 'source-in';
@@ -322,7 +322,7 @@
     c.anim(tag, [{ opacity: 0 }, { opacity: .85 }], { duration: 500, delay: TF + 160 });
 
     // Salida: toda la pantalla de la intro se desvanece suavemente hasta que aparece la app
-    c.after(TF + FILL + 330, () => {
+    c.after(TF + FILL + 420, () => {
       c.root.style.pointerEvents = 'none';
       c.anim(c.root, [{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(10px)' }], { duration: 950, easing: 'cubic-bezier(.4,0,.2,1)' });
       c.anim(c.stage, [{ transform: 'scale(1)' }, { transform: 'scale(1.035)' }], { duration: 950, easing: 'cubic-bezier(.4,0,.2,1)' });
