@@ -269,6 +269,7 @@ async function startSync(user){
       staff:me.role==='Coach',players:me.role==='Jugador'?[memberId]:me.role==='Tutor'&&childId?[childId]:[]};
     await pullItems({first:true});
     syncPoll=setInterval(()=>pullItems(),60000);
+    if(typeof pushSync==='function')pushSync();
   }catch{}
 }
 function stopSync(){

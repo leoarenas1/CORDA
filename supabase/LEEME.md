@@ -59,3 +59,9 @@ Mientras se termina cada fase, lo que todavía no está en Supabase sigue guard�
 | `13_estado_fisico.sql` | El jugador guarda su chequeo de estado físico (sueño, energía, dolor, molestias); lo ven su coach y su tutor. |
 | `14_borrar_cuenta.sql` | «Borrar mi cuenta» desde Mi perfil: borra la cuenta y los datos de la persona. El dueño de la academia no puede borrarse solo. |
 | `15_proteger_member_id.sql` | Nadie puede cambiarse el `memberId` de su perfil (evita hacerse pasar por otro jugador). |
+
+## Avisos al teléfono (notificaciones push)
+- `22_avisos_telefono.sql`: tablas (`push_subscriptions`, `push_sent`, `push_config`) y las funciones `register_push` / `unregister_push`.
+- `functions/enviar-avisos/index.ts`: la función (Edge Function) que decide y envía los avisos. Se publica en Supabase → Edge Functions con «Verify JWT» apagado.
+- `23_programar_avisos.sql`: programa la función cada 5 minutos con pg_cron + pg_net.
+- La guía paso a paso y las claves privadas están en `Documents/CORDA TENIS/Avisos al telefono/`.

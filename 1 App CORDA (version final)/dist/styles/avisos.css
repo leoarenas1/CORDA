@@ -1,0 +1,39 @@
+/* CORDA · Avisos (campana) y barra de instalación. Solo verde, marfil y lima. */
+.portal-tools{align-items:center;gap:var(--space-3,12px)}
+.bell{position:relative;flex:none;width:44px;height:44px;border-radius:50%;border:1px solid rgba(244,239,227,.22);background:rgba(10,41,32,.55);backdrop-filter:blur(6px);color:#F4EFE3;display:inline-grid;place-items:center;cursor:pointer;padding:0;transition:transform .2s ease,background .2s ease}
+.bell:hover{transform:translateY(-1px);background:rgba(10,41,32,.8)}
+.bell-n{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:#C8F03C;color:#0E2A20;font:700 11px/19px var(--font-display,"Space Grotesk",Arial,sans-serif);text-align:center;box-shadow:0 0 0 2px #0F3B2C}
+.avisos{position:fixed;inset:0;z-index:9000}
+.avisos-back{position:absolute;inset:0;background:rgba(4,20,14,.5);animation:avisos-fade .18s ease-out}
+.avisos-panel{position:absolute;top:70px;right:20px;width:min(410px,calc(100vw - 24px));max-height:calc(100vh - 92px);overflow:auto;background:#F7F4EC;color:#0E2A20;border:1px solid rgba(15,59,44,.16);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.4);padding:18px 14px 14px;animation:avisos-in .22s cubic-bezier(.2,.8,.2,1)}
+.avisos-panel header{display:flex;align-items:center;justify-content:space-between;padding:0 6px 10px}
+.avisos-panel h2{font:700 22px/28px var(--font-display,"Space Grotesk",Arial,sans-serif);margin:0;color:#0E2A20}
+.avisos-x{width:36px;height:36px;border-radius:50%;border:1px solid rgba(15,59,44,.2);background:transparent;color:#0E2A20;font-size:22px;line-height:1;cursor:pointer}
+.avisos-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.aviso{width:100%;display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:center;text-align:left;padding:10px 12px;border-radius:16px;border:1px solid transparent;background:transparent;color:#0E2A20;font:inherit;cursor:pointer}
+.aviso:hover{background:#EDE7D4}
+.aviso.is-new{background:#EDE7D4;border-color:rgba(15,59,44,.12)}
+.aviso-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#D6E8C8;color:#1E4D2B}
+.aviso.is-alert .aviso-ic{background:#1E6B4F;color:#F4EFE3}
+.aviso.is-info .aviso-ic{background:#0F3B2C;color:#C8F03C}
+.aviso-tx{display:grid;gap:2px;min-width:0}
+.aviso-tx b{font:600 15px/20px var(--font-display,"Space Grotesk",Arial,sans-serif)}
+.aviso-tx small{font-size:13px;line-height:18px;color:#4F6157}
+.aviso.is-new .aviso-tx b::after{content:"";display:inline-block;width:8px;height:8px;margin-left:8px;border-radius:50%;background:#1E6B4F;vertical-align:middle}
+.avisos-empty{display:grid;justify-items:center;gap:4px;text-align:center;padding:30px 12px;color:#1E6B4F}
+.avisos-empty b{font:600 17px/24px var(--font-display,"Space Grotesk",Arial,sans-serif);color:#0E2A20}
+.avisos-empty small{color:#4F6157}
+.avisos-push{display:grid;grid-template-columns:44px 1fr auto;gap:12px;align-items:center;margin-top:12px;padding:12px;border-radius:16px;background:#0F3B2C;color:#F4EFE3}
+.avisos-push .ai-ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(244,239,227,.1);color:#C8F03C}
+.avisos-push b{display:block;font:600 14px/18px var(--font-display,"Space Grotesk",Arial,sans-serif)}
+.avisos-push small{display:block;font-size:12px;line-height:16px;color:#B4C4B8;margin-top:2px}
+.avisos-push .btn{white-space:nowrap}
+.avisos-push .link{color:#C8F03C;font-size:13px;white-space:nowrap}
+@keyframes avisos-in{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes avisos-fade{from{opacity:0}to{opacity:1}}
+@media (max-width:640px){
+  .avisos-push{grid-template-columns:44px 1fr}
+  .avisos-push .btn,.avisos-push .link{grid-column:1/-1}
+  .avisos-panel{top:64px;right:12px;left:12px;width:auto;max-height:calc(100vh - 84px)}
+}
+@media (prefers-reduced-motion:reduce){.avisos-panel,.avisos-back{animation:none}}

@@ -454,7 +454,7 @@ async function checkCloudSession(){
 function signOut(){
   rememberPlayer();save();forgetSession();
   stopSync();
-  cloud?.auth.signOut({scope:'local'}).catch(()=>{});
+  (typeof pushForget==='function'?pushForget():Promise.resolve()).then(()=>cloud?.auth.signOut({scope:'local'})).catch(()=>{});
   clearTimeout(pushProfile.timer);lastPushed='';
   currentAccount=null;pendingAccount=null;role='Jugador';page='home';rosterDetail='';entry='welcome';
   render();window.scrollTo(0,0);
