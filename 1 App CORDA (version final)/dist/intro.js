@@ -21,7 +21,7 @@
   function play(variant = 'puntos', opts = {}) {
     if (document.getElementById('corda-intro')) return;
     if (reduce() && !opts.force) { opts.onDone && opts.onDone(); return; }
-    const rate = opts.rate || 1;
+    const rate = opts.rate || 1.4;                      // 1 = ritmo original; 1.4 = un poco más lento, para disfrutarla
     const run = VARIANTS[variant] || VARIANTS.puntos;
     const root = document.createElement('div');
     root.className = 'ci'; root.id = 'corda-intro';
