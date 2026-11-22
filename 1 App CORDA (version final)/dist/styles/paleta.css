@@ -125,3 +125,7 @@
 .quick-card .quick-icon{background:#0F3B2C}
 .quick-card .quick-steps span{background:var(--card-deep);border-color:var(--card-line);color:#0E2A20}
 .quick-card .eyebrow{color:var(--card-ink-muted)}
+
+/* ---------- Encuesta de bienestar / chequeo: espacio con la tarjeta de abajo ---------- */
+.shell main .card.quick-card{margin-bottom:var(--space-6)}
+.shell main .card.quick-card+.card.quick-card{margin-top:0}
