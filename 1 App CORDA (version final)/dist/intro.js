@@ -1,5 +1,5 @@
 // CORDA · Intro de entrada (app y página web): «Puntos».
-// Un estallido de canicas llena la pantalla sobre una cancha dibujada a mano; las canicas se juntan, se encima
+// Un estallido de canicas llena la pantalla; motos de luz dibujan una cancha exacta y golpean las canicas, que se juntan, se encima
 // y se funden en las letras de CORDA; el punto final es una pelota de tenis y toda la pantalla se desvanece hasta mostrar el sitio.
 // Se adapta a celular (cancha vertical) y a computadora (cancha horizontal). Se salta con clic, «Saltar» o Esc.
 // No se muestra con «reducir movimiento». Uso: CordaIntro.play('puntos').
@@ -166,7 +166,7 @@
 
   /* ---------------- 8 · Puntos: fondo verde con una cancha dibujada a mano; canicas marfil (y unas lima) que se juntan y forman CORDA ---------------- */
   function puntos(c) {
-    c.root.classList.add('ci-flat');
+    c.root.classList.add('ci-vignette');
     c.stage.innerHTML = `<div class="ci-center">${word()}<p class="ci-tag">${TAG}</p></div>`;
     const { cv, g, dpr } = fullCanvas(c);
     const { letters, slot, tag, wordEl } = wordParts(c);
@@ -175,32 +175,63 @@
     const FONT = `700 ${fs}px "Space Grotesk","Helvetica Neue",Arial,sans-serif`, INK = '#F4EFE3';
     const rnd = (a, b) => a + Math.random() * (b - a);
 
-    // 0) Cancha dibujada a mano al fondo, muy tenue (con la red justo en el centro de la pantalla)
-    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('aria-hidden', 'true');
-    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none';
+    // 0) Cancha exacta (rectas y ángulos rectos). Se dibuja con «motos de luz»: líneas que corren por la pantalla y dejan su estela.
     const land = W / H > 1.12;                                   // pantalla ancha (computadora): la cancha se dibuja horizontal, con la red en el centro
     let ch = H * .8, cw = ch * .4615;
     if (land) { ch = Math.min(W * .84, H * .9 / .4615); cw = ch * .4615; } else if (cw > W * .88) { cw = W * .88; ch = cw / .4615; }
-    const sx = cw * 4.5 / 36, sv = ch * 6.4 / 23.77, mc = ch / 2, cm = cw / 2;
+    const sx = cw * 4.5 / 36, sv = ch * 6.4 / 23.77, mc = ch / 2, cm = cw / 2, pad = Math.min(cw, ch) * .06;
     const M = (px, py) => land ? [(W - ch) / 2 + py, (H - cw) / 2 + px] : [(W - cw) / 2 + px, (H - ch) / 2 + py];
-    const smooth = pts => { let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2; d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`; } return d; };
-    const hand = (x0, y0, x1, y1) => {
-      const L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(3, Math.round(L / 34)), ux = (x1 - x0) / L, uy = (y1 - y0) / L, nx = -uy, ny = ux, e0 = rnd(3, 20), e1 = rnd(3, 20), f = rnd(1, 2.2), ph = rnd(0, 6), A = rnd(1.4, 3.4), pts = [];
-      for (let i = 0; i <= n; i++) { const u = i / n, o = Math.sin(u * Math.PI * f + ph) * A + rnd(-.9, .9), s = -e0 + (L + e0 + e1) * u; pts.push([x0 + ux * s + nx * o, y0 + uy * s + ny * o]); }
-      return smooth(pts);
-    };
-    const loc = [[0, 0, cw, 0], [cw, 0, cw, ch], [cw, ch, 0, ch], [0, ch, 0, 0], [sx, 0, sx, ch], [cw - sx, 0, cw - sx, ch],
-      [sx, mc - sv, cw - sx, mc - sv], [sx, mc + sv, cw - sx, mc + sv], [cm, mc - sv, cm, mc + sv], [cm, 0, cm, 16], [cm, ch, cm, ch - 16], [-26, mc, cw + 26, mc]];
-    const segs = loc.map(([a, b, c2, d]) => [...M(a, b), ...M(c2, d)]);
-    // (sin relleno: el interior de la cancha es del mismo color que el fondo)
-    segs.forEach((s, i) => {
-      const net = i === segs.length - 1, d = hand(...s);
-      [[net ? 9 : rnd(5, 7.5), net ? .22 : .17, d], [net ? 4 : rnd(2, 3.4), .12, hand(...s)]].forEach(([w, a, dd]) => {
-        const p = document.createElementNS(NS, 'path'); p.setAttribute('d', dd); p.setAttribute('pathLength', '1'); p.setAttribute('fill', 'none'); p.setAttribute('stroke', `rgba(244,239,227,${a})`); p.setAttribute('stroke-width', w); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round');
-        svg.append(p); c.anim(p, [{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 560, delay: 60 + i * 105 + (net ? 0 : 0), easing: 'cubic-bezier(.3,.6,.3,1)' });
-      });
+    const S1 = (px, py) => M(px, py).map(v => Math.round(v) + .5);   // medio pixel: líneas nítidas
+    const SPD = 2 * (cw + ch) / 1100;                             // el contorno tarda ~1,1 s en dibujarse
+    const defs = [
+      { pts: [[0, 0], [cw, 0], [cw, ch], [0, ch], [0, 0]], t0: 300 },          // contorno
+      { pts: [[-pad, mc], [cw + pad, mc]], t0: 520 },                           // red
+      { pts: [[sx, ch], [sx, 0]], t0: 760 }, { pts: [[cw - sx, 0], [cw - sx, ch]], t0: 860 },   // líneas de sencillos
+      { pts: [[sx, mc - sv], [cw - sx, mc - sv]], t0: 1000 }, { pts: [[cw - sx, mc + sv], [sx, mc + sv]], t0: 1080 },  // líneas de saque
+      { pts: [[cm, mc - sv], [cm, mc + sv]], t0: 1240 }                          // línea central de saque
+    ];
+    const CY = defs.map(d => {
+      const pts = d.pts.map(([a2, b2]) => S1(a2, b2)), cum = [0];
+      for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+      return { pts, cum, len: cum[cum.length - 1], t0: d.t0, dur: cum[cum.length - 1] / SPD };
     });
-    c.stage.prepend(svg);
+    const ptAt = (cy, d) => {
+      for (let i = 1; i < cy.pts.length; i++) if (d <= cy.cum[i] + 1e-6) { const u = (d - cy.cum[i - 1]) / (cy.cum[i] - cy.cum[i - 1] || 1); return [cy.pts[i - 1][0] + (cy.pts[i][0] - cy.pts[i - 1][0]) * u, cy.pts[i - 1][1] + (cy.pts[i][1] - cy.pts[i - 1][1]) * u]; }
+      return cy.pts[cy.pts.length - 1];
+    };
+    // Cada giro y cada llegada de una moto «golpea» a las canicas que andan cerca
+    const PUL = []; CY.forEach(cy => cy.pts.forEach((q, i) => PUL.push({ x: q[0], y: q[1], t0: cy.t0 + cy.cum[i] / SPD })));
+    const pulseDisp = (x, y, t) => {
+      let ox = 0, oy = 0;
+      for (const q of PUL) {
+        const tt = t - q.t0; if (tt < 0 || tt > 900) continue;
+        const dx = x - q.x, dy = y - q.y, r = Math.hypot(dx, dy) || 1, f2 = clamp((.8 * tt - r) / 50); if (!f2) continue;
+        const a2 = 16 * Math.exp(-r / 130) * Math.exp(-tt / 300) * Math.sin(r * .05 - tt * .025) * f2; ox += dx / r * a2; oy += dy / r * a2;
+      }
+      return [ox, oy];
+    };
+    const drawCourt = (g2, t) => {
+      g2.save(); g2.lineCap = 'round'; g2.lineJoin = 'miter';
+      for (const cy of CY) {
+        const u = clamp((t - cy.t0) / cy.dur); if (u <= 0) continue;
+        const Ld = u * cy.len, settle = clamp((t - cy.t0 - cy.dur) / 700), al = .38 + .3 * (1 - settle), h = ptAt(cy, Ld);
+        g2.strokeStyle = `rgba(244,239,227,${al.toFixed(3)})`; g2.lineWidth = 2.6; g2.beginPath(); g2.moveTo(cy.pts[0][0], cy.pts[0][1]);
+        for (let i = 1; i < cy.pts.length && cy.cum[i - 1] < Ld; i++) { if (cy.cum[i] <= Ld) g2.lineTo(cy.pts[i][0], cy.pts[i][1]); else g2.lineTo(h[0], h[1]); }
+        g2.stroke();
+        if (u < 1) {                                               // estela de luz y cabeza de la moto
+          const tail = Math.max(0, Ld - 160), s0 = ptAt(cy, tail);
+          g2.strokeStyle = 'rgba(200,240,60,.92)'; g2.shadowColor = '#C8F03C'; g2.shadowBlur = 14; g2.lineWidth = 3.6; g2.beginPath(); g2.moveTo(s0[0], s0[1]);
+          for (let i = 1; i < cy.pts.length; i++) if (cy.cum[i] > tail && cy.cum[i] < Ld) g2.lineTo(cy.pts[i][0], cy.pts[i][1]);
+          g2.lineTo(h[0], h[1]); g2.stroke();
+          g2.shadowBlur = 20; g2.fillStyle = '#F6FFD6'; g2.beginPath(); g2.arc(h[0], h[1], 3.8, 0, 6.2832); g2.fill();
+        }
+      }
+      for (const q of PUL) {                                       // anillo suave en cada golpe
+        const tt = t - q.t0; if (tt < 0 || tt > 520) continue;
+        g2.strokeStyle = `rgba(200,240,60,${(.5 * (1 - tt / 520)).toFixed(3)})`; g2.lineWidth = 1.4; g2.beginPath(); g2.arc(q.x, q.y, 6 + .22 * tt, 0, 6.2832); g2.stroke();
+      }
+      g2.restore();
+    };
 
     // 1) Las letras se dibujan UNA vez en un lienzo auxiliar: de ahí salen las canicas y las letras lisas finales (encuadran exacto)
     const off = document.createElement('canvas'); off.width = W; off.height = H; const o = off.getContext('2d');
@@ -250,15 +281,16 @@
     const base = (p, t) => {                       // estallido: salen a toda velocidad en todas direcciones y frenan de golpe; cada una con su curva
       const tt = Math.max(0, t - p.em), e = 1 - Math.exp(-tt / p.tau), a = p.th + .45 * e + p.w * Math.max(0, t - 700), R = p.Rf * e;
       const ca = Math.cos(a), sa = Math.sin(a), lat = p.lat * Math.sin(Math.min(1, tt / 760) * Math.PI), wk = Math.min(1, e * 4);
-      return [B.x + p.ox * (1 - e) + ca * R - sa * lat + Math.sin(t * p.wf + p.wp) * p.wob * wk, B.y + p.oy * (1 - e) + sa * R + ca * lat + Math.cos(t * p.wf * .83 + p.wp) * p.wob * wk];
+      const x = B.x + p.ox * (1 - e) + ca * R - sa * lat + Math.sin(t * p.wf + p.wp) * p.wob * wk, y = B.y + p.oy * (1 - e) + sa * R + ca * lat + Math.cos(t * p.wf * .83 + p.wp) * p.wob * wk, pd = pulseDisp(x, y, t);
+      return [x + pd[0], y + pd[1]];
     };
     // emparejar por x (canicas en la espiral ↔ lugares en la letra) → trayectorias que casi no se cruzan
     const lt = P.filter(p => !p.t.lima), tl = lt.map(p => p.t).sort((a, b) => a.x - b.x), spiral = [...lt].sort((a, b) => base(a, 2000)[0] - base(b, 2000)[0]);
     spiral.forEach((p, k) => { p.t = tl[k]; });
-    const xs = tl.map(t => t.x), x0 = Math.min(...xs), x1 = Math.max(...xs), WV = [450, 680, 900, 1120];
+    const xs = tl.map(t => t.x), x0 = Math.min(...xs), x1 = Math.max(...xs), WV = [950, 1170, 1390, 1610];
     P.forEach(p => {
       const w = p.t.wave;
-      if (p.t.lima) { p.start = 1000 + Math.random() * 120; p.conv = 760; p.spin = (Math.random() < .5 ? -1 : 1) * (2.2 + Math.random() * 1.2); }
+      if (p.t.lima) { p.start = 1550 + Math.random() * 120; p.conv = 760; p.spin = (Math.random() < .5 ? -1 : 1) * (2.2 + Math.random() * 1.2); }
       else { p.start = WV[w] + (w === 0 ? ((p.t.x - x0) / (x1 - x0 || 1)) * 240 : Math.random() * 110); p.conv = 700 + Math.random() * 120; p.sw = (Math.random() < .5 ? -1 : 1) * (40 + Math.random() * 110); }
       p.p1 = base(p, p.start);
       if (!p.t.lima) { const mx = (p.p1[0] + p.t.x) / 2, my2 = (p.p1[1] + p.t.y) / 2, dx = p.t.x - p.p1[0], dy = p.t.y - p.p1[1], dl = Math.hypot(dx, dy) || 1; p.cx = mx - dy / dl * p.sw; p.cy = my2 + dx / dl * p.sw; }
@@ -285,6 +317,7 @@
     c.loop(t => {
       if (frozen) return;
       g.clearRect(0, 0, W, H);
+      drawCourt(g, t);
       const f = clamp((t - TF) / FILL), fe = eInOut(f);
       if (t < 380) {                                         // destello del estallido
         const u = t / 380, r = 40 + 150 * eOut(u), gr = g.createRadialGradient(B.x, B.y, 0, B.x, B.y, r);

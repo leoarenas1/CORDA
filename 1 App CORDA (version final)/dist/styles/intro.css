@@ -14,3 +14,7 @@ html.ci-open{overflow:hidden}
 .ci-ring{position:absolute;pointer-events:none;border:2px solid #C8F03C;border-radius:50%}
 /* Fondo plano (sin brillo en el centro) */
 .ci-flat .ci-bg::after{display:none}
+
+/* Fondo con luz en el centro y más oscuro alrededor (difuminado) */
+.ci-vignette .ci-bg{background:radial-gradient(ellipse 85% 70% at 50% 47%,#245F48 0%,#17463A 22%,#0F3B2C 45%,#0A2920 72%,#061B14 100%)}
+.ci-vignette .ci-bg::after{display:none}
