@@ -129,3 +129,8 @@
 /* ---------- Encuesta de bienestar / chequeo: espacio con la tarjeta de abajo ---------- */
 .shell main .card.quick-card{margin-bottom:var(--space-6)}
 .shell main .card.quick-card+.card.quick-card{margin-top:0}
+
+/* Celular: con el logo de la academia puesto, la barra de abajo mostraba el logo y escondía los botones. */
+@media (max-width:680px){
+  .sidebar>.workspace,.sidebar>.workspace.has-logo,.sidebar>.workspace .workspace-logo{display:none!important}
+}
