@@ -8,10 +8,11 @@ const pushStandalone=()=>matchMedia('(display-mode: standalone)').matches||navig
 const pushKeyBytes=b64=>{const p='='.repeat((4-b64.length%4)%4),raw=atob((b64+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(raw,c=>c.charCodeAt(0))};
 const pushWait=(p,ms)=>Promise.race([p,new Promise(r=>setTimeout(()=>r(null),ms))]);
 async function pushSub(){const reg=await pushWait(navigator.serviceWorker.ready,4000);return reg?reg.pushManager.getSubscription():null}
-// 'na' no disponible · 'ios' falta abrir desde el ícono · 'denied' bloqueado · 'off' sin activar · 'on' activado
+// 'na' sin cuenta en la nube · 'ios' falta abrir desde el ícono · 'nosup' navegador sin avisos · 'denied' bloqueado · 'off' sin activar · 'on' activado
 async function pushStatus(){
-  if(!pushOK()||typeof cloud==='undefined'||!cloud||!syncCtx)return 'na';
-  if(pushIOS()&&!pushStandalone())return 'ios';
+  if(typeof cloud==='undefined'||!cloud||!syncCtx)return 'na';          // sin cuenta en la nube no hay a quién avisar
+  if(pushIOS()&&!pushStandalone())return 'ios';                           // iPhone: solo funciona abierta desde el ícono
+  if(!pushOK())return 'nosup';                                            // este navegador no permite avisos
   if(Notification.permission==='denied')return 'denied';
   const s=await pushSub().catch(()=>null);
   return Notification.permission==='granted'&&s?'on':'off';

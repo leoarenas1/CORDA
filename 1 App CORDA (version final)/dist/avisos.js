@@ -111,6 +111,7 @@
     if (st === 'off') box.innerHTML = row('Avisos en tu teléfono', msg || (PUSH_TXT[role] || PUSH_TXT.Jugador), '<button type="button" class="btn lime sm" data-push-on>Activar</button>');
     else if (st === 'on') box.innerHTML = row('Avisos activados', msg || 'Te llegan a este teléfono, aunque CORDA esté cerrada.', '<button type="button" class="link" data-push-off>Desactivar</button>');
     else if (st === 'denied') box.innerHTML = row('Avisos bloqueados', 'Este navegador los tiene bloqueados. Actívalos en los ajustes del sitio y vuelve a abrir CORDA.');
+    else if (st === 'nosup') box.innerHTML = row('Avisos no disponibles aquí', 'Este navegador no permite avisos al teléfono. Abre CORDA en Chrome (Android) o Safari (iPhone, iOS 16.4 o más) y no desde WhatsApp o Instagram.');
     else if (st === 'ios') box.innerHTML = row('Avisos en tu iPhone', 'Abre CORDA desde su ícono en la pantalla de inicio para poder activarlos.');
   }
   async function pushToggle(on) {
