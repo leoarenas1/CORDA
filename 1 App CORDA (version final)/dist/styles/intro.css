@@ -18,3 +18,20 @@ html.ci-open{overflow:hidden}
 /* Fondo con luz en el centro y más oscuro alrededor (difuminado) */
 .ci-vignette .ci-bg{background:radial-gradient(ellipse 85% 70% at 50% 47%,#245F48 0%,#17463A 22%,#0F3B2C 45%,#0A2920 72%,#061B14 100%)}
 .ci-vignette .ci-bg::after{display:none}
+
+/* Intros ligeras: luz, línea y rebote */
+.ci-glow{position:absolute;left:50%;top:46%;width:min(120vw,1100px);aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(244,239,227,.16) 0%,rgba(200,240,60,.05) 34%,transparent 66%);pointer-events:none}
+.ci-glow{opacity:0}
+.ci-center.ci-cut{gap:clamp(14px,2.4vh,26px)}
+.ci-line{position:absolute;left:50%;top:50%;width:min(86vw,900px);height:2px;margin-left:calc(min(86vw,900px) / -2);background:rgba(244,239,227,.7);transform-origin:50% 50%;transform:scaleX(0);pointer-events:none}
+.ci-clip{overflow:hidden;padding:.1em .05em .22em;margin:-.1em -.05em -.22em}
+.ci-clip .ci-word .cl{opacity:1}
+.ci-ball{position:absolute;display:block;border-radius:50%;background:radial-gradient(circle at 35% 30%,#E4FF7A,#C8F03C 55%,#93B921);opacity:0;pointer-events:none;will-change:transform}
+.ci-ballshadow{position:absolute;display:block;height:6px;border-radius:50%;background:rgba(0,0,0,.55);filter:blur(4px);opacity:0;pointer-events:none}
+
+/* Intro «Blanco» */
+.ci-white .ci-bg{background:#fff}
+.ci-white .ci-word{color:#111}
+.ci-white .ci-tag{color:#5E6656}
+.ci-white .ci-skip{color:#5E6656;border-color:rgba(0,0,0,.22);background:transparent}
+.ci-white .ci-skip:hover{color:#111;border-color:rgba(0,0,0,.5)}

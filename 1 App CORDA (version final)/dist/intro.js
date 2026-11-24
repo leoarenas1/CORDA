@@ -46,7 +46,7 @@
     addEventListener('keydown', onKey);
     root.addEventListener('click', finish);
     root.querySelector('.ci-skip').addEventListener('click', e => { e.stopPropagation(); finish(); });
-    timers.push(setTimeout(finish, 12000 * rate));
+    timers.push(setTimeout(finish, 14000 * rate));
 
     const c = {
       root, bg: root.querySelector('.ci-bg'), stage: root.querySelector('.ci-stage'), finish,
@@ -363,6 +363,200 @@
     });
   }
 
-  const VARIANTS = { puntos };
+
+  /* ===================== Intros ligeras (≈2,5 s): solo el nombre, con el mismo cierre difuminado ===================== */
+  const dotBall = slot => { slot.style.cssText += ';border-radius:50%;background:radial-gradient(circle at 35% 30%,#E4FF7A,#C8F03C 55%,#93B921)'; };
+  const lightExit = (c, t) => c.after(t, () => {
+    c.root.style.pointerEvents = 'none';
+    c.anim(c.root, [{ opacity: 1, filter: 'blur(0px)' }, { opacity: 0, filter: 'blur(10px)' }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
+    c.anim(c.stage, [{ transform: 'scale(1)' }, { transform: 'scale(1.03)' }], { duration: 900, easing: 'cubic-bezier(.4,0,.2,1)' });
+    c.after(930, c.finish);
+  });
+
+  // A · Luz: una luz suave se abre en el centro, el nombre aparece enfocándose y la pelota cae al final.
+  function luz(c) {
+    c.root.classList.add('ci-vignette');
+    c.stage.innerHTML = `<div class="ci-glow"></div><div class="ci-center">${word()}<p class="ci-tag">${TAG}</p></div>`;
+    const { letters, slot, tag } = wordParts(c); dotBall(slot);
+    const glow = c.stage.querySelector('.ci-glow');
+    c.anim(glow, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 1100, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    letters.forEach((l, i) => c.anim(l, [{ opacity: 0, filter: 'blur(14px)', transform: 'translateY(.12em)', letterSpacing: '.12em' }, { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)', letterSpacing: '0em' }], { duration: 800, delay: 380 + i * 90, easing: 'cubic-bezier(.2,.7,.3,1)' }));
+    c.anim(slot, [{ opacity: 0, transform: 'translateY(-3.2em)' }, { opacity: 1, transform: 'translateY(0)', offset: .55 }, { transform: 'translateY(-.45em)', offset: .75 }, { transform: 'translateY(0)' }], { duration: 760, delay: 1050, easing: 'cubic-bezier(.4,0,.6,1)' });
+    c.anim(tag, [{ opacity: 0 }, { opacity: .85 }], { duration: 600, delay: 1750 });
+    lightExit(c, 2750);
+  }
+
+  // B · Línea: una sola línea fina cruza la pantalla (la red / la línea de fondo); el nombre sube desde detrás de ella.
+  function linea(c) {
+    c.root.classList.add('ci-vignette');
+    c.stage.innerHTML = `<div class="ci-center ci-cut"><div class="ci-line"></div><div class="ci-clip">${word()}</div><p class="ci-tag">${TAG}</p></div>`;
+    const { letters, slot, tag } = wordParts(c); dotBall(slot);
+    const line = c.stage.querySelector('.ci-line');
+    c.anim(line, [{ transform: 'scaleX(0)', opacity: 1 }, { transform: 'scaleX(1)', opacity: 1 }], { duration: 750, easing: 'cubic-bezier(.65,0,.35,1)' });
+    letters.forEach((l, i) => c.anim(l, [{ opacity: 1, transform: 'translateY(105%)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 700, delay: 620 + i * 80, easing: 'cubic-bezier(.2,.8,.2,1)' }));
+    c.anim(slot, [{ opacity: 0, transform: 'translateY(105%)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 700, delay: 620 + 5 * 80, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    c.anim(tag, [{ opacity: 0 }, { opacity: .85 }], { duration: 600, delay: 1650 });
+    c.anim(line, [{ opacity: 1 }, { opacity: 0 }], { duration: 500, delay: 1900 });
+    lightExit(c, 2750);
+  }
+
+  // C · Rebote: una pelota entra, rebota dos veces con su sombra y se queda como el punto de CORDA; las letras aparecen en cada rebote.
+  function rebote(c) {
+    c.root.classList.add('ci-vignette');
+    c.stage.innerHTML = `<div class="ci-center">${word()}<p class="ci-tag">${TAG}</p></div>`;
+    const { letters, slot, tag, wordEl } = wordParts(c); dotBall(slot);
+    const fs = fontPx(wordEl);
+    slot.style.opacity = 0;
+    const ball = document.createElement('i'), shadow = document.createElement('i');
+    ball.className = 'ci-ball'; shadow.className = 'ci-ballshadow';
+    const d = centerOf(slot), r = d.w / 2;
+    Object.assign(ball.style, { width: d.w + 'px', height: d.w + 'px', left: d.x - r + 'px', top: d.y - r + 'px' });
+    Object.assign(shadow.style, { width: d.w * 1.1 + 'px', left: d.x - d.w * .55 + 'px', top: d.y + r - 2 + 'px' });
+    c.root.append(shadow, ball);
+    const H1 = fs * 2.1, H2 = fs * .8, H3 = fs * .26;
+    c.anim(ball, [
+      { opacity: 0, transform: `translate(${-fs * 1.6}px,${-H1 * 1.4}px) scale(.7)`, offset: 0 },
+      { opacity: 1, transform: `translate(${-fs * 1.0}px,${-H1 * .55}px) scale(.9)`, offset: .14 },
+      { transform: `translate(${-fs * .62}px,0px) scale(1)`, offset: .3, easing: 'cubic-bezier(.2,.7,.3,1)' },
+      { transform: `translate(${-fs * .36}px,${-H2}px)`, offset: .46 },
+      { transform: `translate(${-fs * .16}px,0px)`, offset: .62, easing: 'cubic-bezier(.2,.7,.3,1)' },
+      { transform: `translate(${-fs * .05}px,${-H3}px)`, offset: .76 },
+      { transform: 'translate(0,0)', offset: 1 }
+    ], { duration: 1350, delay: 250, easing: 'cubic-bezier(.55,0,.8,.4)' });
+    c.anim(shadow, [{ opacity: 0, transform: 'scaleX(.4)' }, { opacity: .3, transform: 'scaleX(1)', offset: .3 }, { opacity: .2, transform: 'scaleX(.7)', offset: .46 }, { opacity: .3, transform: 'scaleX(1)', offset: .62 }, { opacity: .3, transform: 'scaleX(.9)', offset: .85 }, { opacity: 0, transform: 'scaleX(.9)' }], { duration: 1500, delay: 250 });
+    const hit = [.30, .62, 1];       // letras que aparecen cuando la pelota toca el suelo
+    letters.forEach((l, i) => c.anim(l, [{ opacity: 0, filter: 'blur(10px)', transform: 'translateY(.1em)' }, { opacity: 1, filter: 'blur(0px)', transform: 'translateY(0)' }], { duration: 650, delay: 250 + 1350 * hit[Math.min(2, Math.floor(i / 2))] - 100 + (i % 2) * 70, easing: 'cubic-bezier(.2,.7,.3,1)' }));
+    c.after(1600, () => { slot.style.opacity = 1; ball.remove(); });
+    c.anim(tag, [{ opacity: 0 }, { opacity: .85 }], { duration: 600, delay: 1950 });
+    lightExit(c, 2900);
+  }
+
+  // D · Blanco: fondo blanco, el nombre aparece en negro y se va poniendo verde letra por letra (el punto al final);
+  // después se dibuja a mano la cancha por detrás.
+  function blanco(c) {
+    c.root.classList.add('ci-white');
+    c.stage.innerHTML = `<div class="ci-center">${word()}<p class="ci-tag">${TAG}</p></div>`;
+    const { letters, slot, tag } = wordParts(c);
+    slot.style.cssText += ';border-radius:50%;background:#111';
+    const GREEN = '#1E6B4F', INK = '#111111';
+    letters.forEach((l, i) => {
+      c.anim(l, [{ opacity: 0, transform: 'translateY(.08em)', color: INK }, { opacity: 1, transform: 'translateY(0)', color: INK }], { duration: 520, delay: 60 + i * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      c.anim(l, [{ color: INK }, { color: GREEN }], { duration: 600, delay: 800 + i * 130, easing: 'ease-in-out', composite: 'replace' });
+    });
+    c.anim(slot, [{ opacity: 0, transform: 'scale(.4)', backgroundColor: INK }, { opacity: 1, transform: 'scale(1)', backgroundColor: INK }], { duration: 520, delay: 60 + 5 * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    c.anim(slot, [{ backgroundColor: INK }, { backgroundColor: GREEN }], { duration: 600, delay: 800 + 5 * 130, easing: 'ease-in-out' });
+    c.anim(tag, [{ opacity: 0 }, { opacity: .8 }], { duration: 600, delay: 2100 });
+
+    // Cancha dibujada a mano, por detrás del nombre
+    const W = innerWidth, H = innerHeight, rnd = (a, b) => a + Math.random() * (b - a);
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('aria-hidden', 'true');
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none';
+    const land = W / H > 1.12;
+    let ch = H * .8, cw = ch * .4615;
+    if (land) { ch = Math.min(W * .84, H * .9 / .4615); cw = ch * .4615; } else if (cw > W * .88) { cw = W * .88; ch = cw / .4615; }
+    const sx = cw * 4.5 / 36, sv = ch * 6.4 / 23.77, mc = ch / 2, cm = cw / 2;
+    const M = (px, py) => land ? [(W - ch) / 2 + py, (H - cw) / 2 + px] : [(W - cw) / 2 + px, (H - ch) / 2 + py];
+    const smooth = pts => { let d = `M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`; for (let i = 0; i < pts.length - 1; i++) { const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || p2; d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(1)} ${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(1)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(1)} ${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`; } return d; };
+    const hand = (x0, y0, x1, y1) => {
+      const L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(3, Math.round(L / 34)), ux = (x1 - x0) / L, uy = (y1 - y0) / L, nx = -uy, ny = ux, e0 = rnd(3, 20), e1 = rnd(3, 20), f = rnd(1, 2.2), ph = rnd(0, 6), A = rnd(1.4, 3.4), pts = [];
+      for (let i = 0; i <= n; i++) { const u = i / n, o = Math.sin(u * Math.PI * f + ph) * A + rnd(-.9, .9), s2 = -e0 + (L + e0 + e1) * u; pts.push([x0 + ux * s2 + nx * o, y0 + uy * s2 + ny * o]); }
+      return smooth(pts);
+    };
+    const loc = [[0, 0, cw, 0], [cw, 0, cw, ch], [cw, ch, 0, ch], [0, ch, 0, 0], [sx, 0, sx, ch], [cw - sx, 0, cw - sx, ch],
+      [sx, mc - sv, cw - sx, mc - sv], [sx, mc + sv, cw - sx, mc + sv], [cm, mc - sv, cm, mc + sv], [cm, 0, cm, 16], [cm, ch, cm, ch - 16], [-26, mc, cw + 26, mc]];
+    const segs = loc.map(([a, b, c2, d]) => [...M(a, b), ...M(c2, d)]);
+    const T0 = 1700;
+    segs.forEach((sg, i) => {
+      const net = i === segs.length - 1;
+      [[net ? 8 : rnd(4.5, 6.5), net ? .17 : .13, hand(...sg)], [net ? 3.5 : rnd(1.8, 3), .12, hand(...sg)]].forEach(([w, a, dd]) => {
+        const p = document.createElementNS(NS, 'path'); p.setAttribute('d', dd); p.setAttribute('pathLength', '1'); p.setAttribute('fill', 'none');
+        p.setAttribute('stroke', `rgba(30,107,79,${a})`); p.setAttribute('stroke-width', w); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round');
+        svg.append(p); c.anim(p, [{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: 520, delay: T0 + i * 80, easing: 'cubic-bezier(.3,.6,.3,1)' });
+      });
+    });
+    c.stage.prepend(svg);
+    lightExit(c, 3300);
+  }
+
+  /* ===== Intro «Blanco» con distintos fondos que representan la unión de cuerdas (coach y jugador) ===== */
+  function blancoTexto(c, small) {
+    c.root.classList.add('ci-white');
+    c.stage.innerHTML = `<div class="ci-center">${word()}<p class="ci-tag">${TAG}</p></div>`;
+    const { letters, slot, tag } = wordParts(c);
+    slot.style.cssText += ';border-radius:50%;background:#111' + (small ? ';width:.17em;height:.17em;margin-left:.09em;transform-origin:50% 50%' : '');
+    const GREEN = '#1E6B4F', INK = '#111111';
+    letters.forEach((l, i) => {
+      c.anim(l, [{ opacity: 0, transform: 'translateY(.08em)', color: INK }, { opacity: 1, transform: 'translateY(0)', color: INK }], { duration: 520, delay: 60 + i * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      c.anim(l, [{ color: INK }, { color: GREEN }], { duration: 600, delay: 800 + i * 130, easing: 'ease-in-out' });
+    });
+    c.anim(slot, [{ opacity: 0, transform: 'scale(.4)', backgroundColor: INK }, { opacity: 1, transform: 'scale(1)', backgroundColor: INK }], { duration: 520, delay: 60 + 5 * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    c.anim(slot, [{ backgroundColor: INK }, { backgroundColor: small ? '#C8F03C' : GREEN }], { duration: 600, delay: 800 + 5 * 130, easing: 'ease-in-out' });
+    c.anim(tag, [{ opacity: 0 }, { opacity: .8 }], { duration: 600, delay: 2100 });
+    const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('viewBox', `0 0 ${innerWidth} ${innerHeight}`);
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none';
+    c.stage.prepend(svg);
+    return { svg, slot, W: innerWidth, H: innerHeight };
+  }
+  const svgLine = (svg, x0, y0, x1, y1, stroke, w) => {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', `M${x0.toFixed(1)} ${y0.toFixed(1)}L${x1.toFixed(1)} ${y1.toFixed(1)}`);
+    p.setAttribute('pathLength', '1'); p.setAttribute('fill', 'none'); p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', w); p.setAttribute('stroke-linecap', 'round');
+    svg.append(p); return p;
+  };
+  const drawIn = (c, el, delay, dur) => c.anim(el, [{ strokeDasharray: '1 1', strokeDashoffset: 1 }, { strokeDasharray: '1 1', strokeDashoffset: 0 }], { duration: dur, delay, easing: 'cubic-bezier(.3,.6,.3,1)' });
+
+  // Cruce: una cuerda vertical (el coach) y una horizontal (el jugador) se encuentran justo en el punto de CORDA.
+  function cruce(c) {
+    const { svg, slot, W, H } = blancoTexto(c);
+    const D = centerOf(slot), V = '#1E6B4F', Hc = '#7FA894';
+    const T = 1500;
+    drawIn(c, svgLine(svg, D.x, D.y, D.x, 0, V, 1.6), T, 800);
+    drawIn(c, svgLine(svg, D.x, D.y, D.x, H, V, 1.6), T, 800);
+    drawIn(c, svgLine(svg, D.x, D.y, 0, D.y, Hc, 1.6), T + 140, 800);
+    drawIn(c, svgLine(svg, D.x, D.y, W, D.y, Hc, 1.6), T + 140, 800);
+    const ring = document.createElementNS(NS, 'circle'); ring.setAttribute('cx', D.x); ring.setAttribute('cy', D.y); ring.setAttribute('r', D.w * .5); ring.setAttribute('fill', 'none'); ring.setAttribute('stroke', V); ring.setAttribute('stroke-width', 1.4);
+    svg.append(ring);
+    ring.style.cssText = 'transform-box:fill-box;transform-origin:center';
+    c.anim(ring, [{ opacity: .7, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(5)' }], { duration: 1100, delay: T, easing: 'cubic-bezier(.2,.7,.3,1)' });
+    lightExit(c, 3100);
+  }
+
+  // Malla: una trama muy fina de cuerdas verticales y horizontales se teje detrás del nombre; el punto de CORDA queda justo en un cruce
+  // y al final late como una pelota que recibe un golpe.
+  function malla(c) {
+    const { svg, slot, W, H } = blancoTexto(c, true);
+    const D = centerOf(slot), gap = Math.max(34, Math.min(60, W / 13)), cx = D.x, cy = D.y;
+    svg.style.webkitMaskImage = svg.style.maskImage = `radial-gradient(ellipse 62% 52% at 50% 46%, #000 18%, transparent 80%)`;
+    for (let k = -16; k <= 16; k++) {
+      const x = cx + k * gap, y = cy + k * gap, dl = 1000 + Math.abs(k) * 45;
+      if (x > -gap && x < W + gap) drawIn(c, svgLine(svg, x, 0, x, H, 'rgba(15,59,44,.20)', 1.3), dl, 800);
+      if (y > -gap && y < H + gap) drawIn(c, svgLine(svg, 0, y, W, y, 'rgba(30,107,79,.15)', 1.3), dl + 80, 800);
+    }
+    // Latido: un solo pulso del punto, como el golpe a la pelota
+    c.anim(slot, [{ transform: 'scale(1)' }, { transform: 'scale(1.75)', offset: .28 }, { transform: 'scale(1)' }], { duration: 620, delay: 2500, fill: 'forwards', easing: 'cubic-bezier(.3,.7,.3,1)' });
+    lightExit(c, 3700);
+  }
+
+  // Cordaje: la cabeza de una raqueta, hecha solo con cuerdas finas que se cruzan, detrás del nombre.
+  function cordaje(c) {
+    const { svg, W, H } = blancoTexto(c);
+    const cx = W / 2, cy = H * .46, ry = Math.min(H * .44, W * .62), rx = ry / 1.18, gap = ry / 9;
+    const id = 'cc' + (++uid), cp = document.createElementNS(NS, 'clipPath'); cp.setAttribute('id', id);
+    const el = document.createElementNS(NS, 'ellipse'); [['cx', cx], ['cy', cy], ['rx', rx - 3], ['ry', ry - 3]].forEach(([k, v]) => el.setAttribute(k, v)); cp.append(el);
+    const defs = document.createElementNS(NS, 'defs'); defs.append(cp); svg.append(defs);
+    const frame = document.createElementNS(NS, 'ellipse'); [['cx', cx], ['cy', cy], ['rx', rx], ['ry', ry]].forEach(([k, v]) => frame.setAttribute(k, v));
+    frame.setAttribute('fill', 'none'); frame.setAttribute('stroke', 'rgba(15,59,44,.28)'); frame.setAttribute('stroke-width', 2.2); frame.setAttribute('pathLength', '1');
+    svg.append(frame); drawIn(c, frame, 1300, 1100);
+    const g = document.createElementNS(NS, 'g'); g.setAttribute('clip-path', `url(#${id})`); svg.append(g);
+    for (let k = -10; k <= 10; k++) {
+      const x = cx + k * gap, y = cy + k * gap * 1.04, dl = 1800 + Math.abs(k) * 50;
+      drawIn(c, svgLine(g, x, cy - ry, x, cy + ry, 'rgba(15,59,44,.20)', 1.3), dl, 800);
+      drawIn(c, svgLine(g, cx - rx, y, cx + rx, y, 'rgba(30,107,79,.16)', 1.3), dl + 80, 800);
+    }
+    lightExit(c, 3400);
+  }
+
+  const VARIANTS = { puntos, luz, linea, rebote, blanco, cruce, malla, cordaje };
   window.CordaIntro = { play, variants: Object.keys(VARIANTS) };
 })();
