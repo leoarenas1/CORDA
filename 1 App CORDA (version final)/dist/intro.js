@@ -46,10 +46,10 @@
     addEventListener('keydown', onKey);
     root.addEventListener('click', finish);
     root.querySelector('.ci-skip').addEventListener('click', e => { e.stopPropagation(); finish(); });
-    timers.push(setTimeout(finish, 14000 * rate));
+    timers.push(setTimeout(finish, 16000 * rate));
 
     const c = {
-      root, bg: root.querySelector('.ci-bg'), stage: root.querySelector('.ci-stage'), finish,
+      root, rate, bg: root.querySelector('.ci-bg'), stage: root.querySelector('.ci-stage'), finish,
       isDone: () => done,
       after(ms, fn) { timers.push(setTimeout(() => { if (!done) fn(); }, ms * rate)); },
       anim(el, frames, o = {}) {
@@ -83,7 +83,7 @@
         a.onfinish = finish;
       }
     };
-    const start = () => { if (!done) run(c); };
+    const start = () => { if (!done) run(c, opts); };
     Promise.race([
       document.fonts ? document.fonts.load('700 100px "Space Grotesk"') : Promise.resolve(),
       new Promise(r => setTimeout(r, 800))
@@ -557,6 +557,60 @@
     lightExit(c, 3400);
   }
 
-  const VARIANTS = { puntos, luz, linea, rebote, blanco, cruce, malla, cordaje };
+  /* ===== Intro con video: de la nada un punto, cuatro hilos que se trenzan, el cordaje; luego un velo y el título ===== */
+  function cuerdas(c, opts) {
+    const URL = (opts && opts.video) || 'assets/intro/cuerdas.mp4', T_SLOW = 6.0, T_END = 6.8;
+    const R = c.rate, an = (el, fr, o) => c.anim(el, fr, { ...o, duration: o.duration / R, delay: (o.delay || 0) / R }), at = (ms, fn) => c.after(ms / R, fn);
+    c.root.classList.add('ci-white', 'ci-video');
+    const v = document.createElement('video');
+    v.className = 'ci-vid'; v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true'); v.src = URL;
+    const veil = document.createElement('div'); veil.className = 'ci-veil';
+    c.stage.innerHTML = ''; c.stage.append(v, veil);
+    let started = false;
+    const fallback = () => { if (started || c.isDone()) return; started = true; try { v.pause(); } catch {} c.root.classList.remove('ci-video'); malla(c); };
+    const ready = new Promise(res => {
+      v.addEventListener('canplay', () => res(true), { once: true });
+      v.addEventListener('error', () => res(false), { once: true });
+      setTimeout(() => res(false), 3500);
+    });
+    ready.then(ok => {
+      if (c.isDone() || started) return;
+      if (!ok) return fallback();
+      started = true;
+      const p = v.play(); if (p && p.catch) p.catch(fallback);
+      let veilOn = false, titled = false;
+      const tick = () => {
+        if (c.isDone()) return;
+        const t = v.currentTime;
+        if (t >= T_SLOW && !veilOn) { veilOn = true; an(veil, [{ opacity: 0 }, { opacity: 1 }], { duration: 1500, easing: 'ease-in-out' }); }
+        if (t >= T_SLOW && t < T_END) v.playbackRate = Math.max(.1, 1 - (t - T_SLOW) / (T_END - T_SLOW) * .9);
+        if ((t >= T_END || v.ended) && !titled) { titled = true; v.pause(); title(); return; }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+
+    function title() {
+      const box = document.createElement('div');
+      box.className = 'ci-center';
+      box.innerHTML = `${word()}<p class="ci-tag">${TAG}</p>`;
+      c.stage.append(box);
+      const { letters, slot, tag } = wordParts(c);
+      const GREEN = '#1E6B4F', INK = '#111111', LIME = '#C8F03C';
+      slot.style.cssText += ';border-radius:50%;background:#111;width:.17em;height:.17em;margin-left:.09em;transform-origin:50% 100%';
+      letters.forEach((l, i) => {
+        an(l, [{ opacity: 0, transform: 'translateY(.08em)', color: INK }, { opacity: 1, transform: 'translateY(0)', color: INK }], { duration: 520, delay: 60 + i * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+        an(l, [{ color: INK }, { color: GREEN }], { duration: 600, delay: 800 + i * 130, easing: 'ease-in-out' });
+      });
+      an(slot, [{ opacity: 0, backgroundColor: INK }, { opacity: 1, backgroundColor: INK }], { duration: 520, delay: 60 + 5 * 55, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      an(slot, [{ backgroundColor: INK }, { backgroundColor: LIME }], { duration: 600, delay: 800 + 5 * 130, easing: 'ease-in-out' });
+      // rebote sutil del punto (como una pelota que cae y bota una vez)
+      an(slot, [{ transform: 'translateY(0) scale(1,1)' }, { transform: 'translateY(-.55em) scale(1,1)', offset: .38, easing: 'cubic-bezier(.2,.7,.3,1)' }, { transform: 'translateY(0) scale(1.18,.82)', offset: .62, easing: 'cubic-bezier(.7,0,.8,.3)' }, { transform: 'translateY(-.14em) scale(1,1)', offset: .8 }, { transform: 'translateY(0) scale(1,1)' }], { duration: 760, delay: 1750, easing: 'linear', fill: 'forwards' });
+      an(tag, [{ opacity: 0 }, { opacity: .8 }], { duration: 600, delay: 2200 });
+      lightExit(c, 3500 / R);
+    }
+  }
+
+  const VARIANTS = { puntos, luz, linea, rebote, blanco, cruce, malla, cordaje, cuerdas };
   window.CordaIntro = { play, variants: Object.keys(VARIANTS) };
 })();
