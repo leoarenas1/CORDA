@@ -1631,3 +1631,22 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .quick-addphone:focus-visible{outline:3px solid var(--lima,#C8F03C);outline-offset:2px}
 
 .pay-online{display:flex;align-items:center;justify-content:center;text-align:center;width:100%;margin:var(--space-4) 0 var(--space-2);min-height:52px}
+
+/* Panel del coach: notas de hoy, por cobrar y atención */
+.today-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-4) 0}
+.today-card{display:flex;flex-direction:column;gap:var(--space-2)}
+.today-card .btn{margin-top:auto;display:flex;align-items:center;justify-content:center;text-align:center;min-height:46px}
+.today-num{display:flex;align-items:baseline;gap:var(--space-2)}
+.today-num b{font:700 clamp(30px,8vw,40px)/1 var(--font-display,inherit);letter-spacing:-.02em}
+.today-num span{color:var(--ink-muted);font-size:14px}
+.attn-list{list-style:none;margin:var(--space-3) 0 0;padding:0;display:grid;gap:var(--space-2)}
+.attn-row{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);width:100%;padding:var(--space-3);border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);text-align:left;cursor:pointer;transition:border-color .2s,transform .15s}
+.attn-row:hover{border-color:var(--verde-medio,#1E6B4F)}
+.attn-row:active{transform:scale(.99)}
+.attn-who{display:flex;align-items:center;gap:var(--space-3);min-width:0}
+.attn-who .avatar,.attn-who img{width:40px;height:40px;flex:none}
+.attn-who b,.attn-who small{display:block}
+.attn-who small{color:var(--ink-muted);font-size:13px}
+.attn-go{font-weight:700;color:var(--verde-medio,#1E6B4F)}
+.quick-moods.two{grid-template-columns:1fr 1fr}
+@media (max-width:520px){.today-grid{grid-template-columns:1fr}}

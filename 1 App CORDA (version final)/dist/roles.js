@@ -259,7 +259,7 @@ function coachPaymentsCard(){
 }
 function coachHome(){
   const academy=actor().academy,members=academyPlayers(academy),today=localDay();
-  return '<div class="heading"><div><h1>Panel del coach</h1><p class="muted">'+esc(academy)+'</p><button class="btn lime heading-cta" id="newsession">+ Crear sesión</button></div><div class="heading-actions">'+headingAvatar()+'</div></div>'+calendarBanner()+
+  return '<div class="heading"><div><h1>Panel del coach</h1><p class="muted">'+esc(academy)+'</p><button class="btn lime heading-cta" id="newsession">+ Crear sesión</button></div><div class="heading-actions">'+headingAvatar()+'</div></div>'+calendarBanner()+(typeof coachTodayCards==='function'?coachTodayCards():'')+
     `<div class="flow-week"><section class="agenda-main"><small class="eyebrow">Plan de hoy</small><h2>Entrenamientos del grupo</h2>${sessionsFor(today).map(sessionSummary).join('')||'<p class="hint">No hay sesiones programadas para hoy.</p>'}<button class="link" data-page="calendar">Ver plan de la academia ↗</button></section>${coachRosterCard(members)}</div>`+coachCheckinCard()+`<div class="flow-week coach-pair">${meetingCard()}${coachPaymentsCard()}</div>`;
 }
 // Tarjeta de seguimiento para el tutor: cómo va su jugador al entrenar y al competir.
@@ -339,6 +339,7 @@ function bindRoleActions(){
   bindPrivatePayments();
   if(typeof bindCollections==='function')bindCollections();
   if(typeof bindQuickNotes==='function')bindQuickNotes();
+  if(typeof bindCoachPanel==='function')bindCoachPanel();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});

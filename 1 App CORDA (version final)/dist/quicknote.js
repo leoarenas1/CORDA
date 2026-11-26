@@ -3,12 +3,15 @@
 const WA_ICON='<span class="wa-ico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>';
 const QUICK_TAGS=['Derecha','Revés','Saque','Volea','Movimiento','Táctica','Actitud','Físico'];
 const QUICK_MOODS=[['great','Muy bien','Trabajó muy bien hoy.'],['ok','Va bien','Va por buen camino.'],['fix','A corregir','Hay detalles importantes por corregir.']];
-function quickHasNote(record,day){
-  const r=record?.reviews?.[day];
-  return !!(r&&(r.quick||r.good||r.focus));
+// Una calificación aproximada por cada opción (alimenta la gráfica «qué tan cerca de su meta», que ya usaba la evaluación del día)
+const QUICK_SCORE={great:85,ok:65,fix:40};
+function quickDone(id,day){
+  const rec=state.checkins?.[id]?.coach?.[day];
+  const r=state.athletes?.[id]?.reviews?.[day];
+  return !!(rec||(r&&(r.quick||r.good||r.focus)));
 }
 function quickPending(day){
-  return academyPlayers(actor().academy).filter(m=>!quickHasNote(state.athletes?.[m.id],day));
+  return academyPlayers(actor().academy).filter(m=>!quickDone(m.id,day));
 }
 function quickText(prefix,tags){
   return tags.length?prefix+' '+tags.map((t,i)=>i?t.toLowerCase():t).join(', ')+'.':'';
@@ -18,14 +21,15 @@ function quickNote(memberId){
   if(!members.length){toast('Añade primero a tus jugadores.');return}
   const member=members.find(m=>m.id===memberId)||quickPending(today)[0]||members[0];
   const record=athleteFor(member),old=record.reviews?.[today]||{};
-  const done=members.filter(m=>quickHasNote(state.athletes?.[m.id],today)).length;
-  const next=members.find(m=>m.id!==member.id&&!quickHasNote(state.athletes?.[m.id],today));
+  const done=members.filter(m=>quickDone(m.id,today)).length;
+  const next=members.find(m=>m.id!==member.id&&!quickDone(m.id,today));
   const first=String(member.name||'').trim().split(/\s+/)[0]||'tu jugador';
   const phone=phoneDigits(member.phone);
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const S={mood:'',good:new Set(),focus:new Set(),extra:'',i:0};
-  const STEPS=['mood','good','focus','extra'];
-  const head=`<div class="quick-head">${avatar(member)}<div class="quick-head-text"><b>${esc(member.name)}</b><small>${done} de ${members.length} con nota hoy</small></div><select id="quick-member" aria-label="Cambiar de jugador">${members.map(m=>`<option value="${esc(m.id)}"${m.id===member.id?' selected':''}>${esc(m.name)}${quickHasNote(state.athletes?.[m.id],today)?' ✓':''}</option>`).join('')}</select></div>
+  const store=checkinStore(member.id),hasAtt=store.coach[today]!==undefined;
+  const S={att:'',mood:'',good:new Set(),focus:new Set(),extra:'',i:0};
+  const STEPS=hasAtt?['mood','good','focus','extra']:['att','mood','good','focus','extra'];
+  const head=`<div class="quick-head">${avatar(member)}<div class="quick-head-text"><b>${esc(member.name)}</b><small>${done} de ${members.length} con nota hoy</small></div><select id="quick-member" aria-label="Cambiar de jugador">${members.map(m=>`<option value="${esc(m.id)}"${m.id===member.id?' selected':''}>${esc(m.name)}${quickDone(m.id,today)?' ✓':''}</option>`).join('')}</select></div>
     <div class="quick-dots" aria-hidden="true">${STEPS.map(()=>'<i></i>').join('')}</div><div id="quick-stage" class="quick-stage" aria-live="polite"></div>`;
   modal('Nota rápida',head,null);
   const m=$('#modal');
@@ -39,6 +43,7 @@ function quickNote(memberId){
   };
   const nav=(back,mid,main)=>`<div class="quick-nav">${back?'<button type="button" class="link" data-q="back">← Atrás</button>':'<span></span>'}${mid||''}${main||''}</div>`;
   const html={
+    att:()=>`<h3 class="quick-q">¿Vino ${esc(first)} hoy a entrenar?</h3><div class="quick-moods two">${[['yes','Sí vino'],['no','No vino']].map(([id,t],n)=>`<button type="button" class="quick-mood" style="--n:${n}" data-quick-att="${id}" aria-pressed="${S.att===id}">${t}</button>`).join('')}</div><p class="muted quick-tip">Toca una opción para continuar.</p>`,
     mood:()=>`<h3 class="quick-q">¿Cómo trabajó ${esc(first)} hoy?</h3><div class="quick-moods">${QUICK_MOODS.map(([id,t],n)=>`<button type="button" class="quick-mood mood-${id}" style="--n:${n}" data-quick-mood="${id}" aria-pressed="${S.mood===id}">${t}</button>`).join('')}</div><p class="muted quick-tip">Toca una opción para continuar.</p>`,
     good:()=>`<h3 class="quick-q">¿Qué mejoró?</h3>${chips(S.good)}${nav(true,'<button type="button" class="link" data-q="skip">Omitir</button>','<button type="button" class="btn lime" data-q="next">Siguiente →</button>')}`,
     focus:()=>`<h3 class="quick-q">¿Qué ajustamos después?</h3>${chips(S.focus)}${nav(true,'<button type="button" class="link" data-q="skip">Omitir</button>','<button type="button" class="btn lime" data-q="next">Siguiente →</button>')}`,
@@ -56,12 +61,14 @@ function quickNote(memberId){
   function save(){
     const mood=QUICK_MOODS.find(x=>x[0]===S.mood),goodTags=[...S.good],focusTags=[...S.focus];
     const extra=($('#quick-extra')?.value||S.extra||'').trim();
-    if(!mood&&!goodTags.length&&!focusTags.length&&!extra){toast('Elige cómo trabajó o escribe una nota.');view(0,-1);return false}
+    if(!mood&&!goodTags.length&&!focusTags.length&&!extra){toast('Elige cómo trabajó o escribe una nota.');view(STEPS.indexOf('mood'),-1);return false}
     const good=[goodTags.length?quickText('Mejoró:',goodTags):(mood&&mood[0]!=='fix'?mood[2]:''),extra].filter(Boolean).join(' ');
     const focus=focusTags.length?quickText('Siguiente ajuste:',focusTags):(mood&&mood[0]==='fix'?mood[2]:'');
     S.last={mood,goodTags,focusTags,extra};
     record.reviews??={};
     record.reviews[today]={...old,good:good||old.good||'',focus:focus||old.focus||'',mood:mood?mood[0]:(old.mood||''),quick:true,by:actor()?.name||''};
+    const prev=store.coach[today]||{};
+    store.coach[today]={...prev,attended:true,score:mood?QUICK_SCORE[mood[0]]:(Number.isFinite(prev.score)?prev.score:lastScore(store.coach)),good:good||prev.good||'',missing:focus||prev.missing||'',by:actor()?.name||'Coach',at:Date.now()};
     return true;
   }
   const FAMILY={great:'Trabajó muy bien hoy.',ok:'Va por buen camino.',fix:'Hay detalles por afinar.'};
@@ -73,6 +80,13 @@ function quickNote(memberId){
       l.extra||'',
       l.focusTags?.length?quickText('Siguiente ajuste:',l.focusTags):'',
       coach?'Cualquier duda, con gusto. — '+coach:'Cualquier duda, con gusto.'].filter(Boolean).join('\n');
+  }
+  function absent(){
+    store.coach[today]={attended:false,by:actor()?.name||'Coach',at:Date.now()};
+    saveState();
+    stage.innerHTML=`<div class="quick-done"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg><b>Falta registrada</b><small>${esc(first)}</small></div>`;
+    dots.forEach(d=>d.className='is-done');
+    setTimeout(()=>{if(next){quickNote(next.id)}else{m.close();render();toast('Falta registrada')}},820);
   }
   function finish(goNext,whatsapp){
     if(!save())return;
@@ -87,13 +101,18 @@ function quickNote(memberId){
   }
   stage.addEventListener('click',e=>{
     const t=e.target.closest('button');if(!t)return;
+    if(t.dataset.quickAtt){
+      S.att=t.dataset.quickAtt;
+      stage.querySelectorAll('[data-quick-att]').forEach(b=>b.setAttribute('aria-pressed',String(b===t)));
+      setTimeout(()=>{if(S.att==='no')absent();else view(S.i+1,1)},260);return;
+    }
     if(t.dataset.quickMood){
       S.mood=t.dataset.quickMood;
       stage.querySelectorAll('[data-quick-mood]').forEach(b=>b.setAttribute('aria-pressed',String(b===t)));
-      setTimeout(()=>view(1,1),260);return;
+      setTimeout(()=>view(S.i+1,1),260);return;
     }
     if(t.dataset.quickTag){
-      const set=S.i===1?S.good:S.focus,tag=t.dataset.quickTag;
+      const set=STEPS[S.i]==='good'?S.good:S.focus,tag=t.dataset.quickTag;
       if(set.has(tag))set.delete(tag);else set.add(tag);
       t.setAttribute('aria-pressed',String(set.has(tag)));return;
     }
@@ -126,3 +145,6 @@ function bindQuickNotes(){
   if($('#quick-notes'))$('#quick-notes').onclick=()=>quickNote();
   if($('#student-quick'))$('#student-quick').onclick=()=>quickNote(rosterDetail);
 }
+
+// La evaluación del día ahora es la nota rápida (incluye asistencia). El formulario largo sigue en «Evaluar jugador».
+function openCoachCheckin(member){quickNote(member.id)}
