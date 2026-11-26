@@ -128,7 +128,7 @@ function latestPlayerNote(record){
 }
 function playerList(){
   const members=academyPlayers(actor().academy);
-  return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn lime" id="roster-add">+ Jugador</button>')+
+  return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn lime" id="quick-notes">Nota rápida</button><button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn light" id="roster-add">+ Jugador</button>')+
     (members.length?(()=>{
       // Primero quien necesita atención: rojo, amarillo, sin datos y al final los que van bien.
       const order={red:0,yellow:1,none:2,green:3};
@@ -224,7 +224,7 @@ function athleteDetail(record,name){
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
     ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>`}
     <div class="trend-gap">${wellnessTrend(record.profile.memberId,false,name)}</div>
-    ${role==='Tutor'?famGuideCard(record):`<section class="card"><div class="sectiontitle"><h2>Evaluaciones</h2>${role==='Coach'?'<button class="btn small" id="student-review">Evaluar jugador</button>':''}</div>
+    ${role==='Tutor'?famGuideCard(record):`<section class="card"><div class="sectiontitle"><h2>Evaluaciones</h2>${role==='Coach'?'<button class="btn small lime" id="student-quick">Nota rápida</button><button class="btn small" id="student-review">Evaluar jugador</button>':''}</div>
     ${[...history,...months].sort(([a],[b])=>b.localeCompare(a)).map(([date,n])=>`<article class="progress-entry"><small>${esc(date)}</small><h3>${esc(n.good)}</h3><p>${esc(n.focus)}</p></article>`).join('')||'<p class="hint">Las observaciones de este jugador aparecerán aquí.</p>'}</section>`}`;
 }
 function staffProgress(){
@@ -338,6 +338,7 @@ function adultProfile(){
 function bindRoleActions(){
   bindPrivatePayments();
   if(typeof bindCollections==='function')bindCollections();
+  if(typeof bindQuickNotes==='function')bindQuickNotes();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});
