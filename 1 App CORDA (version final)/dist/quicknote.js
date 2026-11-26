@@ -1,5 +1,6 @@
 // CORDA · Nota rápida del coach (≈20 segundos): una pregunta a la vez, con toques y, si quiere, dictado por voz.
 // Se guarda como la evaluación del día del jugador (la misma que ve en «Seguimiento del coach»).
+const WA_ICON='<span class="wa-ico" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path fill="currentColor" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg></span>';
 const QUICK_TAGS=['Derecha','Revés','Saque','Volea','Movimiento','Táctica','Actitud','Físico'];
 const QUICK_MOODS=[['great','Muy bien','Trabajó muy bien hoy.'],['ok','Va bien','Va por buen camino.'],['fix','A corregir','Hay detalles importantes por corregir.']];
 function quickHasNote(record,day){
@@ -20,6 +21,7 @@ function quickNote(memberId){
   const done=members.filter(m=>quickHasNote(state.athletes?.[m.id],today)).length;
   const next=members.find(m=>m.id!==member.id&&!quickHasNote(state.athletes?.[m.id],today));
   const first=String(member.name||'').trim().split(/\s+/)[0]||'tu jugador';
+  const phone=phoneDigits(member.phone);
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const S={mood:'',good:new Set(),focus:new Set(),extra:'',i:0};
   const STEPS=['mood','good','focus','extra'];
@@ -40,7 +42,7 @@ function quickNote(memberId){
     mood:()=>`<h3 class="quick-q">¿Cómo trabajó ${esc(first)} hoy?</h3><div class="quick-moods">${QUICK_MOODS.map(([id,t],n)=>`<button type="button" class="quick-mood mood-${id}" style="--n:${n}" data-quick-mood="${id}" aria-pressed="${S.mood===id}">${t}</button>`).join('')}</div><p class="muted quick-tip">Toca una opción para continuar.</p>`,
     good:()=>`<h3 class="quick-q">¿Qué mejoró?</h3>${chips(S.good)}${nav(true,'<button type="button" class="link" data-q="skip">Omitir</button>','<button type="button" class="btn lime" data-q="next">Siguiente →</button>')}`,
     focus:()=>`<h3 class="quick-q">¿Qué ajustamos después?</h3>${chips(S.focus)}${nav(true,'<button type="button" class="link" data-q="skip">Omitir</button>','<button type="button" class="btn lime" data-q="next">Siguiente →</button>')}`,
-    extra:()=>`<h3 class="quick-q">¿Algo más para ${esc(first)}?</h3>${summary()}<label class="quick-extra"><span class="visually-hidden">Nota</span><textarea id="quick-extra" maxlength="400" rows="3" placeholder="Una frase corta (opcional)…">${esc(S.extra)}</textarea></label>${SR?'<div class="quick-dictate"><button type="button" class="btn light small" id="quick-dictate">🎤 Dictar</button> <small class="muted" id="quick-dictate-state"></small></div>':''}${nav(true,'','<button type="button" class="btn lime" data-q="save">Guardar nota</button>')}${next?'<button type="button" class="btn light quick-next" data-q="save-next">Guardar y pasar a '+esc(next.name.split(' ')[0])+' →</button>':''}`
+    extra:()=>`<h3 class="quick-q">¿Algo más para ${esc(first)}?</h3>${summary()}<label class="quick-extra"><span class="visually-hidden">Nota</span><textarea id="quick-extra" maxlength="400" rows="3" placeholder="Una frase corta (opcional)…">${esc(S.extra)}</textarea></label>${SR?'<div class="quick-dictate"><button type="button" class="btn light small" id="quick-dictate">🎤 Dictar</button> <small class="muted" id="quick-dictate-state"></small></div>':''}${nav(true,'','<button type="button" class="btn lime" data-q="save">Guardar nota</button>')}${phone?'<button type="button" class="btn light quick-next quick-wa" data-q="save-wa">'+WA_ICON+'<span>Guardar y enviar a la familia</span></button>':'<button type="button" class="quick-addphone" data-q="add-phone">'+WA_ICON+'<span>Añadir a la familia</span></button>'}${next?'<button type="button" class="btn light quick-next" data-q="save-next">Guardar y pasar a '+esc(next.name.split(' ')[0])+' →</button>':''}`
   };
   function view(i,dir=1){
     S.i=i;
@@ -57,12 +59,24 @@ function quickNote(memberId){
     if(!mood&&!goodTags.length&&!focusTags.length&&!extra){toast('Elige cómo trabajó o escribe una nota.');view(0,-1);return false}
     const good=[goodTags.length?quickText('Mejoró:',goodTags):(mood&&mood[0]!=='fix'?mood[2]:''),extra].filter(Boolean).join(' ');
     const focus=focusTags.length?quickText('Siguiente ajuste:',focusTags):(mood&&mood[0]==='fix'?mood[2]:'');
+    S.last={mood,goodTags,focusTags,extra};
     record.reviews??={};
     record.reviews[today]={...old,good:good||old.good||'',focus:focus||old.focus||'',mood:mood?mood[0]:(old.mood||''),quick:true,by:actor()?.name||''};
     return true;
   }
-  function finish(goNext){
+  const FAMILY={great:'Trabajó muy bien hoy.',ok:'Va por buen camino.',fix:'Hay detalles por afinar.'};
+  function familyText(){
+    const l=S.last||{},coach=String(actor()?.name||'').trim().split(/\s+/)[0];
+    return [`Hola, familia de ${first}. Les comparto cómo trabajó hoy en ${state.profile.academy}:`,
+      l.mood?FAMILY[l.mood[0]]:'',
+      l.goodTags?.length?quickText('Mejoró:',l.goodTags):'',
+      l.extra||'',
+      l.focusTags?.length?quickText('Siguiente ajuste:',l.focusTags):'',
+      coach?'Cualquier duda, con gusto. — '+coach:'Cualquier duda, con gusto.'].filter(Boolean).join('\n');
+  }
+  function finish(goNext,whatsapp){
     if(!save())return;
+    if(whatsapp&&phone)window.open('https://wa.me/'+phone+'?text='+encodeURIComponent(familyText()),'_blank','noopener,noreferrer');
     saveState();
     stage.innerHTML=`<div class="quick-done"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg><b>Nota guardada</b><small>${esc(first)}</small></div>`;
     dots.forEach(d=>d.className='is-done');
@@ -88,6 +102,8 @@ function quickNote(memberId){
     else if(q==='next'||q==='skip')view(S.i+1,1);
     else if(q==='save')finish(false);
     else if(q==='save-next')finish(true);
+    else if(q==='save-wa')finish(true,true);
+    else if(q==='add-phone')editMember(member.id,'Jugador');
   });
   stage.addEventListener('input',e=>{if(e.target.id==='quick-extra')S.extra=e.target.value});
   $('#quick-member').onchange=e=>quickNote(e.target.value);

@@ -1619,3 +1619,13 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 
 .quick-nav .btn,.quick-next{display:inline-flex;align-items:center;justify-content:center;text-align:center}
 .quick-dictate .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center}
+
+
+/* Icono de WhatsApp y botón para añadir a la familia */
+.wa-ico{display:inline-grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--verde-medio,#1E6B4F);color:#fff}
+.wa-ico svg{width:17px;height:17px}
+.quick-wa{gap:10px}
+.quick-addphone{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:52px;margin-top:var(--space-3);padding:0 var(--space-4);border:1.5px dashed var(--line);border-radius:14px;background:transparent;color:var(--ink);font:700 16px/20px var(--font-sans,inherit);cursor:pointer;transition:border-color .2s,background .2s,transform .15s}
+.quick-addphone:hover{border-color:var(--verde-medio,#1E6B4F);background:var(--surface)}
+.quick-addphone:active{transform:scale(.98)}
+.quick-addphone:focus-visible{outline:3px solid var(--lima,#C8F03C);outline-offset:2px}
