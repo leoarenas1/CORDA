@@ -129,6 +129,7 @@ function latestPlayerNote(record){
 function playerList(){
   const members=academyPlayers(actor().academy);
   return heading('Mis jugadores',esc(actor().academy)+' · '+members.length+' jugadores','<button class="btn lime" id="quick-notes">Nota rápida</button><button class="btn light" id="access-codes">Códigos de acceso</button><button class="btn light" id="roster-add">+ Jugador</button>')+
+    (typeof onbCard==='function'?onbCard(members):'')+
     (members.length?(()=>{
       // Primero quien necesita atención: rojo, amarillo, sin datos y al final los que van bien.
       const order={red:0,yellow:1,none:2,green:3};
@@ -341,6 +342,7 @@ function bindRoleActions(){
   if(typeof bindCollections==='function')bindCollections();
   if(typeof bindQuickNotes==='function')bindQuickNotes();
   if(typeof bindCoachPanel==='function')bindCoachPanel();
+  if(typeof bindOnboarding==='function')bindOnboarding();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});

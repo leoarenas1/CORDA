@@ -1670,3 +1670,21 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 /* Dentro de una rejilla manda el espacio (gap) de la rejilla: sin margen extra que descuadre columnas o duplique la separación */
 .shell main :is(.flow-week,.today-grid,.coach-pair,.portal-grid,.columns)>:is(.card,.agenda-main,.next-card,section,details){margin-top:0}
 .shell main :is(.flow-week,.today-grid,.coach-pair,.portal-grid,.columns)>:is(.card,.agenda-main,.next-card,section,details)+:is(.card,.agenda-main,.next-card,section,details){margin-top:0}
+
+/* Entrada fácil: importar e invitar */
+.onb-card{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-4);margin:var(--space-4) 0}
+.onb-card h2{margin:0}
+.onb-actions{display:flex;flex-wrap:wrap;gap:var(--space-3)}
+.onb-actions .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;text-align:center;min-height:48px}
+.onb-modal{max-width:560px;width:calc(100% - 24px)}
+.onb-preview{margin:0;padding:var(--space-3);border-radius:12px;background:var(--surface);font-weight:600}
+.onb-file input{display:block;margin-top:var(--space-2)}
+.onb-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--space-2)}
+.onb-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-3);padding:var(--space-3);border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.onb-who{display:flex;align-items:center;gap:var(--space-3);min-width:0}
+.onb-who .avatar,.onb-who img{width:40px;height:40px;flex:none}
+.onb-who b,.onb-who small{display:block}
+.onb-who small{color:var(--ink-muted);font-size:13px}
+.onb-row-actions{display:flex;align-items:center;gap:var(--space-3)}
+.onb-minor{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap}
+.onb-minor input{width:18px;height:18px}
