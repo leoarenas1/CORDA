@@ -23,6 +23,10 @@ function bankSettings(){
   const known=/mouratoglou/i.test(group.academy)&&/guadalajara|gdl/i.test(group.academy);
   return group.feeBank||{bank:known?'Santander':'',holder:known?'GS SPORTS ACADEMY SA DE CV':'',account:'',clabe:''};
 }
+// Solo se aceptan enlaces https (el coach pega el link de pago de su academia: Mercado Pago, Stripe, etc.)
+function safePayLink(url){
+  try{const u=new URL(String(url||'').trim());return u.protocol==='https:'?u.href:''}catch{return ''}
+}
 function feeStatus(ledger,key){
   return ledger.months[key]?.payment||(ledger.months[key]?.amount||key===localDay().slice(0,7)?'Pendiente':'Sin registro');
 }
@@ -44,6 +48,7 @@ function feePage(){
     <section class="card"><div class="row"><h2>Cómo pagar</h2>${role==='Coach'?'<button id="fee-config" class="link">Configurar</button>':''}</div>
     <ol class="fee-steps"><li>Selecciona el mes y revisa el importe indicado por tu academia.</li><li>Transfiere el importe en MXN a la cuenta indicada abajo. En el concepto o referencia escribe <strong>únicamente tu matrícula de 7 caracteres</strong>, incluidos los ceros iniciales. Un concepto distinto puede ocasionar el rechazo del pago.</li><li>Sube el comprobante al mes que pagaste. Cuando administración verifique el ingreso, verás una palomita verde junto a ese mes.</li></ol>
     <div class="fee-reference"><small>Tu matrícula personal</small><b>${esc(ledger.code||'Pendiente de asignar')}</b></div>
+    ${safePayLink(bank.payLink)?`<a class="btn lime pay-online" href="${esc(safePayLink(bank.payLink))}" target="_blank" rel="noopener noreferrer">Pagar en línea ↗</a><p class="hint">Se abre la página de pago de tu academia. Después de pagar, sube aquí tu comprobante para que tu academia lo confirme.</p>`:''}
     <dl class="bank-info">${[['Banco',bank.bank],['Beneficiario',bank.holder],['Número de cuenta',bank.account],['CLABE',bank.clabe]].map(([k,v])=>`<dt>${k}</dt><dd>${esc(v||'Pendiente de configurar')}</dd>`).join('')}</dl>
     ${!ledger.code||!(bank.account||bank.clabe)?'<p class="hint">Solicita a administración los datos pendientes antes de transferir.</p>':''}</section></div>${playerPrivateCard()}`;
 }
@@ -75,14 +80,16 @@ function bindFees(){
   };
   if($('#fee-config'))$('#fee-config').onclick=()=>{
     const bank=bankSettings(),group=groupData();
-    const inputs=[['Matrícula del jugador (7 caracteres)','code',ledger.code],['Importe de este mes (MXN)','amount',ledger.months[key]?.amount],['Banco','bank',bank.bank],['Beneficiario','holder',bank.holder],['Número de cuenta','account',bank.account],['CLABE (18 dígitos)','clabe',bank.clabe]];
+    const inputs=[['Matrícula del jugador (7 caracteres)','code',ledger.code],['Importe de este mes (MXN)','amount',ledger.months[key]?.amount],['Banco','bank',bank.bank],['Beneficiario','holder',bank.holder],['Número de cuenta','account',bank.account],['CLABE (18 dígitos)','clabe',bank.clabe],['Link de pago en línea (opcional, https)','paylink',bank.payLink]];
     modal('Datos de mensualidad',inputs.map(([label,name,v])=>field(label,name,v||'','text',false)).join(''),data=>{
       const code=data.code.trim(),amount=data.amount.trim(),clabe=data.clabe.trim();
       if(code&&!/^[a-z0-9]{7}$/i.test(code)){toast('La matrícula debe tener siete letras o números.');return false}
       if(amount&&(!/^\d+(\.\d{1,2})?$/.test(amount)||Number(amount)<=0)){toast('Revisa el importe en MXN.');return false}
       if(clabe&&!/^\d{18}$/.test(clabe)){toast('La CLABE debe tener 18 dígitos.');return false}
+      const paylink=String(data.paylink||'').trim();
+      if(paylink&&!safePayLink(paylink)){toast('El link de pago debe empezar con https://');return false}
       const oldCode=ledger.code,oldBank=group.feeBank;
-      ledger.code=code;group.feeBank={bank:data.bank.trim(),holder:data.holder.trim(),account:data.account.trim(),clabe};
+      ledger.code=code;group.feeBank={bank:data.bank.trim(),holder:data.holder.trim(),account:data.account.trim(),clabe,payLink:safePayLink(paylink)};
       if(!updateFeeRow(ledger,key,{amount})){ledger.code=oldCode;group.feeBank=oldBank;return false}
     });
   };

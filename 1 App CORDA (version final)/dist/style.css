@@ -1629,3 +1629,5 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .quick-addphone:hover{border-color:var(--verde-medio,#1E6B4F);background:var(--surface)}
 .quick-addphone:active{transform:scale(.98)}
 .quick-addphone:focus-visible{outline:3px solid var(--lima,#C8F03C);outline-offset:2px}
+
+.pay-online{display:flex;align-items:center;justify-content:center;text-align:center;width:100%;margin:var(--space-4) 0 var(--space-2);min-height:52px}

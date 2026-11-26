@@ -35,6 +35,8 @@ function remindText(r,key){
     `Te recordamos la mensualidad de ${monthName}${r.amount?' ('+mxn(r.amount)+')':''}.`];
   if(r.ledger?.code)lines.push(`Al transferir, escribe solo la matrícula ${r.ledger.code} como concepto.`);
   if(bank.clabe)lines.push(`CLABE: ${bank.clabe}${bank.holder?' · '+bank.holder:''}.`);
+  const pay=safePayLink(bank.payLink);
+  if(pay)lines.push('Puedes pagar en línea aquí: '+pay);
   lines.push('Cuando pagues, sube el comprobante en CORDA: https://app.cordatenis.com','¡Gracias!');
   return lines.join('\n');
 }
