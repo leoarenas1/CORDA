@@ -21,6 +21,7 @@ function session(s){return `<div class="session"><div class="time">${esc(s.time)
 function goal(g){return `<div class="goal"><div class="row"><span class="badge gray">Objetivo técnico</span><small>${g.progress}%</small></div><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><div class="progress"><i style="width:${g.progress}%"></i></div>${role==='Coach'?`<button class="link" data-progress="${g.id}">Actualizar avance</button>`:''}</div>`}
 function content(){const p=state.profile;
 if(role==='Coach'&&page==='student-fees'&&academyPlayers(actor().academy).some(m=>m.id===rosterDetail))return '<button class="link" data-page="goals">← Ficha del jugador</button>'+feePage();
+if(role==='Coach'&&page==='owner'&&typeof ownerPage==='function')return ownerPage();
 if(role==='Coach'&&page==='private-payments')return payTab==='privadas'?payTabs()+weeklyPage():collectionsPage();
 if(role==='Coach'&&page==='appointments')return heading('Citas','Disponibilidad y juntas de la academia')+meetingCard();
 if(role!=='Jugador'&&page==='profile')return adultProfile();

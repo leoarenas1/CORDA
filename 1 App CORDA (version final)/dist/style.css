@@ -1688,3 +1688,27 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .onb-row-actions{display:flex;align-items:center;gap:var(--space-3)}
 .onb-minor{display:flex;align-items:center;gap:6px;font-size:14px;white-space:nowrap}
 .onb-minor input{width:18px;height:18px}
+
+/* Vista del dueño */
+.own-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-4)}
+.own-cta h2{margin:0}
+.own-cta .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
+.own-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);margin:var(--space-4) 0}
+.own-kpi .today-num b{font-size:clamp(26px,5vw,36px)}
+.own-legend{display:flex;align-items:center;gap:var(--space-2);font-size:13px;color:var(--ink-muted)}
+.own-legend i{display:inline-block;width:12px;height:12px;border-radius:3px}
+.own-paid{background:var(--verde-medio,#1E6B4F)}
+.own-owed{background:var(--lima,#C8F03C)}
+.own-bars{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--space-3);align-items:end;margin-top:var(--space-5)}
+.own-bar{display:grid;justify-items:center;gap:4px;text-align:center}
+.own-bar-col{display:flex;flex-direction:column-reverse;justify-content:flex-start;width:100%;max-width:56px;height:140px;border-radius:10px;overflow:hidden;background:var(--surface)}
+.own-bar-col i{display:block;width:100%}
+.own-bar small{text-transform:capitalize;color:var(--ink-muted)}
+.own-bar b{font-size:12px;font-weight:600}
+.own-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-5)}
+.own-actions .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
+.own-team{list-style:none;margin:var(--space-3) 0 0;padding:0;display:grid;gap:var(--space-2)}
+.own-team li{display:grid;grid-template-columns:1fr auto;gap:2px var(--space-3);padding:var(--space-3);border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.own-team small{grid-column:1/-1;color:var(--ink-muted);font-size:13px}
+.own-team span{font-weight:600}
+@media (max-width:680px){.own-kpis{grid-template-columns:1fr}}

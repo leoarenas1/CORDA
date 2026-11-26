@@ -343,6 +343,7 @@ function bindRoleActions(){
   if(typeof bindQuickNotes==='function')bindQuickNotes();
   if(typeof bindCoachPanel==='function')bindCoachPanel();
   if(typeof bindOnboarding==='function')bindOnboarding();
+  if(typeof bindOwner==='function')bindOwner();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});
