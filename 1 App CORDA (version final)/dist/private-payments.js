@@ -54,7 +54,7 @@ function savePrivateRow(student,week,row){
   return false;
 }
 function bindPrivatePayments(){
-  if(role!=='Coach'||page!=='private-payments')return;
+  if(role!=='Coach'||page!=='private-payments'||(typeof payTab!=='undefined'&&payTab!=='privadas'))return;
   const book=coachLedger(),week=privateWeek;
   document.querySelectorAll('[data-private-shift]').forEach(b=>b.onclick=()=>{privateWeek=dateAfter(week,Number(b.dataset.privateShift));render()});
   $('#private-today').onclick=()=>{privateWeek=weekOf(localDay());render()};

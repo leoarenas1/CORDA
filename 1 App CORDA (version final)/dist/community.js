@@ -70,7 +70,7 @@ function editMember(id,defaultRole='Coach'){
   const self=existing?.id===actor()?.memberId;
   let photo=member.photo||'';
   const body=(self?'':field('Nombre','name',member.name)+select('Rol','role',['Coach','Jugador','Preparador físico','Director','Tutor'],member.role))+
-    field('Correo de contacto (opcional)','email',member.email,'email',false)+field('Teléfono con lada (opcional)','phone',member.phone,'tel',false)+
+    field('Correo de contacto (opcional)','email',member.email,'email',false)+field('Teléfono con lada (opcional)','phone',member.phone,'tel',false)+(role==='Coach'&&member.role==='Jugador'&&!self?'<p class="full hint">Si es menor de edad, escribe el WhatsApp de su tutor. La academia lo usa para recordar las mensualidades.</p>':'')+
     `<label class="full">Descripción<textarea name="bio" maxlength="400">${esc(member.bio||'')}</textarea></label><label class="full">Foto (opcional)<input id="directory-photo" type="file" accept="image/jpeg,image/png"></label><p class="full hint">Añade solo los datos que quieras mostrar en el directorio de tu academia.</p>`;
   modal(self?'Mi ficha de equipo':existing?'Editar integrante':'Nuevo integrante',body,values=>{
     const digits=phoneDigits(values.phone);

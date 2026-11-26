@@ -337,6 +337,7 @@ function adultProfile(){
 }
 function bindRoleActions(){
   bindPrivatePayments();
+  if(typeof bindCollections==='function')bindCollections();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});

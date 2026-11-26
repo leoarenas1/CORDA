@@ -1563,3 +1563,14 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .coach-chip input:checked+span{background:#0F3B2C;border-color:#0F3B2C;color:#F4EFE3}
 .coach-chip input:checked+span small{color:#C8F03C}
 .coach-chip input:focus-visible+span{outline:2px solid var(--focus-ring);outline-offset:2px}
+
+/* Cobranza del coach (mensualidades) */
+.collect-list{list-style:none;margin:var(--space-4) 0 0;padding:0;display:grid;gap:var(--space-2)}
+.collect-row{display:grid;grid-template-columns:minmax(0,1.2fr) auto minmax(0,1.4fr);align-items:center;gap:var(--space-3);padding:var(--space-3) 0;border-top:1px solid var(--line)}
+.collect-row:first-child{border-top:0}
+.collect-who{display:flex;align-items:center;gap:var(--space-3);min-width:0}
+.collect-who .avatar,.collect-who img{width:40px;height:40px;flex:none}
+.collect-who b,.collect-who small{display:block;overflow:hidden;text-overflow:ellipsis}
+.collect-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:var(--space-2)}
+.month-name::first-letter{text-transform:uppercase}
+@media (max-width:680px){.collect-row{grid-template-columns:1fr auto}.collect-actions{grid-column:1/-1;justify-content:flex-start}}
