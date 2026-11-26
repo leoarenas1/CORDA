@@ -1650,3 +1650,23 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .attn-go{font-weight:700;color:var(--verde-medio,#1E6B4F)}
 .quick-moods.two{grid-template-columns:1fr 1fr}
 @media (max-width:520px){.today-grid{grid-template-columns:1fr}}
+
+/* Inicio familiar: mensualidad, mensaje del coach y privacidad */
+.money-row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3)}
+.money-amount{font:700 clamp(24px,6vw,30px)/1 var(--font-display,inherit);letter-spacing:-.01em}
+.money-pay{display:flex;align-items:center;justify-content:center;text-align:center;width:100%;min-height:48px;margin:var(--space-3) 0 var(--space-2)}
+.coach-says{margin-top:var(--space-4)}
+.says-by{display:flex;align-items:center;gap:var(--space-3);margin:var(--space-2) 0 var(--space-3)}
+.says-by .avatar,.says-by img{width:40px;height:40px;flex:none}
+.coach-wa{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:var(--space-3)}
+.fam-privacy{margin:var(--space-4) 0;padding:var(--space-4)}
+.fam-privacy summary{cursor:pointer;font:600 16px/22px var(--font-display,inherit)}
+.fam-privacy p{margin:var(--space-3) 0 var(--space-2);color:var(--ink-muted);font-size:15px}
+
+/* Separación uniforme entre tarjetas: también cuando van dentro de un contenedor de la página */
+.shell main>*+:is(.flow-week,.portal-grid,.today-grid,.columns,.private-list,.coach-pair,.fee-detail){margin-top:var(--space-6)}
+.shell main>:is(.flow-week,.portal-grid,.today-grid,.columns)+*:is(.card,.agenda-main,.fam-guide,.next-card){margin-top:var(--space-6)}
+
+/* Dentro de una rejilla manda el espacio (gap) de la rejilla: sin margen extra que descuadre columnas o duplique la separación */
+.shell main :is(.flow-week,.today-grid,.coach-pair,.portal-grid,.columns)>:is(.card,.agenda-main,.next-card,section,details){margin-top:0}
+.shell main :is(.flow-week,.today-grid,.coach-pair,.portal-grid,.columns)>:is(.card,.agenda-main,.next-card,section,details)+:is(.card,.agenda-main,.next-card,section,details){margin-top:0}

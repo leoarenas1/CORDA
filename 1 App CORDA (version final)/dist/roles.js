@@ -328,8 +328,9 @@ function familyHome(){
   const member=academyPlayers(actor().academy).find(m=>m.id===actor().childId);
   const note=latestPlayerNote(athleteFor(member));
   return heading('Inicio familiar',esc(member.name)+' · '+esc(member.academy),'<div class="heading-actions">'+headingAvatar()+'</div>')+calendarBanner()+
-    '<div class="portal-grid">'+nextSessionCard()+'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section></div>'+
-    '<div class="flow-week">'+familyFollowCard(member)+meetingCard()+'</div>'+famGuideCard(athleteFor(member))+rainNotice();
+    (typeof tutorCoachCard==='function'?tutorCoachCard(member):'')+
+    '<div class="portal-grid">'+nextSessionCard()+(typeof tutorMoneyCard==='function'?tutorMoneyCard():'<section class="card"><small class="eyebrow">Mensualidad</small><h2>'+esc(feeStatus(feeLedger(),localDay().slice(0,7)))+'</h2><button class="link" data-page="payments">Ver pagos ↗</button></section>')+'</div>'+
+    '<div class="flow-week">'+familyFollowCard(member)+meetingCard()+'</div>'+(typeof tutorPrivacyLine==='function'?tutorPrivacyLine(member):'')+famGuideCard(athleteFor(member))+rainNotice();
 }
 function adultProfile(){
   const a=actor();
