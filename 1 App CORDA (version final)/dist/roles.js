@@ -29,8 +29,10 @@ function useAthlete(member){
 /* Versión de la demo: 'conecta' bloquea con candado lo que es de CORDA Progreso. Cambia a 'progreso' para abrirlo todo. */
 const PLAN_DEMO='conecta';
 const planLocked=()=>PLAN_DEMO==='conecta';
-function lockCard(title,text){
-  return `<section class="card lockcard"><div class="lockicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div class="lockbody"><small class="eyebrow">Incluido en CORDA Progreso</small><h2>${title}</h2><p class="hint">${text}</p><a class="btn lime small" href="https://www.cordatenis.com/#demo" target="_blank" rel="noopener">Contrata CORDA Progreso</a></div></section>`;
+function lockCard(title,text,points){
+  const list=Array.isArray(points)&&points.length?`<ul class="lock-points">${points.map(x=>`<li>${x}</li>`).join('')}</ul>`:'';
+  const cta=role==='Coach'?'<a class="btn lime small" href="https://www.cordatenis.com/#precio" target="_blank" rel="noopener">Ver CORDA Progreso</a>':'<p class="lock-ask">Tu academia puede activarlo con CORDA Progreso. Pregúntale a tu coach.</p>';
+  return `<section class="card lockcard"><div class="lockicon" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><div class="lockbody"><small class="eyebrow">Con CORDA Progreso</small><h2>${title}</h2><p class="hint">${text}</p>${list}${cta}</div></section>`;
 }
 function roleNav(){
   const labels=role==='Coach'?['Panel','Plan','Jugadores','Academia','Pagos']:role==='Tutor'?['Inicio','Agenda','Avances','Academia','Mensualidad']:['Inicio','Plan','Estado','Academia','Mensualidad'];

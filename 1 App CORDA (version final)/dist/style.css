@@ -1719,3 +1719,8 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .pc-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center}
 .pc-actions .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
 .coach-says>[data-progress-card]{margin-top:var(--space-3);display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
+
+.lockcard .lock-points{margin:0;padding:0;list-style:none;display:grid;gap:var(--space-1)}
+.lockcard .lock-points li{position:relative;padding-left:22px;font-size:.95rem}
+.lockcard .lock-points li::before{content:"✓";position:absolute;left:0;color:#1E6B4F;font-weight:700}
+.lockcard .lock-ask{margin:0;font-size:.9rem;color:var(--ink-soft,#41584d)}
