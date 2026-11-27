@@ -348,6 +348,7 @@ function bindRoleActions(){
   if(typeof bindOwner==='function')bindOwner();
   if(typeof bindWeekCopy==='function')bindWeekCopy();
   if(typeof bindProgressCard==='function')bindProgressCard();
+  if(typeof bindTestSeed==='function')bindTestSeed();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});

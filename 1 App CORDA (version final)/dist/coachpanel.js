@@ -18,7 +18,7 @@ function coachAttention(members,limit=5){
 }
 function coachTodayCards(){
   const members=academyPlayers(actor().academy),today=localDay(),cur=today.slice(0,7);
-  if(!members.length)return '';
+  if(!members.length)return typeof testToolsCard==='function'?testToolsCard():'';
   const doneN=members.filter(m=>quickDone(m.id,today)).length,pct=Math.round(doneN/members.length*100);
   const rows=members.map(m=>collectRow(m,cur));
   const pend=rows.filter(r=>r.status==='Pendiente'),rev=rows.filter(r=>r.status==='En revisión');
@@ -29,7 +29,7 @@ function coachTodayCards(){
   const attn=coachAttention(members);
   const attnCard=attn.length?`<section class="card attn-card"><small class="eyebrow">Necesitan tu atención</small><h2>${attn.length} ${attn.length===1?'jugador':'jugadores'}</h2><ul class="attn-list">${attn.map(a=>`<li><button type="button" class="attn-row" data-attn="${esc(a.m.id)}"><span class="attn-who">${avatar(a.m)}<span><b>${esc(a.m.name)}</b><small>${a.reasons.map(esc).join(' · ')}</small></span></span><span class="attn-go" aria-hidden="true">→</span></button></li>`).join('')}</ul></section>`:'';
   const ownerCta=(typeof OWN!=='undefined'&&OWN.owner)?`<section class="card own-cta"><div><small class="eyebrow">Dueño</small><h2>Resumen de toda la academia</h2><p class="hint">Cobranza, asistencia, jugadores en riesgo y uso de la app por coach.</p></div><button class="btn lime" id="home-owner">Abrir vista del dueño</button></section>`:'';
-  return `${ownerCta}<div class="today-grid">${notes}${money}</div>${attnCard}`;
+  return `${typeof testToolsCard==='function'?testToolsCard():''}${ownerCta}<div class="today-grid">${notes}${money}</div>${attnCard}`;
 }
 function bindCoachPanel(){
   if(role!=='Coach')return;
