@@ -32,6 +32,7 @@ function tutorCoachCard(member){
     ${note?`<div class="says-by">${coach?avatar(coach):''}<b>${esc(by)}</b></div>
     ${note.good?`<p class="fam-line is-good"><span>✓</span><span><b>Lo que mejoró</b><br>${esc(tutorClean(note.good))}</span></p>`:''}
     ${note.focus?`<p class="fam-line is-next"><span>➜</span><span><b>Siguiente ajuste</b><br>${esc(tutorClean(note.focus))}</span></p>`:''}`:'<p class="hint">Cuando tu coach escriba una nota, la verás aquí.</p>'}
+    ${note?`<button type="button" class="btn light" data-progress-card="${esc(member.id)}">Compartir avance de ${esc(childFirst)}</button>`:''}
     ${wa}</section>`;
 }
 function tutorPrivacyLine(member){

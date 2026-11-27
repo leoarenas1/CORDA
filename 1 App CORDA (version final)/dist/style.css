@@ -1712,3 +1712,10 @@ a.welcome-footer__item:hover,button.welcome-footer__item:hover{color:var(--ink);
 .own-team small{grid-column:1/-1;color:var(--ink-muted);font-size:13px}
 .own-team span{font-weight:600}
 @media (max-width:680px){.own-kpis{grid-template-columns:1fr}}
+
+/* Tarjeta de avance (imagen para compartir) */
+.pc-wrap{display:flex;justify-content:center}
+.pc-canvas{width:min(100%,360px);height:auto;border-radius:var(--radius-md,16px);box-shadow:0 8px 28px rgba(15,59,44,.25)}
+.pc-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);justify-content:center}
+.pc-actions .btn{display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}
+.coach-says>[data-progress-card]{margin-top:var(--space-3);display:inline-flex;align-items:center;justify-content:center;text-align:center;min-height:48px}

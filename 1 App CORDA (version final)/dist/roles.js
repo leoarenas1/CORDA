@@ -221,7 +221,7 @@ function athleteDetail(record,name){
   const mem=(state.directory||[]).find(m=>m.id===record.profile.memberId),photo=(mem&&mem.photo)||record.profile.photo||'';
   const backdrop=photo?'<div class="academy-backdrop athlete-backdrop" aria-hidden="true"><img class="club-background" src="'+esc(photo)+'" alt=""></div>':'';
   return backdrop+heading(esc(name),'Seguimiento individual · '+esc(record.profile.academy))+wellnessPanel(record.profile.memberId,name,false)+
-    `${role==='Tutor'?familyProgress(record):`<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div></section>
+    `${role==='Tutor'?familyProgress(record):`<div class="flow-week"><section class="card coach-month"><small class="eyebrow">Última observación</small><div class="monthly-gain"><b>✓ Lo que mejoró</b><p>${esc(note.good||'Pendiente de evaluación.')}</p></div><div><b>Siguiente ajuste</b><p>${esc(note.focus||'Pendiente de evaluación.')}</p></div>${role==='Coach'&&record.profile.memberId?`<button type="button" class="btn small lime" data-progress-card="${esc(record.profile.memberId)}">Tarjeta de avance</button>`:''}</section>
     <section class="card"><small class="eyebrow">Punto de partida</small><h2>Objetivo del jugador</h2><p>${esc(record.profile.goal||'Aún sin definir.')}</p><h3>Fortalezas iniciales</h3><p>${esc(record.profile.baseline?.strengths||'Pendiente de evaluación.')}</p><h3>Primer aspecto a mejorar</h3><p>${esc(record.profile.baseline?.priority||'Pendiente de evaluación.')}</p>
     ${record.goals.map(g=>`<div class="goal"><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p><small>${esc(g.progress)} %</small><div class="progress"><i style="width:${Number(g.progress)||0}%"></i></div>${role==='Coach'?`<button class="link" data-student-goal="${g.id}">Actualizar avance</button>`:''}</div>`).join('')}${role==='Coach'?'<button class="link" id="student-goal-add">+ Objetivo</button><button class="link" data-page="student-fees">Revisar mensualidad ↗</button>':''}</section></div>`}
     <div class="trend-gap">${wellnessTrend(record.profile.memberId,false,name)}</div>
@@ -345,6 +345,7 @@ function bindRoleActions(){
   if(typeof bindOnboarding==='function')bindOnboarding();
   if(typeof bindOwner==='function')bindOwner();
   if(typeof bindWeekCopy==='function')bindWeekCopy();
+  if(typeof bindProgressCard==='function')bindProgressCard();
   bindStudentTrend();
   if($('#account-setup'))$('#account-setup').onclick=()=>adultSetup(actor());
   document.querySelectorAll('[data-athlete]').forEach(b=>b.onclick=()=>{rosterDetail=b.dataset.athlete;page='goals';render();window.scrollTo(0,0)});
