@@ -15,7 +15,7 @@ function weekCopyOpen(){
   const from=weekOf(agendaDate),label=d=>dateLabel(d,{day:'numeric',month:'long'});
   const count=weekCopyPlan(from,from).src.length;
   if(!count){toast('Esta semana aún no tiene sesiones para duplicar.');return}
-  const opts=[1,2,3,4].map(n=>{const d=dateAfter(from,7*n);return `<option value="${d}">Semana del ${esc(label(d))}${n===1?' (la próxima)':''}</option>`}).join('');
+  const opts=[1,2,3,4].map(n=>{const d=dateAfter(from,7*n);return `<option value="${d}">${n===1?'Próxima · ':''}Semana del ${esc(dateLabel(d,{day:'numeric',month:'short'}))}</option>`}).join('');
   modal('Duplicar semana',`<p class="full hint">Se copian las <b>${count}</b> sesiones de la semana del <b>${esc(label(from))}</b> con el mismo día, hora, cancha y plan. Las canceladas no se copian, y las que ya existan no se repiten. Después puedes editar cada sesión.</p>
     <label class="full">Copiar a<select name="to" id="wc-to">${opts}</select></label>
     <p class="full onb-preview" id="wc-prev" aria-live="polite"></p>`,
